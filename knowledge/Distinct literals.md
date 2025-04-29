@@ -1,0 +1,1 @@
+two [[Literal|Literals]] $l$ and $l'$ are distinct if $l \neq l'$ 

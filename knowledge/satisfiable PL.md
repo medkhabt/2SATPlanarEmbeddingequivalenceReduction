@@ -1,0 +1,1 @@
+$F$ is [[satisfiable PL|satisfiable]] iff there exists an interpretation $I$ such that ([[Inductive definition of PL semantics|inductive]]) $I\models F$ 

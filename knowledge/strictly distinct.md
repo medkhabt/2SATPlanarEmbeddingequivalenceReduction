@@ -1,0 +1,1 @@
+two [[Literal|literals]] $l$ and $l'$ are strictly distinct if if $|l| \neq |l'|$

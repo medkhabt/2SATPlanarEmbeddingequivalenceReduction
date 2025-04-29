@@ -1,0 +1,1 @@
+two formulas are [[equisatisfiable]] if the first formula is [[satisfiable PL|satisfiable]] whenever the second formula is [[satisfiable PL|satisfiable]] and vice versa 
