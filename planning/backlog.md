@@ -8,7 +8,7 @@
 are proven wrong ). 
 
 ## Week 28/04/25 
-- [ ] Read the level planarity-transitivity vs even crossing 
+- [X] Read the level planarity-transitivity vs even crossing (got a first understanding of the paper) 
 - [ ] Hanani–Tutte, Monotone Drawings, and Level-Planarity
 
 
@@ -29,14 +29,26 @@ are proven wrong ).
           : (57)15:27 -> 16:30: understood a part of the third lemma of Rutter paper. 
           : 16:30 -> 17:00: pause 
           : (30)17:00 -> 17:30: understood to a degree the first part (first implication direction) of the lemma 3 of the Rutter paper 
-30-04-2025: 
-        : 9:11 -> 10:32 : I finished reading the lemma 4, not understanding it fully tho. 
+30-04-2025 (total): 3:20 
+        : 9:11 -> 10:32(01:21) : I finished reading the lemma 4, not understanding it fully tho. 
         : 10:33 -> 10:47: pause
-        : 10:47 -> 11:23 : I've been looking into lemma 3 to find the connection between it 
-and lemma 4, still trying to grasp the concept better, i am stuck in the mapping from a 
-truth assignement from S(G) to S(G^+), i have struggles comprehending how to go from a 
-G^+ graph to G^*.
-
+        : 10:47 -> 11:23(:26) : I've been looking into lemma 3 to find the connection between it 
+                        and lemma 4, still trying to grasp the concept better, i am stuck in the mapping from a 
+                        truth assignement from S(G) to S(G^+), i have struggles comprehending how to go from a 
+                        G^+ graph to G^*.
+        : 15:10 -> 16:06(:54): I have a better grasp of the lemma 3 part that is also used in lemma 4 but it just got me 
+                        having more questions  
+        :16:18 -> 16:57(:39): I understood finally the lemma 4, which conclude my first understanding of the paper of Mr Rutter.
+01-05-2025 : offday
+02-05-2025: 
+        : 9:13 -> 9:50 : read the introduction, first theorem and the lemma 1 from the paper about strong HT embedding. 
+        : 9:50 -> 10:00 : pause
+        : 10:00 -> 10:50: working on the proof of lemma 1 
+        : 10:50 -> 11:06 : toilet pause
+        : 11:06 -> 11:30 : continue working on the proof of lemma 1
+        : 13:00 -> 14:00 : finished reading and i think i undesrtand the lemma 1 proof 
+        : 14:00 -> 14:41: pause with camillo ( to rewe) took something to eat for later.
+        : 14:41 -> :
 # Backlog
 
 # links 
