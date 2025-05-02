@@ -13,6 +13,8 @@ are proven wrong ).
 
 
 ## Logs  
+total : 12:36
+total week 1: 12:36 
 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
           : 9:00 -> 9:36: understanding the lemma 2 of the level planarity-transitivity
                             vs even crossing paper 
@@ -40,15 +42,18 @@ are proven wrong ).
                         having more questions  
         :16:18 -> 16:57(:39): I understood finally the lemma 4, which conclude my first understanding of the paper of Mr Rutter.
 01-05-2025 : offday
-02-05-2025: 
-        : 9:13 -> 9:50 : read the introduction, first theorem and the lemma 1 from the paper about strong HT embedding. 
+02-05-2025: (Total : 4:25) 
+        : 9:13 -> 9:50 (:37) : read the introduction, first theorem and the lemma 1 from the paper about strong HT embedding. 
         : 9:50 -> 10:00 : pause
-        : 10:00 -> 10:50: working on the proof of lemma 1 
+        : 10:00 -> 10:50 (:50): working on the proof of lemma 1 
         : 10:50 -> 11:06 : toilet pause
-        : 11:06 -> 11:30 : continue working on the proof of lemma 1
-        : 13:00 -> 14:00 : finished reading and i think i undesrtand the lemma 1 proof 
+        : 11:06 -> 11:30 (:24) : continue working on the proof of lemma 1
+        : 11:30 -> 13:00 : pause mensa
+        : 13:00 -> 14:00 (1:00): finished reading and i think i undesrtand the lemma 1 proof 
         : 14:00 -> 14:41: pause with camillo ( to rewe) took something to eat for later.
-        : 14:41 -> :
+        : 14:41 -> 15:51 (1:00): trying to understand the reason behind the lemma 1, and grasp the purpose of the 2 section of the paper
+        : 15:51 -> 16:29: pause (installing steam and chilling, I got fried a bit ) 
+        : 16:29 -> 17:03 (:34): reading  the lemma 2, i understood a bit but i am fried, can't concentrate. 
 # Backlog
 
 # links 
