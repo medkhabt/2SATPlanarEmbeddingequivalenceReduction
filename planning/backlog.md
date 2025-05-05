@@ -15,6 +15,8 @@ are proven wrong ).
 ## Logs  
 total : 12:36
 total week 1: 12:36 
+
+### Woche 29-04-2025
 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
           : 9:00 -> 9:36: understanding the lemma 2 of the level planarity-transitivity
                             vs even crossing paper 
@@ -54,6 +56,16 @@ total week 1: 12:36
         : 14:41 -> 15:51 (1:00): trying to understand the reason behind the lemma 1, and grasp the purpose of the 2 section of the paper
         : 15:51 -> 16:29: pause (installing steam and chilling, I got fried a bit ) 
         : 16:29 -> 17:03 (:34): reading  the lemma 2, i understood a bit but i am fried, can't concentrate. 
+
+### Woche 05-05-2025
+05-05-2025: 
+        (morning 8:30 -> 12:45 (Mensa included)): worked on ppp project 0.
+        : 13:00 -> 14:50: first understanding of lemma 2 of the paper HT and monotone drawing. Pretty happy. 
+        : 14:50 -> 15:15  : pause 
+        : 15:16 ->  15:29 : readning about the strong ht
+        : 15:29 -> 15:59: pause (camillo came to me, we talked for a bit) 
+        : 15:59 -> 17:38: finished with lemma 2, and understood the proof of lemma 3 for i and ii.
+
 # Backlog
 
 # links 
