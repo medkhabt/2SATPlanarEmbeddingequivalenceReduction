@@ -9,11 +9,13 @@ are proven wrong ).
 
 ## Week 28/04/25 
 - [X] Read the level planarity-transitivity vs even crossing (got a first understanding of the paper) 
-- [ ] Hanani–Tutte, Monotone Drawings, and Level-Planarity
-
+- [X] Reading Hanani–Tutte, Monotone Drawings, and Level-Planarity
+## Week 05/05/25
+- [X] continue reading Hanani-Tutte and montone drawings paper.
+- [ ] find some pattern, logic that can be used in an algorithm. 
 
 ## Logs  
-total : 12:36
+total : 21:01 
 total week 1: 12:36 
 
 ### Woche 29-04-2025
@@ -58,13 +60,33 @@ total week 1: 12:36
         : 16:29 -> 17:03 (:34): reading  the lemma 2, i understood a bit but i am fried, can't concentrate. 
 
 ### Woche 05-05-2025
-05-05-2025: 
+total Woche : 8:25 
+05-05-2025: (Total : 3:42) 
         (morning 8:30 -> 12:45 (Mensa included)): worked on ppp project 0.
-        : 13:00 -> 14:50: first understanding of lemma 2 of the paper HT and monotone drawing. Pretty happy. 
+        : 13:00 -> 14:50 (1:50): first understanding of lemma 2 of the paper HT and monotone drawing. Pretty happy. 
         : 14:50 -> 15:15  : pause 
-        : 15:16 ->  15:29 : readning about the strong ht
+        : 15:16 ->  15:29 (:13) : readning about the strong ht
         : 15:29 -> 15:59: pause (camillo came to me, we talked for a bit) 
-        : 15:59 -> 17:38: finished with lemma 2, and understood the proof of lemma 3 for i and ii.
+        : 15:59 -> 17:38(1:39): finished with lemma 2, and understood the proof of lemma 3 for i and ii.
+06-05-2025: (Total: 4:43 (morning: 1:48) (afternoon 2:55) )
+        : 9:03 ->  10:09 (1:03): finished the first part of the lemma 3 iii and i just need to understand the second part whihc is the induced G'. 
+        : 10:10 ->  10:25 : pause. ( took a coffe from mensa , went to the bathroom and got back ) 
+        : 10:25 -> 10:55 (:30): finished the lemma 3 iii therefore i finished reading and having a first understanding of lemma 3, reading the proof of theorem2 with the induction part
+        : 10:55 -> 11:01: respond to a examination office email about the 72 ects (if they are required or if it is the norm.)
+        : 11:01 -> 11:16 (:15: still reading the induction phase but i am cooked energy wise.
+        : 11:16 -> 12:56 : Mensa lunch pause with my girl and some friends
+        : 12:57 -> 14:21 (1:24) : Understood the part that uses the minimal counterexmaple in the proof of the theorem 2.
+        : 14:22 -> 14:34 : pause
+        : 14:34 -> 15:18 (:44) : understand to some point the new concepts introduced for the prove of the theorem 2, read the lemma 4 but clueless for now. I think it's better to go to the proof of the theorem 2 first.
+        : 15:18 -> 16:07 : pause 
+        : 16:07 -> 16:46 (:39): reading the proof for theorem 2, arrived to the case 1.  
+        : 16:46 -> 17:04 : pause, writing questions for a presentation about the essential of a career in Germany 
+        : 17:04 -> 17:12 (:08) : i have no gas left, read the continuation of the theorem but i can't think. 
+
+07-05-2025: (Total: (morning: 2:06)) 
+        : 9:23 -> 10:19 (1:26) : read again the theorem 2 and lemma 3 , finish understanding the first case 1 of the theorem 2 
+        : 10:19 -> 10:40 : pause  
+        : 10:40 -> 11:20 (:40) : read the lemma 5 again, and read the (not) case 1, i still need some time to understand it
 
 # Backlog
 
