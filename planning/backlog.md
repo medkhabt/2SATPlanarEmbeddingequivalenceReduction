@@ -60,7 +60,7 @@ total week 1: 12:36
         : 16:29 -> 17:03 (:34): reading  the lemma 2, i understood a bit but i am fried, can't concentrate. 
 
 ### Woche 05-05-2025
-total Woche : 8:25 
+total Woche : 12:17 
 05-05-2025: (Total : 3:42) 
         (morning 8:30 -> 12:45 (Mensa included)): worked on ppp project 0.
         : 13:00 -> 14:50 (1:50): first understanding of lemma 2 of the paper HT and monotone drawing. Pretty happy. 
@@ -83,11 +83,32 @@ total Woche : 8:25
         : 16:46 -> 17:04 : pause, writing questions for a presentation about the essential of a career in Germany 
         : 17:04 -> 17:12 (:08) : i have no gas left, read the continuation of the theorem but i can't think. 
 
-07-05-2025: (Total: (morning: 2:06)) 
+07-05-2025: (Total: 3:08) 
         : 9:23 -> 10:19 (1:26) : read again the theorem 2 and lemma 3 , finish understanding the first case 1 of the theorem 2 
         : 10:19 -> 10:40 : pause  
         : 10:40 -> 11:20 (:40) : read the lemma 5 again, and read the (not) case 1, i still need some time to understand it
-
+        : 11:20 -> 12:00 : pause in mensa with my girl and Kristopher. 
+        : 12:00 -> 12:32 (:32): understanding the second part of the first case 1 (how to transform it to the first case 1).  
+        : 12:32 -> 12:40: pause with Camillo 
+        : 12:40 -> 13:00( :20) : I found out that i have missunderstood the second part of the first case (or maybe it is the continuation for the other cases and not really
+                            related strongly to the first part) 
+        : 15:20 -> :i  worked for 10 min or so.
+08-05-2025 : (total 4:44)
+        : 9:40 -> 10:10 (:30): worked for a bit on the first case,  i need a coffee.
+        : 10:10 -> 10:20: got myself a coffee.
+        : 10:20 -> 11:20 (1:00) : understanding more the new framework before lemma 4 and 5
+        : 11:20 -> 11:53 : sending email to prof of online algo, that i will drop out.  
+        : 11:53 -> 12:20 (:27): trying to understand how self-intersection will help me with the lemma 4 and 5. 
+        : 12:20 -> 12:54: was in mensa, ate somehting 
+        : 12:55 -> 14:02 (1:07): re understanding case 1 of proof of theorem 2
+        : 14:02 -> 14:36: pause with camillo 
+        : 14:36 -> 15:30 (:54): understanding lemma 4. (didn't happen yet), i don't understand how the paths $P_i$ implies that there is not neighbor of G_i' in the left of v_0.  
+        : 15:30 -> 15:46 (:16) : sent a message in the group asking about lemma 4 and my example. 
+        : 15:46 -> 16:00 : break
+        : 16:00 -> 16:30 (:30): not active work, i think i am done for the day.
+         
+        
+    
 # Backlog
 
 # links 
