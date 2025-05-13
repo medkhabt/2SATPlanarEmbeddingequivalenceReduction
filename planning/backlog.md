@@ -12,14 +12,19 @@ are proven wrong ).
 - [X] Reading Hanani–Tutte, Monotone Drawings, and Level-Planarity
 ## Week 05/05/25
 - [X] continue reading Hanani-Tutte and montone drawings paper.
-- [ ] find some pattern, logic that can be used in an algorithm. 
-
+- [X] find some pattern, logic that can be used in an algorithm. 
+## Week 12/05/25
+- [ ] Read the more detailed version of  Level planarity-transtivity vs even crossing paper 
+- [ ] Read the more detailed version of Hanani-Tutte and monotone drawing papers  
+- [ ] Formulate an Algorithm from 2-SAT to level planar graph.
 ## Logs  
-total : 21:01 
+total : 34:39 
 total week 1: 12:36 
+total week 2: 22:03 
 
 ### Woche 29-04-2025
-29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
+- 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
+``` 
           : 9:00 -> 9:36: understanding the lemma 2 of the level planarity-transitivity
                             vs even crossing paper 
           : 9:37 -> 9:55 : pause  
@@ -35,7 +40,9 @@ total week 1: 12:36
           : (57)15:27 -> 16:30: understood a part of the third lemma of Rutter paper. 
           : 16:30 -> 17:00: pause 
           : (30)17:00 -> 17:30: understood to a degree the first part (first implication direction) of the lemma 3 of the Rutter paper 
-30-04-2025 (total): 3:20 
+```
+- 30-04-2025 (total): 3:20 
+```
         : 9:11 -> 10:32(01:21) : I finished reading the lemma 4, not understanding it fully tho. 
         : 10:33 -> 10:47: pause
         : 10:47 -> 11:23(:26) : I've been looking into lemma 3 to find the connection between it 
@@ -45,8 +52,10 @@ total week 1: 12:36
         : 15:10 -> 16:06(:54): I have a better grasp of the lemma 3 part that is also used in lemma 4 but it just got me 
                         having more questions  
         :16:18 -> 16:57(:39): I understood finally the lemma 4, which conclude my first understanding of the paper of Mr Rutter.
-01-05-2025 : offday
-02-05-2025: (Total : 4:25) 
+```
+- 01-05-2025 : offday
+- 02-05-2025: (Total : 4:25) 
+```
         : 9:13 -> 9:50 (:37) : read the introduction, first theorem and the lemma 1 from the paper about strong HT embedding. 
         : 9:50 -> 10:00 : pause
         : 10:00 -> 10:50 (:50): working on the proof of lemma 1 
@@ -59,16 +68,18 @@ total week 1: 12:36
         : 15:51 -> 16:29: pause (installing steam and chilling, I got fried a bit ) 
         : 16:29 -> 17:03 (:34): reading  the lemma 2, i understood a bit but i am fried, can't concentrate. 
 
+```
 ### Woche 05-05-2025
-total Woche : 12:17 
-05-05-2025: (Total : 3:42) 
+total Woche : 22:03 
+- 05-05-2025: (Total : 3:42) 
+```
         (morning 8:30 -> 12:45 (Mensa included)): worked on ppp project 0.
         : 13:00 -> 14:50 (1:50): first understanding of lemma 2 of the paper HT and monotone drawing. Pretty happy. 
         : 14:50 -> 15:15  : pause 
         : 15:16 ->  15:29 (:13) : readning about the strong ht
         : 15:29 -> 15:59: pause (camillo came to me, we talked for a bit) 
         : 15:59 -> 17:38(1:39): finished with lemma 2, and understood the proof of lemma 3 for i and ii.
-06-05-2025: (Total: 4:43 (morning: 1:48) (afternoon 2:55) )
+- 06-05-2025: (Total: 4:43 (morning: 1:48) (afternoon 2:55) )
         : 9:03 ->  10:09 (1:03): finished the first part of the lemma 3 iii and i just need to understand the second part whihc is the induced G'. 
         : 10:10 ->  10:25 : pause. ( took a coffe from mensa , went to the bathroom and got back ) 
         : 10:25 -> 10:55 (:30): finished the lemma 3 iii therefore i finished reading and having a first understanding of lemma 3, reading the proof of theorem2 with the induction part
@@ -82,8 +93,9 @@ total Woche : 12:17
         : 16:07 -> 16:46 (:39): reading the proof for theorem 2, arrived to the case 1.  
         : 16:46 -> 17:04 : pause, writing questions for a presentation about the essential of a career in Germany 
         : 17:04 -> 17:12 (:08) : i have no gas left, read the continuation of the theorem but i can't think. 
-
-07-05-2025: (Total: 3:08) 
+```
+- 07-05-2025: (Total: 3:08) 
+```
         : 9:23 -> 10:19 (1:26) : read again the theorem 2 and lemma 3 , finish understanding the first case 1 of the theorem 2 
         : 10:19 -> 10:40 : pause  
         : 10:40 -> 11:20 (:40) : read the lemma 5 again, and read the (not) case 1, i still need some time to understand it
@@ -93,7 +105,9 @@ total Woche : 12:17
         : 12:40 -> 13:00( :20) : I found out that i have missunderstood the second part of the first case (or maybe it is the continuation for the other cases and not really
                             related strongly to the first part) 
         : 15:20 -> :i  worked for 10 min or so.
-08-05-2025 : (total 4:44)
+```
+- 08-05-2025 : (total 4:44)
+```
         : 9:40 -> 10:10 (:30): worked for a bit on the first case,  i need a coffee.
         : 10:10 -> 10:20: got myself a coffee.
         : 10:20 -> 11:20 (1:00) : understanding more the new framework before lemma 4 and 5
@@ -106,7 +120,24 @@ total Woche : 12:17
         : 15:30 -> 15:46 (:16) : sent a message in the group asking about lemma 4 and my example. 
         : 15:46 -> 16:00 : break
         : 16:00 -> 16:30 (:30): not active work, i think i am done for the day.
-         
+```
+- 09-05-2025: (total 5:46) 
+```
+        : 9:45 -> 11:15 (1:30) : start with the summary of my understanding and start working on an example and see if i can make it work.
+        : 11:15 -> 12:10 : MENSA pause with my babe and Kristoph. 
+        : 12:10 -> : 14:30 (2:20): reading what i need from the proof on lemma 3. 
+        : 14:30 -> 15:34 : pause with Flo
+        : 15:34 -> 17:30 (1:56): work on understanding the general idea of the proof of lemma 3 . 
+```
+
+### Woche 10/05/2025
+- 10-05-2025: 
+```
+        : 10:00 -> 10:50 : log the meeting info, vim plugins, download and cat pdf for the extended paper, reformate the backlog. 
+        : 10:50 -> 11:30 : First read of the extended paper.  
+        : 11:30 -> 12:55 : break + MENSA
+        : 12:55 -> 14:17 : working on theorem 2.1  
+```
         
     
 # Backlog
