@@ -130,16 +130,35 @@ total Woche : 22:03
         : 15:34 -> 17:30 (1:56): work on understanding the general idea of the proof of lemma 3 . 
 ```
 
-### Woche 10/05/2025
-- 10-05-2025: 
+### Woche 12/05/2025
+- 12-05-2025: (2:02) 
 ```
         : 10:00 -> 10:50 : log the meeting info, vim plugins, download and cat pdf for the extended paper, reformate the backlog. 
-        : 10:50 -> 11:30 : First read of the extended paper.  
+        : 10:50 -> 11:30 (:40): First read of the extended paper.  
         : 11:30 -> 12:55 : break + MENSA
-        : 12:55 -> 14:17 : working on theorem 2.1  
+        : 12:55 -> 14:17 (1:22): working on theorem 2.1  
 ```
+- 13-05-2025: (2:31) 
+```
+        : 9:15 -> 10:00 (:45) : working on the theorem 2.1 
+        : 10:00 -> 10:05 : break
+        : 10:05 -> 10:38 (:33) : drawing an example to understand the proof, i think each case can lead to an other case. (whenever we add a vertex and its associated edges).  
+        : 10:38 -> 11:00 : break 
+        : 11:00 -> 11:45 (:45): understand the case where there is no edge between $x_1$ and $x_2$
+        : 11:45 -> 13:00 : Mensa with babe and Kristoph
+        : 13:00 -> 13:28 (:28): read the part of having multiple components in $G - {x_1}$, still needs some reading, but I got tired of the proof right now.  
+        : 13:31 -> 13:50 : break 
         
-    
+```        
+- 14-05-2025: (3 hours) 
+```
+        : 10:30 -> 11:30(1h) : work on the proof of the theorme 2.1 (the part of having multipe components). 
+        : 11:30 -> 12:25 : Flo was in pc pool, and i just discussed with him about his project and how to use a debugger.
+        : 12:25 -> 14:18: Eat lunch with my babe
+        : 14:18 -> 15:15 (:57): Work on the induction phase of the distinct connected comps part of the proof of the theorem 2.1 (stuck on the outside face case)
+        : 15:15 -> 16:13: break with camillo ( meet also flo and maud and talked to them quickly, maud have 1 to 2 months before finishing writing her thesis )   
+        : 16:14 -> 17:17 (1:03): still struggling with theorem 2.1 but i think it's the base for my algorithm, so i need to understand this multiple component part. 
+```    
 # Backlog
 
 # links 
