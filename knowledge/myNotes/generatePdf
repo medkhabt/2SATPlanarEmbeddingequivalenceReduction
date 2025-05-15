@@ -1,0 +1,2 @@
+# /bin/bash
+file=$1 ; xournalpp -p pdf/${file%.*}.pdf $file 

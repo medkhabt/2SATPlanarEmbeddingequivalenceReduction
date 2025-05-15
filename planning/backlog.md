@@ -159,6 +159,18 @@ total Woche : 22:03
         : 15:15 -> 16:13: break with camillo ( meet also flo and maud and talked to them quickly, maud have 1 to 2 months before finishing writing her thesis )   
         : 16:14 -> 17:17 (1:03): still struggling with theorem 2.1 but i think it's the base for my algorithm, so i need to understand this multiple component part. 
 ```    
+- 15-05-2025: (3:30) 
+```
+        : 09:24 -> 10:24 (1:00) : finally undrstood the proof of theorem 2.1 :) 
+        : 10:24 -> 10:39 : break
+        : 10:39 -> 11:24 (:45): Read about x-bound and almost x-bound , spent some time on almost x-bound but i think it's not relevant for my thesis or less relevant. started with lemma 3.4
+        : 11:25 -> 12:26 : Mensa
+        : 12:26 -> 13:11 (:45): work on the lemma 3.4 
+        : 13:11 -> 13:49 : break ( amazon for rasberry + toilette break) 
+        : 13:49 -> 14:49 (1:00): finished my first understanding of lemma 3.4
+        : 14:49 -> 15:22:break
+        (what's left is for my project 1 of practical parallel programming course)
+```
 # Backlog
 
 # links 
