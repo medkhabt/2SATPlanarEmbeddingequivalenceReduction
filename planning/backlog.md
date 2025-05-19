@@ -18,9 +18,10 @@ are proven wrong ).
 - [ ] Read the more detailed version of Hanani-Tutte and monotone drawing papers  
 - [ ] Formulate an Algorithm from 2-SAT to level planar graph.
 ## Logs  
-total : 34:39 
+total : 45:42 
 total week 1: 12:36 
 total week 2: 22:03 
+total week 3: 11:03
 
 ### Woche 29-04-2025
 - 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
@@ -131,6 +132,7 @@ total Woche : 22:03
 ```
 
 ### Woche 12/05/2025
+total Woche (11:03)
 - 12-05-2025: (2:02) 
 ```
         : 10:00 -> 10:50 : log the meeting info, vim plugins, download and cat pdf for the extended paper, reformate the backlog. 
@@ -170,6 +172,16 @@ total Woche : 22:03
         : 13:49 -> 14:49 (1:00): finished my first understanding of lemma 3.4
         : 14:49 -> 15:22:break
         (what's left is for my project 1 of practical parallel programming course)
+```
+- 16-05-2025 
+```
+no work ( worked on practical parallel programming project 1).
+```
+
+### Woche 19/05/2025
+-19-05-2025: 
+```
+no work (finsihed the project 1 of practical parallel programming)
 ```
 # Backlog
 
