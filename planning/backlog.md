@@ -169,7 +169,7 @@ total Woche (11:03)
         : 11:25 -> 12:26 : Mensa
         : 12:26 -> 13:11 (:45): work on the lemma 3.4 
         : 13:11 -> 13:49 : break ( amazon for rasberry + toilette break) 
-        : 13:49 -> 14:49 (1:00): finished my first understanding of lemma 3.4
+        : 13:49 -> 1e:49 (1:00): finished my first understanding of lemma 3.4
         : 14:49 -> 15:22:break
         (what's left is for my project 1 of practical parallel programming course)
 ```
@@ -178,10 +178,20 @@ total Woche (11:03)
 no work ( worked on practical parallel programming project 1).
 ```
 
+
 ### Woche 19/05/2025
--19-05-2025: 
+- 19-05-2025: 
 ```
 no work (finsihed the project 1 of practical parallel programming)
+```
+- 20-05-2025: (4:28) 
+```
+morning for (class practical parallel programming)
+        : 13:24 ->  15:15 (1:51) : work on lemma 3.5 and on theorem 3.1 (only left with last sentence of the proof) 
+        : 15:15 -> 16:05: break 
+        : 16:05 -> 17:05 (1:00): finish reading the extended version of hannani-tute and monotone drawing, read the extended version of even vs planarity (intro + lemma 1 and lemma 2). 
+        : 17:05 -> 17:25 :  break;
+        : 17:25 -> 18:02 (:37) : read lemma 3 and still working on lemma 4. 
 ```
 # Backlog
 
