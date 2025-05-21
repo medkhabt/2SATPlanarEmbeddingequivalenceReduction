@@ -184,7 +184,7 @@ no work ( worked on practical parallel programming project 1).
 ```
 no work (finsihed the project 1 of practical parallel programming)
 ```
-- 20-05-2025: (4:28) 
+- 20-05-2025: (3:28) 
 ```
 morning for (class practical parallel programming)
         : 13:24 ->  15:15 (1:51) : work on lemma 3.5 and on theorem 3.1 (only left with last sentence of the proof) 
@@ -192,6 +192,14 @@ morning for (class practical parallel programming)
         : 16:05 -> 17:05 (1:00): finish reading the extended version of hannani-tute and monotone drawing, read the extended version of even vs planarity (intro + lemma 1 and lemma 2). 
         : 17:05 -> 17:25 :  break;
         : 17:25 -> 18:02 (:37) : read lemma 3 and still working on lemma 4. 
+```
+- 21-05:2025 : (total 4:41) 
+```
+    09:37 -> 10:55 (1:18) : still working on lemma 4, i need one last case for proving the planarity of phi + in the first direction of the impl. and then i need to read the second imple.
+    10:55 -> 12:02 : break
+    12:02 -> 13:00 (:58): finish reading the extended version of paper transitivity vs even crossing, and started to map how can we get from a S(G) to a level planar drawing . 
+    13:00 -> 13:25 : break, outisde near fim on a sunny day with camillo
+    13:24 -> 15:49 (2:25):  add a summary of the steps from the even transitivity paper, and work on how to draw a x-monotone drawing from a weak-hanani tute drawing
 ```
 # Backlog
 
