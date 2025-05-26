@@ -13,15 +13,19 @@ are proven wrong ).
 ## Week 05/05/25
 - [X] continue reading Hanani-Tutte and montone drawings paper.
 - [X] find some pattern, logic that can be used in an algorithm. 
-## Week 12/05/25
-- [ ] Read the more detailed version of  Level planarity-transtivity vs even crossing paper 
-- [ ] Read the more detailed version of Hanani-Tutte and monotone drawing papers  
-- [ ] Formulate an Algorithm from 2-SAT to level planar graph.
+## Week 12/05/25 + Week 18/05/25
+- [X] Read the more detailed version of  Level planarity-transtivity vs even crossing paper 
+- [X] Read the more detailed version of Hanani-Tutte and monotone drawing papers  
+- [X] Formulate an Algorithm from 2-SAT to level planar graph. (more like construct a planar graph from a 2sat formula)
+## Week 26/05/25 
+- [ ] Understand better the lemma  
+- [ ] Draw a planar graph example where we can have the case that leads to the lemma 2.3 
 ## Logs  
-total : 45:42 
+total : 55:51
 total week 1: 12:36 
 total week 2: 22:03 
 total week 3: 11:03
+total week 4: 10:09
 
 ### Woche 29-04-2025
 - 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
@@ -180,6 +184,7 @@ no work ( worked on practical parallel programming project 1).
 
 
 ### Woche 19/05/2025
+total (10:09)
 - 19-05-2025: 
 ```
 no work (finsihed the project 1 of practical parallel programming)
@@ -200,6 +205,17 @@ morning for (class practical parallel programming)
     12:02 -> 13:00 (:58): finish reading the extended version of paper transitivity vs even crossing, and started to map how can we get from a S(G) to a level planar drawing . 
     13:00 -> 13:25 : break, outisde near fim on a sunny day with camillo
     13:24 -> 15:49 (2:25):  add a summary of the steps from the even transitivity paper, and work on how to draw a x-monotone drawing from a weak-hanani tute drawing
+```
+- also weekend : (total at least 2hours)
+
+### Woche 26/05/2025
+```
+    08:15 -> 8:55 : preparing for the meeting ( thinking about lemma 2.3 ) 
+    09:00 -> 09:38 : meeting with Matthias
+    09:38 -> 10:20 : break; 
+    10:20 -> 13:55 : understand lemma 2.3 and read and create an example that will use the case with G-{x} have separate connected components (still working on the creation of the example) 
+    14:00 -> 15:34 : break (MENSA with my lady + caffe with her and after that with Kristoph + speaking shortly with Flo and Maud on my way out ) 
+    15:34 -> : 21:00 : work on example to show the case of G-x multiple connected comps. and at the same time problem with transitivity (i didn't consider that the issue should be in relation to the planar relation)
 ```
 # Backlog
 
