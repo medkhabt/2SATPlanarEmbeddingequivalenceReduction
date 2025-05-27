@@ -18,8 +18,9 @@ are proven wrong ).
 - [X] Read the more detailed version of Hanani-Tutte and monotone drawing papers  
 - [X] Formulate an Algorithm from 2-SAT to level planar graph. (more like construct a planar graph from a 2sat formula)
 ## Week 26/05/25 
-- [ ] Understand better the lemma  
+- [x] Understand better the lemma 2.3 
 - [ ] Draw a planar graph example where we can have the case that leads to the lemma 2.3 
+- [ ] Work with the example provided for lemma 2.3
 ## Logs  
 total : 55:51
 total week 1: 12:36 
@@ -209,13 +210,30 @@ morning for (class practical parallel programming)
 - also weekend : (total at least 2hours)
 
 ### Woche 26/05/2025
+- tasks: 
+    - [X] Draw the graph in the counterexample (it actually was close to the case of use of lemma 2.3) 
+    - [X] Work with the example provided for lemma 2.3
+    - [ ] Draw a planar graph example where we can have the case that leads to the lemma 2.3 
+    - [ ] Deduce the relation with the 2-sat 
+
+- 26-05-2025: (9:19) 
 ```
-    08:15 -> 8:55 : preparing for the meeting ( thinking about lemma 2.3 ) 
-    09:00 -> 09:38 : meeting with Matthias
+    08:15 -> 8:55 (40) : preparing for the meeting ( thinking about lemma 2.3 ) 
+    09:00 -> 09:38 (38) : meeting with Matthias
     09:38 -> 10:20 : break; 
-    10:20 -> 13:55 : understand lemma 2.3 and read and create an example that will use the case with G-{x} have separate connected components (still working on the creation of the example) 
+    10:20 -> 13:55 (3:35): understand lemma 2.3 and read and create an example that will use the case with G-{x} have separate connected components (still working on the creation of the example) 
     14:00 -> 15:34 : break (MENSA with my lady + caffe with her and after that with Kristoph + speaking shortly with Flo and Maud on my way out ) 
-    15:34 -> : 21:00 : work on example to show the case of G-x multiple connected comps. and at the same time problem with transitivity (i didn't consider that the issue should be in relation to the planar relation)
+    15:34 -> : 21:00 (5:26) : work on example to show the case of G-x multiple connected comps. and at the same time problem with transitivity (i didn't consider that the issue should be in relation to the planar relation)
+    1hours break somewhere: (1h)
+```
+- 27-05-2025 (3:43)
+```
+    08:00 -> 11:00 (parallel programming course)
+    11:18 -> 12:30 (1:12) : start working on the example again 
+    12:30 -> 14:50 : break ( mensa with my sweetheart, Kristoph and also spoke with her for some time about her late night call with her parents) . 
+    14:50 -> 16:24 (1:34) : work on the example from the paper and it actually gives a right result. Now I need to know how to link the change to the initial 2-sat satisfying assignement. 
+    16:24 -> 16:40 : break
+    16:40 -> 17:37 (:57): I made it work, or at least i knew why the lemma 2.3 exists and what it does fix, also i looked into the example on the paper of it, i got the same example in my example.
 ```
 # Backlog
 
