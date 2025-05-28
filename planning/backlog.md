@@ -235,6 +235,17 @@ morning for (class practical parallel programming)
     16:24 -> 16:40 : break
     16:40 -> 17:37 (:57): I made it work, or at least i knew why the lemma 2.3 exists and what it does fix, also i looked into the example on the paper of it, i got the same example in my example.
 ```
+- 28-05-2025 
+```
+    10:48 -> 12:00 : add an edge to make a cycle in my example, and trying to understand the relation between the 2-sat and the drawing vertex edge order. 
+    12:00 -> 12:12 : chat with Monicka
+    12:12 -> 13:20 : I think I found the relation between 2sat and the case that requires redrawing with lemma 2.3
+    13:20 -> 15:11 : break (me checking github repos + go for mensa at 14:00 + have a coffe with my sweetheart)
+    15:11 -> 17:00 : I am trying to elaborate more on the relationship between the two problems
+    17:00 -> 17:10 : shit break
+    17:10 -> 17:20 : last thoughts before going with my sweetheart to do groceries for the camping 
+
+```
 # Backlog
 
 # links 
