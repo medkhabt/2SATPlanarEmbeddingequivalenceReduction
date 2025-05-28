@@ -210,6 +210,7 @@ morning for (class practical parallel programming)
 - also weekend : (total at least 2hours)
 
 ### Woche 26/05/2025
+13 : 02
 - tasks: 
     - [X] Draw the graph in the counterexample (it actually was close to the case of use of lemma 2.3) 
     - [X] Work with the example provided for lemma 2.3
@@ -244,6 +245,8 @@ morning for (class practical parallel programming)
     15:11 -> 17:00 : I am trying to elaborate more on the relationship between the two problems
     17:00 -> 17:10 : shit break
     17:10 -> 17:20 : last thoughts before going with my sweetheart to do groceries for the camping 
+    17:20 -> 18:28 : break (groceries) 
+    18:28 -> : going back to the counterexample, trying to find why it provokes the case of the hanani-tutte drawing.
 
 ```
 # Backlog
