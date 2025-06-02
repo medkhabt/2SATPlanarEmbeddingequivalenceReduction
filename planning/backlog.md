@@ -22,11 +22,12 @@ are proven wrong ).
 - [ ] Draw a planar graph example where we can have the case that leads to the lemma 2.3 
 - [ ] Work with the example provided for lemma 2.3
 ## Logs  
-total : 55:51
+total : 68:53
 total week 1: 12:36 
 total week 2: 22:03 
 total week 3: 11:03
 total week 4: 10:09
+total week 5: 13:02
 
 ### Woche 29-04-2025
 - 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
@@ -248,6 +249,26 @@ morning for (class practical parallel programming)
     17:20 -> 18:28 : break (groceries) 
     18:28 -> : going back to the counterexample, trying to find why it provokes the case of the hanani-tutte drawing.
 
+```
+- 29-05-2025 
+```
+morning for a personal fun project and afternoon and evening for packing for the trip
+```
+- 30-05-2025 
+```
+in a trip with my sweetheart
+```
+### Woche 02/06/2025 
+- 02-06-2025 (5:06) 
+```
+    I had to go first to my place, also today i should start slow after not working for some time.  
+    10:42 -> 13:45 (3:03) : I found that there is also an other case where it might need some studying ( in the strong h-t drawing and odd crosses in a adjacent edges) 
+    13:45 -> 15:09 : MENSA + taking a break next to my desk.
+    15:09 -> 16:20 (1:11) : still working with my example and the minimal-counter example and the proof of 3.1 to get a x-monotone embd out of my example.
+    16:20 -> 16:50 : break (ate something and bathroom and needed to chill)
+    16:50 -> 17:20 (:30) : still trying to figure out how to draw out of the theorem 3.1 
+    17:20 -> 18:00 : break, i am tired. 
+    18:00 -> 18:22 (:22): last try to understand for today, also involving chatgpt for some ideas and mental motivation.
 ```
 # Backlog
 
