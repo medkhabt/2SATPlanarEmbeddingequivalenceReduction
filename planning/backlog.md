@@ -270,6 +270,12 @@ in a trip with my sweetheart
     17:20 -> 18:00 : break, i am tired. 
     18:00 -> 18:22 (:22): last try to understand for today, also involving chatgpt for some ideas and mental motivation.
 ```
+- 03-06-2025 (4:27) 
+```
+    13:15 -> 14:24 (1:09) : working on the lemma 3.3 and trying to figure out drawing steps from the counter-example constraints.
+    14:24 -> 14:57 : break (coffee with Ranjan and Camillo)
+    14:57 -> 18:15 (3:18) : tried extracting the drawing steps from theorem 3.1, changed the angle to link the cases of theorem 3.1 to lemma 2.3 and also made a case study and sent it to Matthias. 
+```
 # Backlog
 
 # links 
