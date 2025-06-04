@@ -276,6 +276,16 @@ in a trip with my sweetheart
     14:24 -> 14:57 : break (coffee with Ranjan and Camillo)
     14:57 -> 18:15 (3:18) : tried extracting the drawing steps from theorem 3.1, changed the angle to link the cases of theorem 3.1 to lemma 2.3 and also made a case study and sent it to Matthias. 
 ```
+- 04-06-2025
+```
+    09:30 -> 10:22 : work on the formulation the relation of lemma 2.3 with the 2-sat formulation.
+    10:22 -> 10:45 : break (read reddit) 
+    10:45 -> 11:27 : work on an algorithm to change the assignment of the equivalent classes based on what i found from the paper of the hanani-tutte drawing also respond to my supervisor response to what i sent him (concerning the relation between the hanani-tutte cases that gives a not equivalent embedding and the level graph order) 
+    11:27 -> 11:39 : break (toilette)
+    11:39 -> 12:43 : work on the greedy strategy.
+    12:43 -> 12:57 : break (eat with camillo)
+    12:57 -> 13:37 : I found a strategy that works on my example (picked for the lemma 2.3 case), I construct a level planar graph that describes the construction steps from the hanani-tutte paper (and the connected components at each stage)
+```
 # Backlog
 
 # links 
