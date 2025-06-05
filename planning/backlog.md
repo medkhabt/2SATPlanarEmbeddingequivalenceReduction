@@ -286,6 +286,14 @@ in a trip with my sweetheart
     12:43 -> 12:57 : break (eat with camillo)
     12:57 -> 13:37 : I found a strategy that works on my example (picked for the lemma 2.3 case), I construct a level planar graph that describes the construction steps from the hanani-tutte paper (and the connected components at each stage)
 ```
+- 05-06-2025
+```
+    8:54 -> 10:06 : (Working from my sweetheart's place) Work on more examples with the idea I had in mind.
+    10:06 -> 11:48 : changing + bus + Mensa (with my sweetheart and Kristoph)
+    11:48 -> 13:55: work on different examples to get ideas on making a greedy strategy. 
+    13:55 -> 14:32: break (talking with Ranjan and Camillo, camillo want to move to Aachen)
+    14:32 -> 15:56 : more example, but i think i am rushing due to time limit today, so instead of taking all the cases for the hanani-tutte paper, i am just trying to figure out a greedy strategy on the fly from example, for that reason I didn't like this session 
+```
 # Backlog
 
 # links 
