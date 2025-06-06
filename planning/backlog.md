@@ -294,6 +294,11 @@ in a trip with my sweetheart
     13:55 -> 14:32: break (talking with Ranjan and Camillo, camillo want to move to Aachen)
     14:32 -> 15:56 : more example, but i think i am rushing due to time limit today, so instead of taking all the cases for the hanani-tutte paper, i am just trying to figure out a greedy strategy on the fly from example, for that reason I didn't like this session 
 ```
+- 06-06-2025
+```
+    10:23 -> 14:00: worked from the cases, i am getting pretty close actually. 
+    14:00 -> 16:00: I had lunch with my sweetheart, and we had a coffee, but to be honest it was a rough one, i am exhausted emotianally and i can't really work any more on anything..
+```
 # Backlog
 
 # links 
