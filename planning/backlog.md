@@ -22,12 +22,13 @@ are proven wrong ).
 - [ ] Draw a planar graph example where we can have the case that leads to the lemma 2.3 
 - [ ] Work with the example provided for lemma 2.3
 ## Logs  
-total : 68:53
+total : 89:04
 total week 1: 12:36 
 total week 2: 22:03 
 total week 3: 11:03
 total week 4: 10:09
 total week 5: 13:02
+total week 6: 20:11
 
 ### Woche 29-04-2025
 - 29-04-2025: (total 2:20(morning) + 2:31(afternoon)) : 4:51
@@ -259,6 +260,7 @@ morning for a personal fun project and afternoon and evening for packing for the
 in a trip with my sweetheart
 ```
 ### Woche 02/06/2025 
+(20:11) 
 - 02-06-2025 (5:06) 
 ```
     I had to go first to my place, also today i should start slow after not working for some time.  
@@ -276,29 +278,38 @@ in a trip with my sweetheart
     14:24 -> 14:57 : break (coffee with Ranjan and Camillo)
     14:57 -> 18:15 (3:18) : tried extracting the drawing steps from theorem 3.1, changed the angle to link the cases of theorem 3.1 to lemma 2.3 and also made a case study and sent it to Matthias. 
 ```
-- 04-06-2025
+- 04-06-2025 (3:18)
 ```
-    09:30 -> 10:22 : work on the formulation the relation of lemma 2.3 with the 2-sat formulation.
+    09:30 -> 10:22 (:52): work on the formulation the relation of lemma 2.3 with the 2-sat formulation.
     10:22 -> 10:45 : break (read reddit) 
-    10:45 -> 11:27 : work on an algorithm to change the assignment of the equivalent classes based on what i found from the paper of the hanani-tutte drawing also respond to my supervisor response to what i sent him (concerning the relation between the hanani-tutte cases that gives a not equivalent embedding and the level graph order) 
+    10:45 -> 11:27 (:42) : work on an algorithm to change the assignment of the equivalent classes based on what i found from the paper of the hanani-tutte drawing also respond to my supervisor response to what i sent him (concerning the relation between the hanani-tutte cases that gives a not equivalent embedding and the level graph order) 
     11:27 -> 11:39 : break (toilette)
-    11:39 -> 12:43 : work on the greedy strategy.
+    11:39 -> 12:43 (1:04) : work on the greedy strategy.
     12:43 -> 12:57 : break (eat with camillo)
-    12:57 -> 13:37 : I found a strategy that works on my example (picked for the lemma 2.3 case), I construct a level planar graph that describes the construction steps from the hanani-tutte paper (and the connected components at each stage)
+    12:57 -> 13:37 (:40): I found a strategy that works on my example (picked for the lemma 2.3 case), I construct a level planar graph that describes the construction steps from the hanani-tutte paper (and the connected components at each stage)
 ```
-- 05-06-2025
+- 05-06-2025 (3:43)
 ```
-    8:54 -> 10:06 : (Working from my sweetheart's place) Work on more examples with the idea I had in mind.
+    8:54 -> 10:06 (1:12): (Working from my sweetheart's place) Work on more examples with the idea I had in mind.
     10:06 -> 11:48 : changing + bus + Mensa (with my sweetheart and Kristoph)
-    11:48 -> 13:55: work on different examples to get ideas on making a greedy strategy. 
+    11:48 -> 13:55 (2:07): work on different examples to get ideas on making a greedy strategy. 
     13:55 -> 14:32: break (talking with Ranjan and Camillo, camillo want to move to Aachen)
-    14:32 -> 15:56 : more example, but i think i am rushing due to time limit today, so instead of taking all the cases for the hanani-tutte paper, i am just trying to figure out a greedy strategy on the fly from example, for that reason I didn't like this session 
+    14:32 -> 15:56 (1:24): more example, but i think i am rushing due to time limit today, so instead of taking all the cases for the hanani-tutte paper, i am just trying to figure out a greedy strategy on the fly from example, for that reason I didn't like this session 
 ```
-- 06-06-2025
+- 06-06-2025 (3:37)
 ```
-    10:23 -> 14:00: worked from the cases, i am getting pretty close actually. 
+    10:23 -> 14:00 (3:37): worked from the cases, i am getting pretty close actually. 
     14:00 -> 16:00: I had lunch with my sweetheart, and we had a coffee, but to be honest it was a rough one, i am exhausted emotianally and i can't really work any more on anything..
 ```
+### Woche 09/06/2025
+- 09-06-2025 (Ferien) (6:02)
+```
+    13:05 -> 14:48 (1:43) : worked on an example with all the cases that could led to a 2sat assignment with a cyclic relation and a way to build a proper level planar drawing
+    14:48 -> 15:23 : break (food + read some flyers and magazine present in the faculty)
+    15:23 -> 16:30 (:53): wrote an algorithm that goes throught each level and adjust the vertices, and started thinking about starting with a greedy assign. of the eq. classes.  
+    16:30 -> 16:40 : break
+    16:40 -> 21:06 (3:26): found an algorithm that reduces the equivalent classes, made an example containing all the cases, and wrote to my supervisor.
+``` 
 # Backlog
 
 # links 
