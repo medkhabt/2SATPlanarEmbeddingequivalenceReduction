@@ -2,3 +2,8 @@ booksAndresources/
 meetings/
 papers
 .*
+*.fls
+*.log
+*.synctex.gz
+*.aux
+*.fdb_latexmk

@@ -310,6 +310,34 @@ in a trip with my sweetheart
     16:30 -> 16:40 : break
     16:40 -> 21:06 (3:26): found an algorithm that reduces the equivalent classes, made an example containing all the cases, and wrote to my supervisor.
 ``` 
+### Woche 16/06/2025
+- 16/06/2025
+```
+personal issues, couldn't work
+```
+- 17/06/2025
+```
+    13:00 -> 13:45 : Changing the algorithm to be more authentic with the proofs ( + 2hours of sunday )  
+    14:00 -> 15:45 : Meeting with Matthias (discussed the idea, next step is to formulize the algorithm + proof of correctness).
+    15:45 -> 16:08 : pause (trying to fix Flo computer problem with eduroam) 
+    16:08 -> 16:45 : drawing the hanani-tutte counter-exmaple with the equivalences. 
+    16:45 -> 17:30 : break (talk with my sweatheart)
+    17:30 -> 18:25 : find out where the issue is with my reasoning of the algorithm, I should think of the graph as it is 
+                     built vertex by vertex, in the counterexample , if i reach vertex l, then (f,a) is still disconnected from the graph and 
+                     I am trying to connect both connected comps (g,b,h) and (i, c, z, d, j ,e) 
+    18:25 -> 19:24 : big ass break (ate some food and talked a bit with the tall guy from volleyball and basketball)
+    19:24 -> 20:10 : couldn't work, talked with the guy while on my desk.
+```
+- 18/06/2025
+```
+    12:37 -> 13:40: trying to find a correct algorithm, keeping track of the connected comps.
+    13:40 -> 14:13: Mensa pause.
+    14:13 -> 15:30: draw the counter-example again and see if i can notice something when getting to the special case of the hanani-tute.
+    15:30 -> 18:26: went to buy stuff for the trip with my sweetheart and Kristoph.
+    18:26 -> 20:20: I think I found the algorithm, at least a more correct one ? next step is to write it and then prove the correctness. 
+    20:20 -> 20:33: took a quick break 
+    20:33 -> 20:53: started working on the algorithm.
+```
 # Backlog
 
 # links 
