@@ -1,0 +1,20 @@
+loop over l in levels: 
+    loop over n in l: 
+        for p in protect(l+1, n): 
+        unify the eq of all the combinations of vertices in protect(l+1, n) (disjoint vertices of adjacent edges with shared endpoint n). 
+            for warning in warnings(l+1): 
+                if first: 
+                    eqtmp = eq[(p,w)]
+                add elements of eq[(p,w)] to eqtmp
+                eq[(p,w)] = eqtmp
+
+
+
+
+
+
+fill warnings and protected 
+
+for l = 1,2, .., L(G)
+    a) concatinate EquiClass of all the combinations of each set of protected(l) 
+    b) concatinate equiclass of warnings to each set of protected(l)             

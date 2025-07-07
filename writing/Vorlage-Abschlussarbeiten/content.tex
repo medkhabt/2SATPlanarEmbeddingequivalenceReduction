@@ -1,0 +1,260 @@
+%% content.tex
+%%
+
+%% ==============
+\chapter{Reduction of the equivalent classes}
+\label{ch:RedEq}
+%% ==============
+
+The content chapters of your thesis should of course be renamed. How many chapters you need to write depends on your thesis and cannot be said in general.
+
+
+
+\section{The induced Hannani-tutte from 2-SAT and planarity}
+
+\dots
+
+\section{Equivalent classes and Hannani-tutte}
+
+\section{Reduction of the equivalent classes}
+
+After linking the Equivalent Classes to the hanani-tutte drawing induced by the 2-Sat formula (insert paper), and also presenting 
+the cases that lead to a cyclic relation between some vertices of the same level, we can now present 
+our algorithm that reduce the set equivalent classes resulted from resolving the 2-SAT formula (insert papers). 
+
+% TODO move this from here to the preliminaries
+\begin{definition}[level assignement]
+    \textit{level assignement} $l: V \rightarrow \left\{1,\ldots,k\right\}$ with $k \in \mathbb{N} \text{ that  
+    satisfies } l\left( u \right) + 1 =  l\left( v \right)$ for each edge $\left( u,v \right) \in E $ 
+\end{definition}
+\begin{definition}[]
+    $\mathrm{adj}$ outputs the distinct endpoints in a level $h$ of 
+    adjacent edges with the shared source endpoint $v$ from $h-1$. 
+    \[
+        \begin{aligned}
+            \mathrm{adj} \colon  \left( l\left( V \right) , V \right) &\to \mathcal{P}(V) \\
+            \left( h, v \right) &\mapsto \left\{ w \, | \,  w \in V,\, \left( v,w  \right)
+            \in E  \text{ and } l\left( w \right) = h \right\} 
+            \end{aligned}
+    \]
+\end{definition}
+%TODO I need to define also the boolean set $\mathcal{V}$
+\begin{definition}[]
+    the function of distinct endpoint of adjacent edges $\mathcal{V}_{adj}$ 
+    \[
+        \begin{aligned}
+            \mathcal{V}_{adj} \colon  \left( l\left( V \right) , V \right) &\to \mathcal{P}(\mathcal{V}) \\
+            \left( h, v \right) &\mapsto \left\{ wx \, | \,  w,x \in adj\left( v, h \right) 
+            \text{ and }\, w.\mathrm{id} < x.\mathrm{id}\right\} 
+            \end{aligned}
+    \]
+\end{definition}
+
+\begin{definition}[confused vertex]
+   A confused vertex $v$ is a vertex that is not adjacent to an incoming edge from the level $l(v)-1$. 
+   
+   We define $\mathcal{V}_{\mathrm{confused}}$ as follows 
+    \[
+        \begin{aligned}
+            \mathcal{V}_{\mathrm{confused}} \colon  \left( l\left( V \right) \right) &\to \mathcal{P}(\mathcal{V}) \\
+             h  &\mapsto \left\{ v  | v \in V ,l\left( v \right) = h,    
+             \text{ and }\, \forall u \in V \, l(u) = l(v)-1 \text{ and } \left( u, v \right) \not\in E  \right\} 
+        \end{aligned}
+    \]
+
+\end{definition}
+
+Based on the (insert section proof that we can fix the issue with adjacent edges by making them 
+equal eachother) we can fix the problem of cyclic relations between adjacent edges, to specify an order 
+we suggest going with the index order of vertices, to do so we will need to concatinate the the 
+eqivalent classe of vw and it's .. wv (since we respect the consistency clause)
+With the equivalent class that we got from the algorithm based on (insert paper),  
+\subsection{Algorithm description}%
+\label{sub:Algorithm description}
+    
+    We have as input a proper level graph proper level Graph $G = (V,E,l)$  with a level ordering $l$ and an arbitrary index order and equivalent classes based 
+    on the 2-SAT formula of randerth (TODO put ref). 
+
+    We will construct the graph from scartch for the second part of the algorithm. Let $G'$ be an empty graph. 
+
+    We traverse the graph level by level. Let the variable $h$ be the current level. 
+    We look at the vertices $v$ in the level $h$, 
+    we get the incident vertices from the upper incident level 
+    and lower incident levels separately. We work with the upper incident level vertices and lower one separately like the following , we give them an initial order, we get the equivalent class of the 
+    combinaisons of the relative orders one by one, if for the next equivalent class we have a relation in the 
+    opposite sense, we switch the order of the two vertices, at the end we will find an order with all the equivalent 
+    classes from the combination of the vertices with the new order having the same direction. we concatinate their equivalent classes 
+    and put the concatination in all of their equivalent classes. 
+        
+    we update also the equivalent classes of the opposite order for synchronization. 
+    
+ 
+    we add $v$ to $G'$ and the edges incident to v with vertices from $G'-\{v\}$.
+    if $v$ is a cut-vertex in $G'$ we also look for the connected comps in $G'-\{v\}$, we pick an arbitrary order of the 
+    connected comps $(C_1,C_2)$ we then force the relation between a vertex $w_1$ of $C_1$
+    be the same for all the vertices in $C_2$ and that's by concatinating all the equivalent 
+    classes from the vertex $w_1$ to each vertex of $C_2$ and then making each equivalent class from 
+    it to equal the conatination of all of them. If $C_2$ encapsulate $C_1$ then we inverse the pair before forcing the relations. 
+
+
+\subsection{Correctness of the algorithm}
+The algorithm is based on the fact that we can convert a 2-SAT truth assignement to a 
+strong hanani-tutte drawing and that we can convert a strong hanani-tutte drawing to a planar drawing.
+
+The assignement of equivalent classes represent the set of solutions from solving the 2-SAT assignement. 
+
+The algorithm reduce the set of truth assignement solutions to get rid of false positives and that by reducing 
+the number of equivalent classes by concatining some of them, which lead to smaller number of possible solution 
+that can lead to a level planar drawing.
+
+\begin{proof}
+   Since we are just reducing the set of truth assignement that already satisfies 2-SAT, the planarity 
+   and the consistency clauses are still respected.
+
+   if we take a truth assignement $\phi$ from 2-sat solutions, we can induce a strong hanani-tutte drawing. The goal is 
+   to convert this strong hanani-tutte drawing into a x-montone embedding which is a planar drawing. 
+
+   To convert the strong hanani-tutte drawing to weak hanani-tutte, we must remove any odd crossing of adjacent edges by making it an even crossing. 
+   We either have two edges consecutive in the rotation of the shared endpoint, so we can just cross them 
+   one more time near the shared endpoint, this doesn't change the order of the vertices in the hanani-tutte drawing Figure~\ref{fig:occ}. The other cases are when there is at 
+   least an edge between the two edges that crosses oddly and this edge crosses evenly all edges of the constructed graph so far, we have three major cases 
+   (TODO describing the cases from the hanani-tutte to xmonotone paper) , and we can get rid the odd crossing by concatinating the equivalent classes while still respecting the consistency clause 
+   Figure~\ref{fig:toi} 
+
+   After the modification, each element of the set of solutions from the reduced equivalent classes will lead to a weak hanani-tutte drawing, there is 
+   a special case in weak hanani-tutte that doesn't lead to an equivalent x-monotone embedding wich means that we need to change the relative order 
+   of some vertices. We mimick the construction in the proof of theorem 2.1 (reference hanani-tutte to xmononte paper) of the graph $G'$ (which equals $G$ at the end of the construction) , when the algorithm reach the special case which is 
+   when the new added $x_1$ adds more than one edge to the graph $G'$ and it is not connected to the last added vertex before it in $G'$, from the proof 
+   we can notice that we fix the order of two connected comps to each other if they don't have any relative order (TODO explain what's a relative order in this context), if they do, meaning that one encapsulate the other 
+   then each vertex of the encapsulating component forces that it has the same equivalent class to all vertices of the encapsulated comp. From the algorithm 
+   we take an arbitary order of the components $(C_1, C_2)$ and we force all elements of $C_2$ to have the same equivalent class with the same vertex from $C_1$. If $C_1$ is the encapsulated component, we just switch $C_1$ with $C_2$.
+
+\end{proof}
+% Always reference figures, tables etc. To give a few simple examples, this section contains Algorithm \ref{theorem:doof}, Table \ref{tbl:randomnumbers}, Figure \ref{fig:somegraph}, and Theorem \ref{theorem:doof}. To give an example citation we recommend the book of Garey and Johnson \cite{gj-ci-79}.
+
+%\begin{theorem}
+%\label{theorem:doof}
+%  Wer das liest ist doof.
+%\end{theorem}
+%\begin{proof}
+%  Weil ist so.
+%\end{proof}
+
+\begin{algorithm}[bt]
+\caption{\textsc{Equivalence Classes Reduction}}\label{alg:EqRed}
+
+% Some settings
+\DontPrintSemicolon %dontprintsemicolon
+\SetFuncSty{textsc}
+\SetKwFor{ForAll}{forall}{do}
+
+% Declaration of data containers and functions
+\SetKwData{Q}{Q}
+\SetKwData{dist}{d}
+\SetKwData{pred}{pred}
+\SetKwFunction{queueDeleteMin}{deleteMin}
+\SetKwFunction{adjBool}{$\mathcal{V}_{\mathrm{adj}}$}
+\SetKwFunction{adjOrderBool}{$\mathcal{V}_{\mathrm{ord}}$}
+\SetKwFunction{equiClass}{$\mathrm{Eq}$}
+\SetKwFunction{queueInsert}{insert}
+\SetKwFunction{queueDecreaseKey}{decreaseKey}
+\SetKwFunction{queueContains}{contains}
+
+% Algorithm interface
+% TODO need to defin Eqs
+% TODO need to define l outside of the algo, and just mention it in G 
+\KwIn{proper level Graph $G = (V,E,l)$ and  $\mathrm{Eq}$}
+% TODO how to use this one if needed ? 
+\KwOut{$\mathrm{Eq}$}
+$\mathcal{V} = \left\{ uw \, | \, u,w\in V, \, u \neq w, \, l\left( u \right) = l\left( w \right)  \right\}$\;
+%$\forall uw \in \mathcal{V} \, \colon \mathrm{Eq}\left( uw \right) =
+%                                      \mathrm{Eq}\left( uw \right) \cup
+%                                      \left\{ \neg \left( vx \right) \, | \, vx \in Eq\left( wu \right)  \right\} $ \;
+
+\tcc{reducing the equivalance classes of adjacent edges}
+\ForAll{$h \in l\left( V \right) $}{
+    \tcc{i still need to make sure adding h + 1 is valid here.}
+    \ForAll{$v \in \left\{V \, | \, l\left( v \right) \in \left\{h - 1, h + 1\right\}   \right\} $}{
+           $S \leftarrow \emptyset$\;
+           $\mathcal{V}_{\mathrm{ord}} \leftarrow \emptyset$\;
+        \ForAll{$uw \in \adjBool{h,v}$}{
+            \If{$wu \in S$}{
+                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{wu\}$\;
+                $S\leftarrow S \cup \equiClass{wu}$\;
+            }
+            \Else{
+                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{uw\}$\;
+                $S\leftarrow S \cup \equiClass{uw}$\;
+            }
+        }
+
+
+        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( uw \right) 
+        = \bigcup_{u',w' \in \mathcal{V}_{\mathrm{ord}}}{\equiClass{u'w'}}$ \;
+
+        \tcc{Synchronize with the symmetrical order to $\mathcal{V}_{\mathrm{ord}}$}
+        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( wu \right) 
+        = \left\{xv, \, vx \in \equiClass{uw}\right\}$\;
+
+        \tcc{we have equivalent classes that can induce a weak hanani-tutte drawing}
+        
+        \ForAll{$v$ in vertices of level $h$}{
+            $G' \rightarrow G' \cup \left\{(w,v) \, | \, w \in V, \left( w,v \right) \in E \text{ and } l\left( w \right) = l\left( v \right) + 1 \right\}$\;
+            \If{$v$ is a cut vertex of $G'$ }{
+                $\mathrm{Comps}$  list of connected comps of $G' - \{v\}$ \;
+                we pick an arbitary order of the list $\mathrm{Comps}$\;
+                \ForAll{$\left( C_1, C_2 \right)$ in combinaisons of pairs of connected components in $\mathrm{Comps}$ with the respect to the specified order}{
+                    if $C_1$ is encapsulated by $C_2$ then  $(C_1,C_2) \leftarrow (C_2, C_1)$ \;
+                } 
+                \tcc{we consider the vertices of the $h$ level only}
+                $\forall v \in C_1\left( h \right)  \, \forall w \in C_2\left( h \right) \colon Eq(v,w) \leftarrow \displaystyle \bigcup_{w' \in C_2\left( h \right)} {Eq \left( v,w' \right)} $\;
+            }
+        } 
+    }
+}
+
+% The algorithm
+\end{algorithm}
+\begin{figure} [bt]
+  \centering
+  \includegraphics{figures/odd_cross_consecutive.pdf
+}
+\caption{consecutive edges in rotation that crosses oddly}
+  \label{fig:occ}
+\end{figure}
+\begin{figure} [bt]
+  \centering
+  \includegraphics{figures/threecases_of_inbetweenvertex.pdf}
+\caption{in between even crossing edge}
+  \label{fig:toi}
+\end{figure}
+% basically i want to go throught the graph one vertex at a time, and construct the graph incrementely 
+% when we find a vertex with adjacent edges we add restrictions on the equivalent classes. (basically we 
+% propagate the order of the adjacent vertices to the vertices that can't get reached by relying just on planarity constraint)
+
+%\begin{table} [bt]
+%\centering
+%\caption{Some strange numbers.}
+%\begin{tabular}{rr}
+%\toprule
+%First column & Second column \\
+%\midrule
+%3\,109\,218\,136 & 3\,208\,415\,108 \\
+%2\,231\,385\,058 & 1\,959\,477\,358 \\
+%1\,287\,719\,872 & 1\,317\,165\,206 \\
+%2\,516\,844\,936 & 2\,630\,583\,944 \\
+%1\,569\,466\,774 & 1\,636\,507\,220 \\
+%1\,032\,627\,816 &    991\,322\,491 \\
+%\bottomrule
+%\end{tabular}
+%\label{tbl:randomnumbers}
+%\end{table}
+%
+%\begin{figure} [bt]
+%  \centering
+%  \includegraphics{figures/somegraph}
+%  \caption{A funny graph.}
+%  \label{fig:somegraph}
+%\end{figure}
+%
+%

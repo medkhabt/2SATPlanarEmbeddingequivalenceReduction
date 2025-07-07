@@ -338,6 +338,56 @@ personal issues, couldn't work
     20:20 -> 20:33: took a quick break 
     20:33 -> 20:53: started working on the algorithm.
 ```
+### Woche 30/06/2025
+- 30-06-2025 
+```
+    10:11 -> 13:45 : continuing with the algorihtm writing
+    14:30 -> 17:00 : working on some examples.
+```
+- 01-07-2025
+```
+    8:30 ->  13:10 : I worked on the proof and the algorithm ( i only have till 13:00 i need to work harder today ) .
+    14:00 -> 14:30 : meeting with my advisor, going the right direction, but i need to provide the idea of the algorithm instead of doing pseudo-code.
+```
+- 02-07-2025
+```
+    13:07 -> 15:30 : work on the proof of correctness. 
+```
+- 03-07-2025 
+```
+    i wanted a headless spoitfy ui, broke my packages, trying to get my setup back and make this headless spotify work. 
+    17:48 -> 19:33 : I just started lol. had an idea how to prove the algorihtm 
+``` 
+- 04-07-2025
+```
+    09:33 -> 11:25: Work with the idea for adjacent edges and check the example of my supervisor concerning a graph that forces one order of the edges.
+    11:25 -> 12:36 : MENSA pause
+    12:36 -> 13:00 : got intruppted by a friend to help him with a technical issue. 
+    13:00 -> 14:00 : worked on the definitions, didn't finish it yet.
+```
+- 05-07-2025
+```
+    13:00 -> 17:30 : more on the defintions and wrote the algorithm for the adjacent edges 
+```
+- 06-07-2025
+```
+    09:52 -> 11:10 : started working on the weak hannani-tutte case but realised that my algorithm is wrong for the first part.  
+    11:10 -> 11:45 : i am hungry , bought some lunch and breakfast also for Ezreal and we yapped for some couple minutes
+    11:45 -> 16:30 : I fixed the first part, I am stuck on making sure there is no case that i am not taking in consideration when simplifying the algorithm
+    16:30 -> 17:45 : break + bought a pizza with Izreal.
+    17:45 -> 19:30 : still working on the second part. 
+    19:30 -> 20:30 : long break..
+    20:30 -> : 
+```
+### Woche 07/07/2025
+- 07-07-2025
+```
+    9:00 -> 14:00 : Fix the second part of the algorithm and work on the proof and some illustrations.
+    14:00 -> 15:00 : have the meeting with my supervisore.
+    15:10 -> 15:20 : start with writing the description of the algorithm in plain text.
+    15:20 -> 15:38 : break
+    15:38 -> 17:44 : work on writing the algorithm in text form and also thinking about the help function i need for implementing my algorithm.
+```
 # Backlog
 
 # links 

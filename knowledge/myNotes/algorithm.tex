@@ -4,26 +4,205 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{amsmath, amssymb}
+\usepackage{algorithm}
 \usepackage{algpseudocode}
 
 % figure support
 \usepackage{import}
 \usepackage{xifthen}
+\usepackage{amsthm}
 \pdfminorversion=7
 \usepackage{pdfpages}
 \usepackage{transparent}
 
 \pdfsuppresswarningpagegroup=1
 
+
 \begin{document}
-\begin{algorithmic}
-    \State{$i \gets 10$}
-    \If{$i\geq 5$} 
-        \State{$i \gets i-1$}
-    \Else
-        \If{$i\leq 3$}
-        \State{$i \gets i+2$}
-        \EndIf
-\EndIf 
-\end{algorithmic}
+
+\begin{proof}
+    To prove the correctness of the algorithm, we need to just prove the correctness of the function \textit{removeCyclicRelation} as 
+    it is the contribution of my thesis. The rest of the algorithm is an implementation of building the 2-SAT equivalence classes~\cite{randerath2001satisfiability}. 
+
+    we consider we have a connected graph (we can solve a disconnected graph by considering the connected component and making 
+    sure that the connected comps drawings don't overlap horizontally). The set of solutions of the 2-SAT formula contains false positives, thus the goal is to restrict the 
+    set of results to not include these false positive. Therefore adding these restrictions won't lead to not respecting the planarity clause.  
+
+    Bruekner et al.~\cite{bruckner2022level} shows how to build a hanani-tutte drawing $\Gamma^*$ from a truth assignement of the 2SAT formula of the graph $G$, this transformation trades planarity for transitivity, thus we can focus on the planarity by 
+    transforming the hanani-tutte drawing to a planar drawing based on Fulek et al~\cite{fulek2013hanani}. From a strong hanani-tutte we can get to a weak hanani-tutte if we can get rid of all the 
+    adjacent edges that crosses oddly~\cite{fulek2013hanani}. One case of odd crossing is that the induced hanani-tutte have at least  $e_1 =\left( v_0,v_1 \right) , e_2 = \left( v_0, v_2 \right) , e_3 = \left( v_0, v_3 \right) \in E\left( G^* \right)$ 
+    with $e_1$ crosses oddly $e_2$ and $e_3$ lay in between $e_1$ and $e_2$ in the rotation of $v_0$ and without losing generality $e_1$ is above $e_2$ in the rotation of $v_0$. This can happen in the hanani-tutte drawing induced by an assignment of the 2-SAT formula only when we have a cyclic relation 
+    between adjacent edges of the original graph $G$. Because in the induced hanani-tutte $G^*$ we can have this case when $v_3$ forces the edges $e_1$ and $e_2$ to switch their order and $v_3$ is the closest vertex 
+    to the shared endpoint $v_0$ which means the new reversed order stays in the rotation in the shared vertex $v_0$ of the adjacent edges $e_1,e_2,e_3$, which can only happen if there is a cyclic relation between some distinct endpoints from the same level of some adjacent edges.To solve this we can unifiy the equivalent classes that contain the relative order of the adjacent edges. This won't affect the planarity clause, 
+    since we are just restricting the number of possible solutions from the 2-SAT formula. The second case is if there is no $e_3$ between $e_1$ and $e_2$ in the rotation of $v_0$. We just need to cross $e_1$ and $e_2$ near $v_0$, but we won't 
+    work on this case directly as it can be solved while at the same time solving the special case in the weak hanani-tutte drawing. 
+    
+ 
+    Getting rid of odd crossings of the adjacent edges will give us a weak hanani-tutte drawing, it is equivalent to x-monotone drawing beside one case that requires changing wether an edge $e$ passes below or above a vertex $v$ of 
+    the weak hanani-tutte which leads to a change in the 2-SAT formulation between the vertex $v$ and some of the vertices from the same level of the original graph $G$. Fulek et al~\cite{fulek2013hanani} shows us how to draw x-monotone drawing, 
+    starting with one vertex from the first level of $G^*$ and adding one vertex at a time to our drawing. The special case is if our new vertex $v_1$ that we want to add doesn't have an edge with the last added vertex $v_2$ and we have at least two edges $\left(e,f\right)$ that are going to $v_1$
+    with $e$ above $f$ in the rotation of $v_1$ and $e$ passes below $x_2$ and $f$ passes above $x_2$ and $G^*-x_1$ seperates into 
+    multiple components. We can only get this case due to a cyclic relation of vertex $v$ on a level $l$ that has no incoming edges from the level $l-1$ with some distinct endpoints in the level $l$ and 
+    are part of adjacent edges from a source vertex $v_0$ in level $l-1$. To not get to this case we can define same relative order between the distinct endpoints of the adjacent edges and the vertex that has no incoming edge in that level and that's by putting all these 
+    relative orders in the same equivalent class if we have multiple ones. 
+
+    We fill the warnings list with vertices with no incoming edges from the level before and the adjSource map contains the adjacent edges that are incoming from the 
+    level below. We give the same relative order of each vertex to the warning one for each group of adjacent edges. We also use the adjSource map to link all the relative orders 
+    of distinct endpoints of adjacent edges.  
+
+    the synchronization turns to an equivalence class in LinkSynchronizations, I am not a contributer to this part. 
+\end{proof}
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \Function{Compute2SAT}{$\mathrm{emb}$}
+            \State $\mathrm{sync} \gets \mathrm{Map}\{\}$
+
+            \ForAll{$(i, \mathrm{nodes}) \in \mathrm{enumerate}(\mathrm{emb})$}
+
+            \State $\mathrm{Synchronize}(\mathrm{sync})$
+            \EndFor
+            \State \Return $\mathrm{LinkSynchronizations}(\mathrm{sync})$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \Function{fillSync}{$\mathrm{sync}, a, b, c, d$}
+                \State $\mathrm{sync}[(a,b)].\mathrm{add}(c,d)$
+                \State $\mathrm{sync}[(b,a)].\mathrm{add}(d,c)$
+                \State $\mathrm{sync}[(c,d)].\mathrm{add}(a,b)$
+                \State $\mathrm{sync}[(d,c)].\mathrm{add}(b,a)$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+    \begin{algorithmic}[1]
+
+        \Function{Synchronize}{$\mathrm{sync}$}
+
+            \State $\mathrm{warnings} \gets [\,]$
+            \State $\mathrm{E} \gets [\,]$
+            \State $\mathrm{adjSource} \gets \mathrm{Map}\{\}$
+            \ForAll{$n \in \mathrm{nodes}$}
+                \State $\mathrm{hasIncomingEdge} \gets \mathrm{False}$
+
+                \ForAll{$\mathrm{adj} \in n.\mathrm{adjEntries}$}
+                    \If{$\mathrm{adj}.\mathrm{isSource}()$}
+                        \State $\mathrm{hasIncomingEdge} \gets \mathrm{True}$
+                        \State $E.\mathrm{add}\bigl(\mathrm{adj}.\mathrm{theEdge}()\bigr)$
+                        \State $\mathrm{adjSource}\bigl[\mathrm{adj}.\mathrm{theEdge}().\mathrm{source}()\bigr].\mathrm{add}(n)$
+                    \EndIf
+                \EndFor
+
+                \If{$\neg\,\mathrm{hasIncomingEdge}$}
+                    \State $\mathrm{warnings}.\mathrm{add}(n)$
+                \EndIf
+            \EndFor
+
+            \ForAll{$(f,s) \in \mathrm{combinations}\bigl(E,\,2\bigr)$}
+                \State $a \gets f.\mathrm{source}()$
+                \State $b \gets f.\mathrm{target}()$
+                \State $c \gets s.\mathrm{source}()$
+                \State $d \gets s.\mathrm{target}()$
+            %if a == b or c == d: continue
+                \If{$ a = b  \textbf{ or } c = d$}
+                    \State continue
+                \EndIf
+                \State fillSync(sync, a, b, c, d)
+            \EndFor
+            \State removeCyclicRelations(sync, warning, adjSource);  
+
+            \State \Return{$\mathrm{sync}$}
+        \EndFunction
+   \end{algorithmic} 
+\end{algorithm}
+
+\begin{algorithm}
+    \begin{algorithmic}[1]
+    \Function{removeCyclicRelations}{$\mathrm{sync, warnings, adjSource}$}
+            \ForAll{$\mathrm{warning} \in \mathrm{warnings}$}
+                \State $\mathrm{firstMapWarningSource} \gets \mathrm{True}$
+                \ForAll{$\mathrm{source} \in \mathrm{keys}\bigl(\mathrm{adjSource}\bigr)$}
+                    \State $\mathrm{firstRelBetweenAdjacentEdgesFromSource} \gets \mathrm{True}$
+                    \ForAll{$v \in \mathrm{adjSource}[\mathrm{source}]$}
+                        \State $c \gets v$
+                        \State $d \gets \mathrm{warning}$
+
+                        \If{$\mathrm{firstMapWarningSource}$}
+                            \State $a \gets v$
+                            \State $b \gets \mathrm{warning}$
+                            \State $\mathrm{firstMapWarningSource} \gets \mathrm{False}$
+                        \EndIf
+
+                        \State fillSync(sync, a, b, c, d)
+                  \EndFor
+                  \ForAll{$\left( v_1, v_2 \right) \in combinations\left( adjSource[source], 2 \right)  $} 
+                  % get rid of getting ourself in a cyclic relation.
+                      \If{$v_1.index\left(  \right) < v_2.index\left(  \right)$}
+                        \State{$c \gets v1$}
+                        \State{$d \gets v2$}
+                        \If{firstRelBetweenAdjacentEdgesFromSource}
+                            \State $a \gets v_1$ 
+                            \State $b \gets v_2$ 
+                            \State $\mathrm{firstRelBetweenAdjacentEdgesFromSource} \gets \mathrm{False}$
+                        \EndIf 
+                        \State fillSync(sync, a, b, c, d)
+                    \EndIf
+                  \EndFor
+             \EndFor
+         \EndFor
+         \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+    \Function{LinkSynchronizations}{$\mathrm{sync}$}
+
+        \State $\mathrm{eq} \gets \mathrm{HashMap}\{\}$
+        \State $\mathrm{cnt} \gets 0$
+
+        \ForAll{$(a,b) \in \mathrm{sync}$}
+
+            \If{$a.\mathrm{index}() > b.\mathrm{index}()$}
+                \State Swap $a,b \gets b,a$
+            \EndIf
+
+            \If{$(a,b) \in \mathrm{eq}$}
+                \State \textbf{continue}
+            \EndIf
+
+            \State $\mathrm{eq}\bigl[(a,b)\bigr] \gets \mathrm{Set}\{\}$
+            \State $\mathrm{eq}\bigl[(b,a)\bigr] \gets \mathrm{Set}\{\}$
+            \State $\mathrm{todo} \gets [\,(a,b)\,]$
+
+            \While{$\mathrm{todo}$ is not empty}
+                \State $(c,d) \gets \mathrm{todo}.\mathrm{pop}()$
+
+                \State $\mathrm{eq}\bigl[(c,d)\bigr] \gets \mathrm{eq}\bigl[(a,b)\bigr]$
+                \State $\mathrm{eq}\bigl[(d,c)\bigr] \gets \mathrm{eq}\bigl[(b,a)\bigr]$
+
+                \State $\mathrm{eq}\bigl[(a,b)\bigr].\mathrm{update}\bigl(\,\mathrm{sync}\bigl[(c,d)\bigr]\,\bigr)$
+                \State $\mathrm{eq}\bigl[(b,a)\bigr].\mathrm{update}\bigl(\,\mathrm{sync}\bigl[(d,c)\bigr]\,\bigr)$
+
+                \ForAll{$(e,f) \in \mathrm{sync}\bigl[(c,d)\bigr]$}
+                    \If{$(e,f)\notin \mathrm{eq}$}
+                        \State $\mathrm{todo}.\mathrm{append}\bigl((e,f)\bigr)$
+                    \EndIf
+                \EndFor
+            \EndWhile
+
+        \EndFor
+
+        \State \Return{$\mathrm{eq}$}
+
+    \EndFunction
+\end{algorithmic} 
+\end{algorithm}
+
+
+
+\bibliographystyle{plain} % We choose the "plain" reference style
+\bibliography{refAlg} % Entries are in the refs.bib file   
 \end{document}
