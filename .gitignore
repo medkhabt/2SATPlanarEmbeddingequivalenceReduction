@@ -7,3 +7,9 @@ papers
 *.synctex.gz
 *.aux
 *.fdb_latexmk
+compile_commands.json
+implementation/build/*
+implementation/compile_commands.json
+implementation/tags
+implementation/toremember
+implementation/.cache/

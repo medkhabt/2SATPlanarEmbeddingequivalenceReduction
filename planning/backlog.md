@@ -388,6 +388,18 @@ personal issues, couldn't work
     15:20 -> 15:38 : break
     15:38 -> 17:44 : work on writing the algorithm in text form and also thinking about the help function i need for implementing my algorithm.
 ```
+- 08-07-2025
+```
+    10:37 -> 12:00 : starting building open graph drawing framework and read about cmake
+    12:00 -> 12:45: mensa 
+    12:45 -> 13:15: read more about cmake  
+    13:15 -> 17:00: presentation of Jorge, and spend time after the double degree friends after the presentation  
+    17:00 -> 22:45: make ogdf work, worked on some examples, and started trying to understand the lib and the code for level graph code.
+```
+- 09-07-2025
+```
+    12:00 -> 18:09 : I made the counterexample work, we can read it and also fix the edge direction when constructing the levels (from the clusters of the clustergraph which is our coutner example) and also started implementing the 2sat equivalence class calculator present in the notebook
+```
 # Backlog
 
 # links 
