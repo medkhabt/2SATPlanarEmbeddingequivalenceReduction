@@ -400,6 +400,12 @@ personal issues, couldn't work
 ```
     12:00 -> 18:09 : I made the counterexample work, we can read it and also fix the edge direction when constructing the levels (from the clusters of the clustergraph which is our coutner example) and also started implementing the 2sat equivalence class calculator present in the notebook
 ```
+- 10-07-2025
+```
+    11 -> 13:30 : finished the 2-sat compute function i think 
+    13:30 -> 14:00 : mensa food 
+    14:00 -> 20:00 : made the example work, implemented the adjacent case , i am currently building a new example that fits testing the use case.
+```
 # Backlog
 
 # links 
