@@ -402,9 +402,13 @@ personal issues, couldn't work
 ```
 - 10-07-2025
 ```
-    11 -> 13:30 : finished the 2-sat compute function i think 
+    11:00 -> 13:30 : finished the 2-sat compute function i think 
     13:30 -> 14:00 : mensa food 
     14:00 -> 20:00 : made the example work, implemented the adjacent case , i am currently building a new example that fits testing the use case.
+```
+- 11-07-2025
+```
+    10:23 -> 17:53: I've been working on the first case of the algorithm, it works well, fixed some bugs , also implemented a check function that checks between the equivalent class before the reduction and the assignement we got after the reduction (TODO but it's actually well implemented , gotta work on it tomrrow)
 ```
 # Backlog
 
