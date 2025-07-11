@@ -34,8 +34,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	0.0000000000
-			y	100.0000000000
+			x	100.0000000000
+			y	0.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -58,8 +58,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	50.0000000000
-			y	100.0000000000
+			x	100.0000000000
+			y	50.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -82,8 +82,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	0.0000000000
-			y	150.0000000000
+			x	150.0000000000
+			y	0.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -106,8 +106,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	050.0000000000
-			y	150.0000000000
+			x	150.0000000000
+			y	50.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -130,8 +130,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	110.0000000000
-			y	150.0000000000
+			x	150.0000000000
+			y	100.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -154,8 +154,8 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	00.0000000000
-			y	200.0000000000
+			x	200.0000000000
+			y	0.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -171,15 +171,15 @@ graph
 	]
 	node
 	[
-		id  7	
+		id	7
 		template	""
 		label	"f"
 		weight	0
 		type	"vertex"
 		graphics
 		[
-			x	50.0000000000
-			y	200.0000000000
+			x	200.0000000000
+			y	50.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -202,8 +202,80 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	125.0000000000
-			y	200.0000000000
+			x	200.0000000000
+			y	100.0000000000
+			z	0.0000000000
+			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
+			w	20.0000000000
+			h	20.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			outline	"#000000"
+			pattern	"Solid"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			type	"Rect"
+		]
+	]
+	node
+	[
+		id	9
+		template	""
+		label	"b"
+		weight	0
+		type	"vertex"
+		graphics
+		[
+			x	300.0000000000
+			y	150.0000000000
+			z	0.0000000000
+			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
+			w	20.0000000000
+			h	20.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			outline	"#000000"
+			pattern	"Solid"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			type	"Rect"
+		]
+	]
+	node
+	[
+		id	10
+		template	""
+		label	"d"
+		weight	0
+		type	"vertex"
+		graphics
+		[
+			x	50.0000000000
+			y	150.0000000000
+			z	0.0000000000
+			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
+			w	20.0000000000
+			h	20.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			outline	"#000000"
+			pattern	"Solid"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			type	"Rect"
+		]
+	]
+	node
+	[
+		id	11
+		template	""
+		label	"c"
+		weight	0
+		type	"vertex"
+		graphics
+		[
+			x	150.0000000000
+			y	150.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
 			w	20.0000000000
@@ -226,7 +298,7 @@ graph
 		type	"vertex"
 		graphics
 		[
-			x	50.0000000000
+			x	0.0000000000
 			y	200.0000000000
 			z	0.0000000000
 			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
@@ -244,7 +316,7 @@ graph
 	edge
 	[
 		source	0
-		target 1	
+		target	1
 		generalization	0
 		label ""
 		weight	1.0000000000
@@ -261,7 +333,7 @@ graph
 	edge
 	[
 		source	0
-		target  2	
+		target	2
 		generalization	0
 		label ""
 		weight	1.0000000000
@@ -295,7 +367,7 @@ graph
 	edge
 	[
 		source	1
-		target 4	
+		target	4
 		generalization	0
 		label ""
 		weight	1.0000000000
@@ -311,8 +383,8 @@ graph
 	]
 	edge
 	[
-		source  2	
-		target  4	
+		source	2
+		target	4
 		generalization	0
 		label ""
 		weight	1.0000000000
@@ -328,7 +400,7 @@ graph
 	]
 	edge
 	[
-		source  2	
+		source	2
 		target	5
 		generalization	0
 		label ""
@@ -345,7 +417,7 @@ graph
 	]
 	edge
 	[
-		source  3	
+		source	3
 		target	6
 		generalization	0
 		label ""
@@ -362,7 +434,7 @@ graph
 	]
 	edge
 	[
-		source  4	
+		source	4
 		target	6
 		generalization	0
 		label ""
@@ -379,7 +451,7 @@ graph
 	]
 	edge
 	[
-		source  4	
+		source	4
 		target	7
 		generalization	0
 		label ""
@@ -396,7 +468,7 @@ graph
 	]
 	edge
 	[
-		source  5	
+		source	5
 		target	8
 		generalization	0
 		label ""
@@ -413,7 +485,7 @@ graph
 	]
 	edge
 	[
-		source  6	
+		source	6
 		target	9
 		generalization	0
 		label ""
@@ -447,8 +519,76 @@ graph
 	]
 	edge
 	[
+		source  7	
+		target	11
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
 		source	8
-		target	9
+		target	10
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
+		source	9
+		target	12
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
+		source	11
+		target	12
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
+		source	10
+		target	12
 		generalization	0
 		label ""
 		weight	1.0000000000
@@ -535,17 +675,17 @@ rootcluster
 			y	0.0000000000
 			width	0.0000000000
 			height	0.0000000000
-			fill	"#ffffff"
+			fill	"#FFFFFF"
 			fillbg	"#000000"
-			pattern	"none"
+			pattern	"None"
 			color	"#808080"
-			linewidth	1.0000000000
-			stipple	"solid"
+			lineWidth	1.0000000000
+			stipple	"Solid"
 			style "rectangle"
 		]
 		vertex "3"
-		vertex "4"
-		vertex "5"
+        vertex "4"
+        vertex "5"
 	]
 	cluster
 	[
@@ -558,12 +698,12 @@ rootcluster
 			y	0.0000000000
 			width	0.0000000000
 			height	0.0000000000
-			fill	"#ffffff"
+			fill	"#FFFFFF"
 			fillbg	"#000000"
-			pattern	"none"
+			pattern	"None"
 			color	"#808080"
-			linewidth	1.0000000000
-			stipple	"solid"
+			lineWidth	1.0000000000
+			stipple	"Solid"
 			style "rectangle"
 		]
 		vertex "6"
@@ -581,15 +721,38 @@ rootcluster
 			y	0.0000000000
 			width	0.0000000000
 			height	0.0000000000
-			fill	"#ffffff"
+			fill	"#FFFFFF"
 			fillbg	"#000000"
-			pattern	"none"
+			pattern	"None"
 			color	"#808080"
-			linewidth	1.0000000000
-			stipple	"solid"
+			lineWidth	1.0000000000
+			stipple	"Solid"
 			style "rectangle"
 		]
 		vertex "9"
+		vertex "10"
+		vertex "11"
+	]
+	cluster
+	[
+		id	6
+		template ""
+		label ""
+		graphics
+		[
+			x	0.0000000000
+			y	0.0000000000
+			width	0.0000000000
+			height	0.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			pattern	"None"
+			color	"#808080"
+			lineWidth	1.0000000000
+			stipple	"Solid"
+			style "rectangle"
+		]
+		vertex "12"
 	]
 ]
 

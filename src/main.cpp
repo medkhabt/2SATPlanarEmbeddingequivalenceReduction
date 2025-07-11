@@ -18,6 +18,7 @@ using nodePair = std::pair<int, int>;
 using nodePairSet = std::set<nodePair>; 
 using sharedNodePairSet = std::shared_ptr<nodePairSet>;
 using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
+using equivalentClassesAssignement = std::map<nodePair, int>;
 
 void print_mapint(std::string_view comment, const std::map<int,int>& m){
     std::cout << comment;
@@ -80,6 +81,7 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
 
     std::vector<ogdf::edge> E; 
     for(const auto& nodes : emb){
+        E.clear();
         for(const auto& n : nodes){
             for(const auto& adj : n->adjEntries) {
                 if(adj->isSource()) {
@@ -108,6 +110,7 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
     equivalentClasses eq; 
     std::vector<nodePair> todo;
 
+    print_map("sync: ", sync); 
     for(const auto& [key, value] : sync){
         int a = key.first;
         int b = key.second;
@@ -119,27 +122,31 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
         if(eq.find(std::make_pair(a ,b ))!= eq.end()){
             continue;
         }
-        eq[std::make_pair(a ,b )] = std::make_shared<nodePairSet>(); 
-        eq[std::make_pair(b ,a )] = std::make_shared<nodePairSet>(); 
+        nodePair mainPair(a,b);
+        nodePair mainPairInversed(b,a);
+        eq[mainPair] = std::make_shared<nodePairSet>(); 
+        eq[mainPairInversed] = std::make_shared<nodePairSet>(); 
         todo.clear(); 
-        todo.push_back(std::make_pair(a ,b ));
+        todo.push_back(mainPair);
 
         while(!todo.empty()){
             int c = todo.back().first; 
             int d = todo.back().second; 
+            nodePair pair(c,d), pairInversed(d,c);
             todo.pop_back();
-            if(std::make_pair(a,b) != std::make_pair(c,d)){
+            if(mainPair != pair){
                 // TODO add the assert.
             }
-            eq[std::make_pair(c, d)] = eq[std::make_pair(a,b)];
-            eq[std::make_pair(d, c)] = eq[std::make_pair(b,a)];
+            eq[pair] = eq[mainPair];
+            eq[pairInversed] = eq[mainPairInversed];
 
-            eq[std::make_pair(a, b)]->insert(sync[std::make_pair(c, d)].begin(), sync[std::make_pair(c, d)].end());
-            eq[std::make_pair(b, a)]->insert(sync[std::make_pair(d, c)].begin(), sync[std::make_pair(d, c)].end());
+            eq[mainPair]->insert(sync[pair].begin(), sync[pair].end());
+            eq[mainPairInversed]->insert(sync[pairInversed].begin(), sync[pairInversed].end());
 
-            for(auto& pair : sync[std::make_pair(c,d)]) {
-                if( eq.find(pair) == eq.end())
-                    todo.push_back(std::make_pair(pair.first, pair.second));    
+            for(auto& p : sync[pair]) {
+                // if we don't find the pair yet in the eq class. 
+                if( eq.find(p) == eq.end())
+                    todo.push_back(std::make_pair(p.first, p.second));    
             }
 
         }
@@ -147,11 +154,43 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
     return eq; 
 }
 
+equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
+    equivalentClassesAssignement eqAs; 
+    // initiate the state of each order assignement to undertermined (-1) 
+    for(const auto& [key, value] : eq){
+        eqAs[key] = -1; 
+    }
+
+    for(auto [key, value] : eq){
+        if(eqAs[key] == -1){
+            const auto u = key.first; 
+            const auto w = key.second; 
+            std::pair key_inverse(w,u);
+            eqAs[key] = 1; 
+            eqAs[key_inverse]=0;
+        }
+    }
+
+    return eqAs; 
+
+}
+bool planarityCheck(equivalentClassesAssignement eqAs, equivalentClasses eq){
+    auto eqTrue = fillEquivalentClasses(eq);
+    for(auto [key, value] : eq){
+        if(eqAs[key] != eqTrue[key] ){
+            return false;
+        }
+    }
+    return true;
+}
+
+
 //TODO time difference enabling recuceEq.
-void reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses eq){
+equivalentClasses reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, const equivalentClasses& eqOrg){
+    equivalentClasses eq = eqOrg; 
     for(const auto& level : emb){
         for(const auto& v : level){
-            std::cout << "*****************8We are in vertex : " << v->index() << std::endl;
+            std::cout << "*****************We are in vertex : " << v->index() << std::endl;
             std::vector<int> adjIn, adjOut;
             std::map<int,int> orderIn, orderOut; 
             for(const auto& adj : v->adjEntries){
@@ -178,13 +217,20 @@ void reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, 
             for(const auto u:adjOut){
                 for(const auto w:adjOut){
                     if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
+                        // it means we already processed an equivalent class 
+                        // that has the inverse of this order.
+                        if(orderOut[u] > orderOut[w]){
+                            continue;
+                        }
                         for(const auto pair : *eq[std::make_pair(u,w)]){
                             auto u1 = pair.first;
                             auto w1 = pair.second;
                             if(u1 > w1 && orderOut.find(u1)!= orderOut.end() && orderOut.find(w1) != orderOut.end()){
-                                int temp = orderOut[u1];
-                                orderOut[u1] = orderOut[w1];
-                                orderOut[w1] = temp; 
+                                if(orderOut[u1] > orderOut[w1]){
+                                    int temp = orderOut[u1];
+                                    orderOut[u1] = orderOut[w1];
+                                    orderOut[w1] = temp; 
+                                }
                             }
                         }
                     } 
@@ -193,13 +239,20 @@ void reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, 
             for(const auto u:adjIn){
                 for(const auto w:adjIn){
                     if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
+                        // it means we already processed an equivalent class 
+                        // that has the inverse of this order.
+                        if(orderIn[u] > orderIn[w]){
+                            continue;
+                        }
                         for(const auto pair : *eq[std::make_pair(u,w)]){
                             auto u1 = pair.first;
                             auto w1 = pair.second;
                             if(u1 > w1 && orderIn.find(u1)!= orderIn.end() && orderIn.find(w1) != orderIn.end()){
-                                int temp = orderIn[u1];
-                                orderIn[u1] = orderIn[w1];
-                                orderIn[w1] = temp; 
+                                if(orderIn[u1] > orderIn[w1]){
+                                    int temp = orderIn[u1];
+                                    orderIn[u1] = orderIn[w1];
+                                    orderIn[w1] = temp; 
+                                }
                             }
                         }
                     } 
@@ -208,9 +261,74 @@ void reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, 
             std::cout << ">> after reorder" << std::endl;
             print_mapint("orderOut", orderOut); 
             print_mapint("orderIn", orderIn); 
+
+            std::shared_ptr<nodePairSet> e = nullptr, e_inverse = nullptr; 
+            nodePair paar, paar_inverse; 
+            for(const auto u: adjOut ){
+                for(const auto  w : adjOut){
+                    if(u < w){
+                        paar = std::make_pair(u,w); 
+                        paar_inverse = std::make_pair(w,u);
+                        if(orderIn[u] > orderIn[w]){
+                            std::swap(paar, paar_inverse);
+                        }
+                        // if the equivalent class doesn't exist yet due to vertex not 
+                        // having an edge that is important (non-adjacent critical edges) edge.
+                        if(eq.find(paar) == eq.end()){
+                            eq[paar] = std::make_shared<nodePairSet>(); 
+                            eq[paar]->insert(std::make_pair(u,w));
+                            eq[paar_inverse] = std::make_shared<nodePairSet>(); 
+                            eq[paar_inverse]->insert(std::make_pair(u,w));
+                        }
+
+                        if(e == nullptr){
+                            e = eq[paar]; 
+                            e_inverse = eq[paar_inverse];
+                        }
+                        e->insert(eq[paar]->begin(), eq[paar]->end());
+                        e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+
+                        eq[paar] = e;
+                        eq[paar_inverse] = e_inverse;
+                    }
+                }
+            }
+
+            e = nullptr;
+            e_inverse = nullptr;
+
+            for(const auto u: adjIn ){
+                for(const auto  w : adjIn){
+                    if(u < w){
+                        paar = std::make_pair(u,w); 
+                        paar_inverse = std::make_pair(w,u);
+                        if(orderIn[u] > orderIn[w]){
+                            std::swap(paar, paar_inverse);
+                        }
+                        // if the equivalent class doesn't exist yet due to vertex not 
+                        // having an edge that is important (non-adjacent critical edges) edge.
+                        if(eq.find(paar) == eq.end()){
+                            eq[paar] = std::make_shared<nodePairSet>(); 
+                            eq[paar]->insert(std::make_pair(u,w));
+                            eq[paar_inverse] = std::make_shared<nodePairSet>(); 
+                            eq[paar_inverse]->insert(std::make_pair(u,w));
+                        }
+
+                        if(e == nullptr){
+                            e = eq[paar]; 
+                            e_inverse = eq[paar_inverse];
+                        }
+                        e->insert(eq[paar]->begin(), eq[paar]->end());
+                        e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+
+                        eq[paar] = e;
+                        eq[paar_inverse] = e_inverse;
+                    }
+                }
+            }
         }
     }
-
+    return eq;
 }
 int main(){
 
@@ -220,11 +338,17 @@ int main(){
 
     equivalentClasses eq = compute2SATClasses(emb);
 
-    reduceEquivalentClasses(emb, eq);
-
     print_map("equivalence classes : ", eq );
+
     ogdf::GraphIO::write(graphBuild.GA, "output-acyclic-graph.gml", GraphIO::writeGML);
     GraphIO::write(graphBuild.GA, "output-acyclic-graph.svg", GraphIO::drawSVG);
+
+    equivalentClasses eqReduced = reduceEquivalentClasses(emb, eq);
+    equivalentClassesAssignement assignement = fillEquivalentClasses(eqReduced);
+    bool result = planarityCheck(assignement, eq);
+    print_map("equivalence classes reduced : ", eqReduced );
+
+    std::cout << "the planarity check : " << result << std::endl; 
 
 
     return 0;
