@@ -4,6 +4,30 @@ graph
 	directed	1
 	node
 	[
+		id	40
+		template	""
+		label	"z"
+		weight	0
+		type	"vertex"
+		graphics
+		[
+			x	0.0000000000
+			y	0.0000000000
+			z	0.0000000000
+			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
+			w	20.0000000000
+			h	20.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			outline	"#000000"
+			pattern	"Solid"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			type	"Rect"
+		]
+	]
+	node
+	[
 		id	0
 		template	""
 		label	"a"
@@ -316,6 +340,40 @@ graph
 	]
 	edge
 	[
+		source  40	
+		target  1	
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
+		source  40	
+		target  3	
+		generalization	0
+		label ""
+		weight	1.0000000000
+		intWeight	1
+		graphics
+		[
+			type	"line"
+			arrow	"last"
+			stipple	"Solid"
+			lineWidth	1.0000000000
+			fill "#000000"
+		]
+	]
+	edge
+	[
 		source	1
 		target	6
 		generalization	0
@@ -556,6 +614,27 @@ rootcluster
 			stipple	"Solid"
 			style "rectangle"
 		]
+        vertex "40"
+	]
+	cluster
+	[
+		id	2
+		template ""
+		label ""
+		graphics
+		[
+			x	0.0000000000
+			y	0.0000000000
+			width	0.0000000000
+			height	0.0000000000
+			fill	"#FFFFFF"
+			fillbg	"#000000"
+			pattern	"None"
+			color	"#808080"
+			lineWidth	1.0000000000
+			stipple	"Solid"
+			style "rectangle"
+		]
 		vertex "1"
 		vertex "0"
 		vertex "3"
@@ -564,7 +643,7 @@ rootcluster
 	]
 	cluster
 	[
-		id	2
+		id	3
 		template ""
 		label ""
 		graphics
@@ -590,7 +669,7 @@ rootcluster
 	]
 	cluster
 	[
-		id	3
+		id	4
 		template ""
 		label ""
 		graphics

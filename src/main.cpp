@@ -5,6 +5,7 @@
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/geometry.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <cassert>
 #include <string>
 #include <algorithm>
@@ -161,13 +162,19 @@ equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
         eqAs[key] = -1; 
     }
 
-    for(auto [key, value] : eq){
+    for(auto& [key, value] : eq){
         if(eqAs[key] == -1){
             const auto u = key.first; 
             const auto w = key.second; 
             std::pair key_inverse(w,u);
             eqAs[key] = 1; 
-            eqAs[key_inverse]=0;
+            eqAs[key_inverse]= 0;
+            for(auto& [u,w]: *value){
+                std::pair<int,int> pair(u,w);
+                std::pair<int,int> pairInverse(w,u);
+                eqAs[pair] = 1; 
+                eqAs[pairInverse] = 0; 
+            }
         }
     }
 
@@ -175,157 +182,233 @@ equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
 
 }
 bool planarityCheck(equivalentClassesAssignement eqAs, equivalentClasses eq){
-    auto eqTrue = fillEquivalentClasses(eq);
-    for(auto [key, value] : eq){
-        if(eqAs[key] != eqTrue[key] ){
-            return false;
+    for(auto& [key, equivalentset] : eq){
+        for(auto& pair : *equivalentset){
+            if(eqAs[key]!= eqAs[pair]){
+                std::cout << "conflit between " << key.first << "," << key.second << " and " << pair.first << "," << pair.second << std::endl;
+                return false ;
+            }
         }
     }
     return true;
 }
 
 
-//TODO time difference enabling recuceEq.
+/*equivalentClasses*/ std::vector<int> addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, const equivalentClasses& eqOrg, equivalentClasses& eq, const node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn ){
+    std::map<int,int> orderIn, orderOut; 
+    std::cout << "*****************We are in vertex : " << v->index() << std::endl;
+    int counter = 0;
+    for(const auto i : adjIn){
+        orderIn[i] = counter++;
+    }
+    counter = 0;
+    for(const auto i : adjOut){
+        orderOut[i] = counter++;
+    }
+    std::cout << ">> before reorder" << std::endl;
+    print_mapint("orderOut", orderOut); 
+    print_mapint("orderIn", orderIn); 
+    for(const auto u:adjOut){
+        for(const auto w:adjOut){
+            if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
+                // it means we already processed an equivalent class 
+                // that has the inverse of this order.
+                if(orderOut[u] > orderOut[w]){
+                    continue;
+                }
+                for(const auto pair : *eq[std::make_pair(u,w)]){
+                    auto u1 = pair.first;
+                    auto w1 = pair.second;
+                    if(u1 > w1 && orderOut.find(u1)!= orderOut.end() && orderOut.find(w1) != orderOut.end()){
+                        if(orderOut[u1] > orderOut[w1]){
+                            int temp = orderOut[u1];
+                            orderOut[u1] = orderOut[w1];
+                            orderOut[w1] = temp; 
+                        }
+                    }
+                }
+            } 
+        }
+    }
+    for(const auto u:adjIn){
+        for(const auto w:adjIn){
+            if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
+                // it means we already processed an equivalent class 
+                // that has the inverse of this order.
+                if(orderIn[u] > orderIn[w]){
+                    continue;
+                }
+                for(const auto pair : *eq[std::make_pair(u,w)]){
+                    auto u1 = pair.first;
+                    auto w1 = pair.second;
+                    if(u1 > w1 && orderIn.find(u1)!= orderIn.end() && orderIn.find(w1) != orderIn.end()){
+                        if(orderIn[u1] > orderIn[w1]){
+                            int temp = orderIn[u1];
+                            orderIn[u1] = orderIn[w1];
+                            orderIn[w1] = temp; 
+                        }
+                    }
+                }
+            } 
+        }
+    }
+    std::cout << ">> after reorder" << std::endl;
+    print_mapint("orderOut", orderOut); 
+    print_mapint("orderIn", orderIn); 
+
+    std::shared_ptr<nodePairSet> e = nullptr, e_inverse = nullptr; 
+    nodePair paar, paar_inverse; 
+    for(const auto u: adjOut ){
+        for(const auto  w : adjOut){
+            if(u < w){
+                paar = std::make_pair(u,w); 
+                paar_inverse = std::make_pair(w,u);
+                if(orderIn[u] > orderIn[w]){
+                    std::swap(paar, paar_inverse);
+                }
+                // if the equivalent class doesn't exist yet due to vertex not 
+                // having an edge that is important (non-adjacent critical edges) edge.
+                if(eq.find(paar) == eq.end()){
+                    eq[paar] = std::make_shared<nodePairSet>(); 
+                    eq[paar]->insert(std::make_pair(u,w));
+                    eq[paar_inverse] = std::make_shared<nodePairSet>(); 
+                    eq[paar_inverse]->insert(std::make_pair(u,w));
+                }
+
+                if(e == nullptr){
+                    e = eq[paar]; 
+                    e_inverse = eq[paar_inverse];
+                }
+                e->insert(eq[paar]->begin(), eq[paar]->end());
+                e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+
+                eq[paar] = e;
+                eq[paar_inverse] = e_inverse;
+            }
+        }
+    }
+
+    e = nullptr;
+    e_inverse = nullptr;
+
+    for(const auto u: adjIn ){
+        for(const auto  w : adjIn){
+            if(u < w){
+                paar = std::make_pair(u,w); 
+                paar_inverse = std::make_pair(w,u);
+                if(orderIn[u] > orderIn[w]){
+                    std::swap(paar, paar_inverse);
+                }
+                // if the equivalent class doesn't exist yet due to vertex not 
+                // having an edge that is important (non-adjacent critical edges) edge.
+                if(eq.find(paar) == eq.end()){
+                    eq[paar] = std::make_shared<nodePairSet>(); 
+                    eq[paar]->insert(std::make_pair(u,w));
+                    eq[paar_inverse] = std::make_shared<nodePairSet>(); 
+                    eq[paar_inverse]->insert(std::make_pair(u,w));
+                }
+
+                if(e == nullptr){
+                    e = eq[paar]; 
+                    e_inverse = eq[paar_inverse];
+                }
+                e->insert(eq[paar]->begin(), eq[paar]->end());
+                e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+
+                eq[paar] = e;
+                eq[paar_inverse] = e_inverse;
+            }
+        }
+    }
+
+    return std::move(adjIn);
+}
+
+std::map<int, int> idbasedConnectedComps(const ogdf::NodeArray<int>& connectedcomps, const Graph& G){
+    std::map<int, int> idcomps;
+    ogdf::Array<node> nodes; 
+    G.allNodes(nodes);
+    for(const auto& n : nodes){
+        idcomps[n->index()]=connectedcomps[n];
+        std::cout << "idcomps[ "<< n->index() << "] = " << idcomps[n->index()] <<  std::endl;
+    }
+
+    return idcomps;
+}
+void addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, const equivalentClasses& eqOrg, equivalentClasses& eq, const node& v, ogdf::Graph& G, ogdf::NodeArray<int>& connectedComps, const std::vector<int>& adjIn, std::map<int, node>& gVertices){
+    // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
+    // so i can just create a new node 
+
+    /*
+       value_ref_type operator[](key_type key) {
+       OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+       return m_data[registeredAt()->keyToIndex(key)];
+       }
+       hmm but the issue is that there is a check to seee if the vertex is part of the graph.., so i can't just sneak in a new vertex just for the mapping (either way i can't use the ElementNode constructor..)
+       */
+
+
+    // TODO gotta work on the datastructure for saving the connected comps.
+    std::cout << "how many connected comps: " << ogdf::connectedComponents(G) <<std::endl;
+    ogdf::connectedComponents(G, connectedComps); 
+    auto idConComps = idbasedConnectedComps(connectedComps, G); 
+    bool v_connets_2_comps = false;
+    std::set<int> connectedCompsMerged; 
+    for(auto adj_v: adjIn){
+        for(auto adj_w: adjIn){
+            if(idConComps[adj_v] != idConComps[adj_w]){
+                connectedCompsMerged.insert(idConComps[adj_v]);
+                connectedCompsMerged.insert(idConComps[adj_w]);
+                v_connets_2_comps = true; 
+            }
+        }
+    }
+
+    gVertices[v->index()] = G.newNode(v->index()); 
+    sharedNodePairSet npair_set = nullptr; 
+    if(v_connets_2_comps){
+        for(auto v: adjIn){
+            for(auto w: adjIn) {
+                if(v < w){
+                    if(npair_set == nullptr) {
+                        npair_set = eq[std::make_pair(v,w)]; 
+                    }
+
+
+
+                } 
+            }
+        }
+    }
+    for(auto& adj_v_index: adjIn){
+        G.newEdge(gVertices[adj_v_index], gVertices[v->index()]);
+    }
+
+}
+
 equivalentClasses reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, const equivalentClasses& eqOrg){
     equivalentClasses eq = eqOrg; 
+    ogdf::Graph G; 
+    ogdf::NodeArray<int> connectedComps(G);
+    std::vector<int> adjIn, adjOut;
+    //TODO started caring less about the structure, this needs refactoring
+    std::map<int, node> gVertices; 
     for(const auto& level : emb){
         for(const auto& v : level){
-            std::cout << "*****************We are in vertex : " << v->index() << std::endl;
-            std::vector<int> adjIn, adjOut;
-            std::map<int,int> orderIn, orderOut; 
+            std::vector<int> adjOut, adjIn;
             for(const auto& adj : v->adjEntries){
                 edge e = adj->theEdge(); 
                 if(v->index() == e->source()->index()){
+                    //TODO refactor so i work with vertices as keys for the containers that i am using.
                     adjOut.push_back(e->target()->index());  
                 } else {
                     adjIn.push_back(e->source()->index());
                 }
             }
-            int counter = 0;
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
-            for(const auto i : adjIn){
-                orderIn[i] = counter++;
-            }
-            counter = 0;
-            for(const auto i : adjOut){
-                orderOut[i] = counter++;
-            }
-            std::cout << ">> before reorder" << std::endl;
-            print_mapint("orderOut", orderOut); 
-            print_mapint("orderIn", orderIn); 
-            for(const auto u:adjOut){
-                for(const auto w:adjOut){
-                    if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
-                        // it means we already processed an equivalent class 
-                        // that has the inverse of this order.
-                        if(orderOut[u] > orderOut[w]){
-                            continue;
-                        }
-                        for(const auto pair : *eq[std::make_pair(u,w)]){
-                            auto u1 = pair.first;
-                            auto w1 = pair.second;
-                            if(u1 > w1 && orderOut.find(u1)!= orderOut.end() && orderOut.find(w1) != orderOut.end()){
-                                if(orderOut[u1] > orderOut[w1]){
-                                    int temp = orderOut[u1];
-                                    orderOut[u1] = orderOut[w1];
-                                    orderOut[w1] = temp; 
-                                }
-                            }
-                        }
-                    } 
-                }
-            }
-            for(const auto u:adjIn){
-                for(const auto w:adjIn){
-                    if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
-                        // it means we already processed an equivalent class 
-                        // that has the inverse of this order.
-                        if(orderIn[u] > orderIn[w]){
-                            continue;
-                        }
-                        for(const auto pair : *eq[std::make_pair(u,w)]){
-                            auto u1 = pair.first;
-                            auto w1 = pair.second;
-                            if(u1 > w1 && orderIn.find(u1)!= orderIn.end() && orderIn.find(w1) != orderIn.end()){
-                                if(orderIn[u1] > orderIn[w1]){
-                                    int temp = orderIn[u1];
-                                    orderIn[u1] = orderIn[w1];
-                                    orderIn[w1] = temp; 
-                                }
-                            }
-                        }
-                    } 
-                }
-            }
-            std::cout << ">> after reorder" << std::endl;
-            print_mapint("orderOut", orderOut); 
-            print_mapint("orderIn", orderIn); 
-
-            std::shared_ptr<nodePairSet> e = nullptr, e_inverse = nullptr; 
-            nodePair paar, paar_inverse; 
-            for(const auto u: adjOut ){
-                for(const auto  w : adjOut){
-                    if(u < w){
-                        paar = std::make_pair(u,w); 
-                        paar_inverse = std::make_pair(w,u);
-                        if(orderIn[u] > orderIn[w]){
-                            std::swap(paar, paar_inverse);
-                        }
-                        // if the equivalent class doesn't exist yet due to vertex not 
-                        // having an edge that is important (non-adjacent critical edges) edge.
-                        if(eq.find(paar) == eq.end()){
-                            eq[paar] = std::make_shared<nodePairSet>(); 
-                            eq[paar]->insert(std::make_pair(u,w));
-                            eq[paar_inverse] = std::make_shared<nodePairSet>(); 
-                            eq[paar_inverse]->insert(std::make_pair(u,w));
-                        }
-
-                        if(e == nullptr){
-                            e = eq[paar]; 
-                            e_inverse = eq[paar_inverse];
-                        }
-                        e->insert(eq[paar]->begin(), eq[paar]->end());
-                        e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
-
-                        eq[paar] = e;
-                        eq[paar_inverse] = e_inverse;
-                    }
-                }
-            }
-
-            e = nullptr;
-            e_inverse = nullptr;
-
-            for(const auto u: adjIn ){
-                for(const auto  w : adjIn){
-                    if(u < w){
-                        paar = std::make_pair(u,w); 
-                        paar_inverse = std::make_pair(w,u);
-                        if(orderIn[u] > orderIn[w]){
-                            std::swap(paar, paar_inverse);
-                        }
-                        // if the equivalent class doesn't exist yet due to vertex not 
-                        // having an edge that is important (non-adjacent critical edges) edge.
-                        if(eq.find(paar) == eq.end()){
-                            eq[paar] = std::make_shared<nodePairSet>(); 
-                            eq[paar]->insert(std::make_pair(u,w));
-                            eq[paar_inverse] = std::make_shared<nodePairSet>(); 
-                            eq[paar_inverse]->insert(std::make_pair(u,w));
-                        }
-
-                        if(e == nullptr){
-                            e = eq[paar]; 
-                            e_inverse = eq[paar_inverse];
-                        }
-                        e->insert(eq[paar]->begin(), eq[paar]->end());
-                        e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
-
-                        eq[paar] = e;
-                        eq[paar_inverse] = e_inverse;
-                    }
-                }
-            }
+            addAdjacentEdgesRestrition(level, eqOrg, eq, v, adjOut, adjIn);
+            addWeakHananiTutteSpecialCase(level, eqOrg, eq, v, G, connectedComps, adjIn, gVertices);
         }
     }
     return eq;
