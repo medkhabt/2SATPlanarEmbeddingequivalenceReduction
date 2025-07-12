@@ -410,6 +410,10 @@ personal issues, couldn't work
 ```
     10:23 -> 17:53: I've been working on the first case of the algorithm, it works well, fixed some bugs , also implemented a check function that checks between the equivalent class before the reduction and the assignement we got after the reduction (TODO but it's actually well implemented , gotta work on it tomrrow)
 ```
+-12-07-2025
+```
+    10->44 -> 16:02: fixed the planar test function, changed the counterexample graph so it is connected, refactored a bit,  working on the weak hanani tutte case
+```
 # Backlog
 
 # links 
