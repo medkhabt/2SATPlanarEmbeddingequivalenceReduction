@@ -10,6 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <cmath>
 #include "NodePartition.h"
 #include "GraphBuilder.h"
 
@@ -21,6 +22,15 @@ using sharedNodePairSet = std::shared_ptr<nodePairSet>;
 using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
 using equivalentClassesAssignement = std::map<nodePair, int>;
 
+void print_assignment(std::string_view comment, const equivalentClassesAssignement& assignement){
+    std::cout << comment;
+    for (const auto& [key, value] : assignement){
+        std::cout << '[' << key.first << "," << key.second << "] = " << value << std::endl;
+    }
+
+    std::cout << '\n';
+
+}
 void print_mapint(std::string_view comment, const std::map<int,int>& m){
     std::cout << comment;
     for (const auto& [key, value] : m){
@@ -324,18 +334,25 @@ bool planarityCheck(equivalentClassesAssignement eqAs, equivalentClasses eq){
     return std::move(adjIn);
 }
 
-std::map<int, int> idbasedConnectedComps(const ogdf::NodeArray<int>& connectedcomps, const Graph& G){
-    std::map<int, int> idcomps;
+std::pair<std::map<int, std::set<int>>, std::map<int, int>> connetectedCompsVerticesMap(const ogdf::NodeArray<int>& connectedcomps, const ogdf::Graph& G, const std::vector<ogdf::NodeElement*>& level){
+    std::pair<std::map<int,std::set<int>>, std::map<int,int>> result; 
+    std::map<int, std::set<int>> compToVertices;
+    std::map<int, int> vertexToComp;
     ogdf::Array<node> nodes; 
     G.allNodes(nodes);
     for(const auto& n : nodes){
-        idcomps[n->index()]=connectedcomps[n];
-        std::cout << "idcomps[ "<< n->index() << "] = " << idcomps[n->index()] <<  std::endl;
-    }
-
-    return idcomps;
+        for(const auto & levelNode : level){
+            std::cout << "comparing indices : " << n->index() << "," << levelNode->index() << std::endl;
+            if(n->index() == levelNode->index()){
+                std::cout << " we got in " << std::endl;
+                compToVertices[connectedcomps[n]].insert(n->index()); 
+                vertexToComp[n->index()] = connectedcomps[n]; 
+            }
+        }
+    } 
+    return std::pair(compToVertices, vertexToComp);
 }
-void addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, const equivalentClasses& eqOrg, equivalentClasses& eq, const node& v, ogdf::Graph& G, ogdf::NodeArray<int>& connectedComps, const std::vector<int>& adjIn, std::map<int, node>& gVertices){
+void addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, const std::vector<ogdf::NodeElement*>& previousLevel, const equivalentClasses& eqOrg, equivalentClasses& eq, const node& v, ogdf::Graph& G, ogdf::NodeArray<int>& connectedComps, const std::vector<int>& adjIn, std::map<int, node>& gVertices){
     // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
     // so i can just create a new node 
 
@@ -351,32 +368,58 @@ void addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level,
     // TODO gotta work on the datastructure for saving the connected comps.
     std::cout << "how many connected comps: " << ogdf::connectedComponents(G) <<std::endl;
     ogdf::connectedComponents(G, connectedComps); 
-    auto idConComps = idbasedConnectedComps(connectedComps, G); 
+    // map idNode -> concomp
+    auto idConComps = connetectedCompsVerticesMap(connectedComps, G, previousLevel); 
     bool v_connets_2_comps = false;
     std::set<int> connectedCompsMerged; 
     for(auto adj_v: adjIn){
         for(auto adj_w: adjIn){
-            if(idConComps[adj_v] != idConComps[adj_w]){
-                connectedCompsMerged.insert(idConComps[adj_v]);
-                connectedCompsMerged.insert(idConComps[adj_w]);
+            if(idConComps.second[adj_v] != idConComps.second[adj_w]){
+                connectedCompsMerged.insert(idConComps.second[adj_v]);
+                connectedCompsMerged.insert(idConComps.second[adj_w]);
                 v_connets_2_comps = true; 
             }
         }
     }
+    std::cout << "the connected comps that will be merged with node n" << std::endl; 
+    for(int cc: connectedCompsMerged){
+        std::cout << cc << ": "; 
+        for(int v: idConComps.first[cc]){
+            std::cout << " " << v ; 
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
 
     gVertices[v->index()] = G.newNode(v->index()); 
     sharedNodePairSet npair_set = nullptr; 
-    if(v_connets_2_comps){
-        for(auto v: adjIn){
-            for(auto w: adjIn) {
-                if(v < w){
-                    if(npair_set == nullptr) {
-                        npair_set = eq[std::make_pair(v,w)]; 
+    sharedNodePairSet npair_inverse_set = nullptr; 
+    // TODO take in consideration the case where C2 < C2 from the hanani-tutte paper.
+    int u,w;
+    for(int cc1: connectedCompsMerged){
+        for(int cc2: connectedCompsMerged){
+            if(cc1 < cc2){
+                for(int vIndex: idConComps.first[cc1]) {
+                    for(int wIndex: idConComps.first[cc2]){
+                        if(eq.find(std::pair(vIndex, wIndex)) == eq.end()){
+                            eq[std::pair(vIndex, wIndex)] = std::make_shared<nodePairSet>(); 
+                        }
+                        if(npair_set == nullptr){
+                            u = vIndex; 
+                            w = wIndex;
+                            npair_set = eq[std::pair(vIndex, wIndex)];
+                            npair_inverse_set = eq[std::pair(wIndex, vIndex)];
+                        }
+                        npair_set->insert(eq[std::pair(vIndex, wIndex)]->begin(),eq[std::pair(vIndex, wIndex)]->end() );
+                        eq[std::pair(vIndex, wIndex)] = npair_set; 
+                        npair_inverse_set->insert(eq[std::pair(wIndex, vIndex)]->begin(),eq[std::pair(wIndex, vIndex)]->end());
+                        eq[std::pair(wIndex, vIndex)] = npair_inverse_set; 
+
+                        std::cout << vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
                     }
+                }
 
-
-
-                } 
             }
         }
     }
@@ -385,14 +428,80 @@ void addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level,
     }
 
 }
+void createLayout(std::string nameFile, ogdf::Graph& G){
+    GraphAttributes GA(G,
+            GraphAttributes::all );
+    NodeArray<int> mappings(G); 
+    ogdf::Array<node> nodes; 
+    G.allNodes(nodes);
+    int n_connectedcomps = ogdf::connectedComponents(G, mappings);
+    std::map<int, int>counterx; 
+    std::map<int, int>countery; 
+    for(int i = 0 ; i < n_connectedcomps; i++){
+        counterx[i] = 0; 
+        countery[i] = 0; 
+    }
+    for(const auto& node : nodes){
+        if(counterx[mappings[node]] > 200 ){
+            counterx[mappings[node]] = 0 ;
+        }
+        GA.x(node) = mappings[node] * 600 + ((counterx[mappings[node]]% 2) ? -1 : 1) *  countery[mappings[node]] * 0.25  * 50 * counterx[mappings[node]] ;    
+        GA.label(node)= std::to_string(node->index());
+        counterx[mappings[node]]++;
+        GA.y(node) = 50 * countery[mappings[node]]; 
+        countery[mappings[node]]++;
+    }
+    GraphIO::write(GA, "relation.gml", GraphIO::writeGML);
+    GraphIO::write(GA, "relation.svg", GraphIO::drawSVG);
+
+}
+bool AcyclicRelation(equivalentClassesAssignement assignement){
+    std::map<int, node> nodes;
+    ogdf::Graph G; 
+    ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::all);
+    for(const auto& [pair, relation]: assignement){
+        int u = pair.first; 
+        int v = pair.second; 
+        std::cout << "before u: " << u << "v: " << v << std::endl;
+        if(u < v){
+            std::cout << "u: " << u << "v: " << v << std::endl;
+            if(nodes.find(u) == nodes.end()){
+                nodes[u] = G.newNode(u); 
+            }
+            if(nodes.find(v) == nodes.end()){
+                nodes[v] = G.newNode(v); 
+            }
+            if(relation){
+                std::cout << u << "->" << v << std::endl;
+                G.newEdge(nodes[u], nodes[v]);
+            }else{
+                std::cout << v << "->" << u << std::endl;
+                G.newEdge(nodes[v], nodes[u]);
+            }
+        }
+    }
+
+    createLayout("test", G);
+    return ogdf::isAcyclic(G);
+}
 
 equivalentClasses reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, const equivalentClasses& eqOrg){
     equivalentClasses eq = eqOrg; 
+    /*
+       for(auto& [pair,sharedset]: eqOrg){
+       eq[pair] = std::make_shared<nodePairSet>(); 
+       for(auto& element: *sharedset){
+       eq[pair]->insert(element);
+       }
+       }
+       */
     ogdf::Graph G; 
     ogdf::NodeArray<int> connectedComps(G);
     std::vector<int> adjIn, adjOut;
     //TODO started caring less about the structure, this needs refactoring
     std::map<int, node> gVertices; 
+    // the instantiation doesn't change much here, I just don't want it to be null.
+    std::vector<node> previousLevel = emb[0];
     for(const auto& level : emb){
         for(const auto& v : level){
             std::vector<int> adjOut, adjIn;
@@ -408,8 +517,9 @@ equivalentClasses reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElem
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
             addAdjacentEdgesRestrition(level, eqOrg, eq, v, adjOut, adjIn);
-            addWeakHananiTutteSpecialCase(level, eqOrg, eq, v, G, connectedComps, adjIn, gVertices);
+            addWeakHananiTutteSpecialCase(level, previousLevel, eqOrg, eq, v, G, connectedComps, adjIn, gVertices);
         }
+        previousLevel = level;
     }
     return eq;
 }
@@ -422,17 +532,28 @@ int main(){
     equivalentClasses eq = compute2SATClasses(emb);
 
     print_map("equivalence classes : ", eq );
-
     ogdf::GraphIO::write(graphBuild.GA, "output-acyclic-graph.gml", GraphIO::writeGML);
     GraphIO::write(graphBuild.GA, "output-acyclic-graph.svg", GraphIO::drawSVG);
 
     equivalentClasses eqReduced = reduceEquivalentClasses(emb, eq);
     equivalentClassesAssignement assignement = fillEquivalentClasses(eqReduced);
+
     bool result = planarityCheck(assignement, eq);
+
     print_map("equivalence classes reduced : ", eqReduced );
+    print_map("equivalence classes : ", eq);
 
     std::cout << "the planarity check : " << result << std::endl; 
 
+    print_assignment("the truth assignement is : ", assignement);
+
+    bool acyclic = AcyclicRelation(assignement); 
+    if(acyclic == true){
+        std::cout << "No cyclic relation." ;
+    } else {
+
+        std::cout << "exists a cyclic relation." ;
+    }
 
     return 0;
 }
