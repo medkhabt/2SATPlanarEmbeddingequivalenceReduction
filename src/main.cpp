@@ -129,16 +129,24 @@ int main(int argc, char* argv[]){
     std::cout << "> Reducing the equivalent classes"  << std::endl;
     std::cout << std::endl;
 
-    equivalentClasses eqReduced = Contribution::reduceEquivalentClasses(emb, eq);
+    std::cout << "******************** equivalence class: " << std::endl; 
+    print_eq(eq);
+    equivalentClasses oldEq; 
+    oldEq = Contribution::reduceEquivalentClasses(emb, eq);
     std::cout << std::endl;
+
+    std::cout << "******************** equivalence class: " << std::endl; 
+    print_eq(oldEq);
+    std::cout << "******************** reduced equivalence class: " << std::endl; 
+    print_eq(eq);
     std::cout << "> Assigning the equivalent classes" << std::endl; 
     std::cout << std::endl;
-    equivalentClassesAssignement assignement = fillEquivalentClasses(eqReduced);
+    equivalentClassesAssignement assignement = fillEquivalentClasses(eq);
 
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
-    if(planarityCheck(assignement, eq)){
+    if(planarityCheck(assignement, oldEq)){
         std::cout << std::endl;
         std::cout << "> PLANARITY CHECK: PASSED" << std::endl;
     } else {
@@ -160,3 +168,4 @@ int main(int argc, char* argv[]){
 
     return 0;
 }
+

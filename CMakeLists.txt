@@ -23,7 +23,7 @@ include_directories(include)
 include_directories(/home/medkha/.local/share/ogdf/include)
 link_directories(/home/medkha/.local/share/ogdf)
 
-add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp)
+add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp)
 
 target_link_libraries(2SATEquivalenceReduction
     OGDF 

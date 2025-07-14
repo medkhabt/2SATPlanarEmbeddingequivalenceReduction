@@ -1,6 +1,7 @@
 #include "algorithm.hpp"
+#include "utils.hpp"
 
-/*equivalentClasses*/ std::vector<int> Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, const equivalentClasses& eqOrg, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn ){
+/*equivalentClasses*/ std::vector<int> Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn ){
     std::map<int,int> orderIn, orderOut; 
     int counter = 0;
     for(const auto i : adjIn){
@@ -141,7 +142,6 @@ std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connet
 }
 void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, 
         const std::vector<ogdf::NodeElement*>& previousLevel,
-        const equivalentClasses& eqOrg, 
         equivalentClasses& eq, 
         const ogdf::node& v,
         ogdf::Graph& G, 
@@ -192,6 +192,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     // TODO URGENT take in consideration the case where C2 < C2 from the hanani-tutte paper.
     int u,w;
     for(int cc1: connectedCompsMerged){
+
         for(int cc2: connectedCompsMerged){
             if(cc1 < cc2){
                 for(int vIndex: idConComps.first[cc1]) {
@@ -223,16 +224,14 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     }
 
 }
-equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, const equivalentClasses& eqOrg){
-    equivalentClasses eq = eqOrg; 
-    /*
-       for(auto& [pair,sharedset]: eqOrg){
-       eq[pair] = std::make_shared<nodePairSet>(); 
-       for(auto& element: *sharedset){
-       eq[pair]->insert(element);
-       }
-       }
-       */
+equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
+    equivalentClasses eq_old_save; 
+    for(const auto& [pair,sharedset]: eq){
+        eq_old_save[pair] = std::make_shared<nodePairSet>(); 
+        for(const auto& eqPair : *sharedset){
+            eq_old_save[pair]->insert(std::pair(eqPair.first, eqPair.second));
+        }
+    }
     ogdf::Graph G; 
     ogdf::NodeArray<int> connectedComps(G);
     std::vector<int> adjIn, adjOut;
@@ -254,10 +253,10 @@ equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<
             }
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
-            addAdjacentEdgesRestrition(level, eqOrg, eq, v, adjOut, adjIn);
-            addWeakHananiTutteSpecialCase(level, previousLevel, eqOrg, eq, v, G, connectedComps, adjIn, gVertices);
+            addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
+            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, connectedComps, adjIn, gVertices);
         }
         previousLevel = level;
     }
-    return eq;
+    return eq_old_save;
 }
