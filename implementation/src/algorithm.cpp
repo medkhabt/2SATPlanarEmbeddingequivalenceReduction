@@ -140,14 +140,14 @@ std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connet
     return std::pair(compToVertices, vertexToComp);
 }
 void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, 
-                                                 const std::vector<ogdf::NodeElement*>& previousLevel,
-                                                 const equivalentClasses& eqOrg, 
-                                                 equivalentClasses& eq, 
-                                                 const ogdf::node& v,
-                                                 ogdf::Graph& G, 
-                                                 ogdf::NodeArray<int>& connectedComps,
-                                                 const std::vector<int>& adjIn, 
-                                                 std::map<int, ogdf::node>& gVertices){
+        const std::vector<ogdf::NodeElement*>& previousLevel,
+        const equivalentClasses& eqOrg, 
+        equivalentClasses& eq, 
+        const ogdf::node& v,
+        ogdf::Graph& G, 
+        ogdf::NodeArray<int>& connectedComps,
+        const std::vector<int>& adjIn, 
+        std::map<int, ogdf::node>& gVertices){
     // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
     // so i can just create a new node 
 
