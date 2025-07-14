@@ -1,0 +1,43 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{amsmath, amssymb}
+
+
+\pdfsuppresswarningpagegroup=1
+
+\begin{document}
+We have as input a proper level Graph $G = (V,E,l)$  with a level ordering $l$ and an index order and equivalence classes based 
+on the 2-SAT formulation of level planar embedding presented by Randerth et al~\cite{randerath2001satisfiability}. 
+
+For the second part of the algorithm, we will construct a graph $G'$ from scratch, where $G'$ is a subgraph of $G$ containing 
+all the vertices $v$ processed so far. 
+
+We traverse the graph level by level. Let the variable $h$ be the current level. 
+We look at each vertex $v$ in the level $h$, the algorithm has two main tasks inside the loop of the vertex $v$, 
+synchronization of adjacent vertices to vertex $v$ and synchronization of the connected components that were merged after adding $v$ to $G'$.
+
+For the first part, we consider the incident vertices to the vertex $v$ on the level immediatley above $h$. We look for an ordering $\mathcal{V}$ of the 
+incident vertices such that, for every pair of vertices $\left( u,w \right) \in \mathcal{V}$ with $u < w$ all the equivalence 
+classes corresponding to these pairs point in the same direction. 
+
+We update each equivalence class of each pair $(u,v)$ of the ordering $\mathcal{V}$ (with $u < w$) with the union of each equivalence class associated to 
+each pair $(u,v)$ of the ordering $\mathcal{V}$ with $u < w$ in the ordering. We update also the 
+equivalence classes of the opposite order for synchronization in the same way. We do the same for the incident vertices to the vertex $v$ in the level immediately below to $h$.
+
+
+for the second part, we add $v$ to $G'$ and the edges incident to v with vertices from $G'-\{v\}$.
+If the vertex $v$ is a cut-vertex in $G'$, we also look for the connected components in $G'-\{v\}$, we pick an arbitrary order of the 
+connected comps $(C_1,C_2)$ we then force the relation of a vertex $w_1$ of the connected component $C_1$ with its level $l(w_1) = h - 1$ 
+to each vertex $w_2$ in the connected component $C_2$ on the same level $l(w_1)$ to be the same, that's by assiging for each relation $(w_1,w_2)$
+the union of all the equivelant classes between a fixed $w_1$ and all $w_2 \in C_2$ with $l(w_1) = l(w_2) = h$. We also synchronize the equivalence classes of 
+the opposite order $\left( w_2, w_1 \right)$ with $w_1$ still fixed. If $C_2$ encapsulate $C_1$ then we inverse the pair before forcing the relations. 
+ {\bibliographystyle{alpha}}
+%{\bibliographystyle{babalpha-fl}} % german style
+
+\bibliography{references}
+
+   
+\end{document}

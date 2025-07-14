@@ -189,7 +189,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     gVertices[v->index()] = G.newNode(v->index()); 
     sharedNodePairSet npair_set = nullptr; 
     sharedNodePairSet npair_inverse_set = nullptr; 
-    // TODO take in consideration the case where C2 < C2 from the hanani-tutte paper.
+    // TODO URGENT take in consideration the case where C2 < C2 from the hanani-tutte paper.
     int u,w;
     for(int cc1: connectedCompsMerged){
         for(int cc2: connectedCompsMerged){
