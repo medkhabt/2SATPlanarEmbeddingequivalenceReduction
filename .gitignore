@@ -13,3 +13,7 @@ implementation/compile_commands.json
 implementation/tags
 implementation/toremember
 implementation/.cache/
+*bbl
+*blg
+push_info.txt
+tags
