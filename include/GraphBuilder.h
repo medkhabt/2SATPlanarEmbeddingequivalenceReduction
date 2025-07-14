@@ -43,7 +43,6 @@ class GraphBuilder{
             }
 
             for(const auto& n : G.nodes){
-                std::cout << "node: " << GA.label(n) << "to" << n->index() << std::endl;
                 GA.label(n) = std::to_string(n->index()); 
             }
             
