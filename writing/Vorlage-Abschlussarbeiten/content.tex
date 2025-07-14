@@ -72,29 +72,30 @@ With the equivalent class that we got from the algorithm based on (insert paper)
 \subsection{Algorithm description}%
 \label{sub:Algorithm description}
     
-    We have as input a proper level graph proper level Graph $G = (V,E,l)$  with a level ordering $l$ and an arbitrary index order and equivalent classes based 
-    on the 2-SAT formula of randerth (TODO put ref). 
+    We have as input a proper level Graph $G = (V,E,l)$  with a level ordering $l$ and an index order and equivalent classes based 
+    on the 2-SAT formulation of level planar embedding presented by Randerth et al~\cite{randerath2001satisfiability}. 
 
-    We will construct the graph from scartch for the second part of the algorithm. Let $G'$ be an empty graph. 
+    We will construct the graph $G$ from scartch for the second part of the algorithm. Let the graph $G'$ be a subgraph of $G$ 
+    containing all the vertices we loop over so far. 
 
     We traverse the graph level by level. Let the variable $h$ be the current level. 
-    We look at the vertices $v$ in the level $h$, 
-    we get the incident vertices from the upper incident level 
-    and lower incident levels separately. We work with the upper incident level vertices and lower one separately like the following , we give them an initial order, we get the equivalent class of the 
-    combinaisons of the relative orders one by one, if for the next equivalent class we have a relation in the 
-    opposite sense, we switch the order of the two vertices, at the end we will find an order with all the equivalent 
-    classes from the combination of the vertices with the new order having the same direction. we concatinate their equivalent classes 
-    and put the concatination in all of their equivalent classes. 
-        
-    we update also the equivalent classes of the opposite order for synchronization. 
+    We look at each vertex $v$ in the level $h$, the algorithm has two main tasks inside the loop of the vertex $v$, 
+    synchronization of adjacent vertices to vertex $v$ and synchronization of the connected components that were merged after adding $v$ to $G'$.
+
+    For the first part, we look for incident vertices to the vertex $v$ in the upper incident level to level $h$. We look for an ordering $\mathcal{V}$ of the 
+    incident vertices so that all the equivalent classes from the combination of two incident vertices (u,w) of the ordering $\mathcal{V}$  with $u < w$ in the ordering point to the same direction. 
+    We assign for each of the equivalent classes of the combinations $(u,v)$ of the ordering $\mathcal{V}$ with $u < w$ the union of all their equivalent classes. We update also the 
+    equivalent classes of the opposite order for synchronization by also assigning them their union. We do the same for the incident vertices to the vertex $v$ in the lower incident level to $h$.
     
  
+    For the second part of the algorithm,
     we add $v$ to $G'$ and the edges incident to v with vertices from $G'-\{v\}$.
-    if $v$ is a cut-vertex in $G'$ we also look for the connected comps in $G'-\{v\}$, we pick an arbitrary order of the 
-    connected comps $(C_1,C_2)$ we then force the relation between a vertex $w_1$ of $C_1$
-    be the same for all the vertices in $C_2$ and that's by concatinating all the equivalent 
-    classes from the vertex $w_1$ to each vertex of $C_2$ and then making each equivalent class from 
-    it to equal the conatination of all of them. If $C_2$ encapsulate $C_1$ then we inverse the pair before forcing the relations. 
+    If the vertex $v$ is a cut-vertex in $G'$, we also look for the connected components in $G'-\{v\}$, we pick an arbitrary order of the 
+    connected comps $(C_1,C_2)$ we then force the relation of a vertex $w_1$ of the connected component $C_1$ with its level $l(w_1) = h - 1$ 
+    to each vertex $w_2$ in the connected component $C_2$ on the same level $l(w_1)$ to be the same, that's by assiging for each relation $(w_1,w_2)$
+    the union of all the equivelant classes between a fixed $w_1$ with all $w_2 \in C_2$ with $l(w_1) = l(w_2) = h$. We also synchronize the equivalent classes of 
+    the opposite order $\left( w_2, w_1 \right)$ with $w_1$ still fixed. If $C_2$ encapsulate $C_1$ then we inverse the pair before forcing the relations. 
+    
 
 
 \subsection{Correctness of the algorithm}

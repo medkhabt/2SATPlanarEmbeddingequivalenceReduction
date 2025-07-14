@@ -1,3 +1,9 @@
-\begin{thebibliography}{}
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{RSB{\etalchar{+}}01}
+
+\bibitem[RSB{\etalchar{+}}01]{randerath2001satisfiability}
+Bert Randerath, Ewald Speckenmeyer, Endre Boros, Peter Hammer, Alex Kogan, Kazuhisa Makino, Bruno Simeone, and Ondrej Cepek.
+\newblock A satisfiability formulation of problems on level graphs.
+\newblock {\em Electronic Notes in Discrete Mathematics}, 9:269--277, 2001.
 
 \end{thebibliography}
