@@ -1,24 +1,32 @@
 # Reduction of the equivalent classes of 2SAT formula of level planar embedding
 ## Build the Project
+
+First specify the path where the ogdf library is, in my project I assume the built is in-source.
+
 ```
     mkdir build; 
     cmake -B build; 
 ```
 ## Compile the project 
 ```
+    cd build 
     cmake --build .
 ```
 ## Run the executable 
 ```
-./2SATEquivalenceReduction [inputGraph: gml file]
+Usage: ./2SATEquivalenceReduction [ [-f | --file <inputGraph>] | [-r | --random] ]
+If no flags are provided, the program runs with a custom input graph file `graphs/inputs/gml/counterexample.gml`.
+Options:
+  -f, --file <inputGraph>   Run the program with a custom input graph file gml.
+  -r, --random              Run the program with randomely generated proper level planar graphs.
 ```
-If no file is specified, it will run `graphs/inputs/gml/counterexample.gml`
-
+the executable generates 
 The executable generates three additional files 
 
-- `graphs/inputs/svg/input_graph.svg` a drawing of the `inputGraph` .
-- `graphs/outputs/gml/relation_assignement[0-9]+.gml` graphs of all possible relative orders between vertices from the `inputGraph`.
-- `graphs/outputs/svg/relation_assignement[0-9]+.svg` all drawing of the relation graph. 
+- A drawing of the input graph(es) in : `graphs/inputs/svg/input_graph.svg` a drawing of the `inputGraph` .
+- The relation graphs of all the assignement from the reduced equivalence class in `graphs/outputs/gml/`.
+- A drawing of the relation graphs in `graphs/outputs/svg`.
+- Logs of each input graph execution in `graphs/outputs/log`. 
 
 ## Contribution 
 The main contribution of the thesis is in the `Contribution` class 

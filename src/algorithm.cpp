@@ -214,7 +214,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
                         npair_inverse_set->insert(eq[std::pair(wIndex, vIndex)]->begin(),eq[std::pair(wIndex, vIndex)]->end());
                         eq[std::pair(wIndex, vIndex)] = npair_inverse_set; 
 
-                        std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
+                        //std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
                     }
                 }
 

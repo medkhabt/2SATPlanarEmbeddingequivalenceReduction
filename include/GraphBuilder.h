@@ -50,8 +50,7 @@ class GraphBuilder{
             
         }
         void from_cluster(ogdf::ClusterGraph* CG){
-            //TODO uncommnet
-            //assert(CG->rootCluster()->nodes.size() == 0);
+            assert(CG->rootCluster()->nodes.size() == 0);
             int i = 0;
             for(auto c :CG->rootCluster()->children){
                 assert(c->children.size() == 0);
