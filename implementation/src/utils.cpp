@@ -72,7 +72,7 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
                 }
             }
         }
-        createLayout(title + "_relation_assignement" + std::to_string(i), G);
+        //createLayout(title + "_relation_assignement" + std::to_string(i), G);
         if(!ogdf::isAcyclic(G)){
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
             return false; 
