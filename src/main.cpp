@@ -141,12 +141,12 @@ int main(int argc, char* argv[]){
     print_eq(eq);
     std::cout << "> Assigning the equivalent classes" << std::endl; 
     std::cout << std::endl;
-    equivalentClassesAssignement assignement = fillEquivalentClasses(eq);
+    std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
 
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
-    if(planarityCheck(assignement, oldEq)){
+    if(planarityCheck(allAssignements, oldEq)){
         std::cout << std::endl;
         std::cout << "> PLANARITY CHECK: PASSED" << std::endl;
     } else {
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]){
         std::cout << "> PLANARITY CHECK: FAILED" << std::endl;
     }
     std::cout << std::endl;
-    bool acyclic = AcyclicRelation(assignement); 
+    bool acyclic = AcyclicRelation(allAssignements); 
     if(acyclic == true){
         std::cout << std::endl;
         std::cout << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
