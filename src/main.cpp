@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <memory>
 #include <cmath>
+#include <chrono>
 #include "NodePartition.h"
 #include "GraphBuilder.h"
 #include "algorithm.hpp"
@@ -97,61 +98,84 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
 }
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
-void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vector<ogdf::node>>& emb, std::pair<std::pair<int, int>, std::pair<int, int>>& counter){
+void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vector<ogdf::node>>& emb, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug){
 
     ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-    std::ofstream logFile("graphs/outputs/log/" + title + ".log"); 
-    if(!logFile){
-        std::cerr << "Unable to open log file" << std::endl;
+
+    std::ofstream logFile; 
+    if(debug){
+        logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
+
+        if(!logFile){
+            std::cerr << "Unable to open log file" << std::endl;
+        }
     }
-    logFile << "*********************** Graph : " << title << std::endl;
-    logFile << std::endl; 
-    logFile << "> computing the equivalent classes"  << std::endl;
-    logFile << std::endl;
+
+    if(debug){
+        logFile << "*********************** Graph : " << title << std::endl;
+        logFile << std::endl; 
+        logFile << "> computing the equivalent classes"  << std::endl;
+        logFile << std::endl;
+    }
 
     equivalentClasses eq = compute2SATClasses(emb);
 
 
 
-    logFile << std::endl; 
-    logFile << "> Reducing the equivalent classes"  << std::endl;
-    logFile << std::endl;
+    if(debug){
+        logFile << std::endl; 
+        logFile << "> Reducing the equivalent classes"  << std::endl;
+        logFile << std::endl;
+    }
 
     equivalentClasses oldEq; 
     oldEq = Contribution::reduceEquivalentClasses(emb, eq);
     logFile << std::endl;
 
-    logFile << "> Assigning the equivalent classes" << std::endl; 
-    logFile << std::endl;
+    if(debug){
+        logFile << "> Assigning the equivalent classes" << std::endl; 
+        logFile << std::endl;
+    }
     std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
 
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
     if(planarityCheck(allAssignements, oldEq)){
-        logFile << std::endl;
-        logFile << "> PLANARITY CHECK: PASSED" << std::endl;
+        if(debug){
+            logFile << std::endl;
+            logFile << "> PLANARITY CHECK: PASSED" << std::endl;
+        }
         counter.first.first ++;
     } else {
-
-        logFile << std::endl;
-        logFile << "> PLANARITY CHECK: FAILED" << std::endl;
+        if(debug){
+            logFile << std::endl;
+            logFile << "> PLANARITY CHECK: FAILED" << std::endl;
+        }
         counter.first.second ++;
     }
-    logFile << std::endl;
+    if(debug){
+        logFile << std::endl;
+    }
     bool acyclic = AcyclicRelation(title, allAssignements); 
     if(acyclic == true){
-        logFile << std::endl;
-        logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
+        if(debug){
+            logFile << std::endl;
+            logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
+        }
         counter.second.first ++;
     } else {
 
-        logFile << std::endl;
-        logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
+        if(debug){
+            logFile << std::endl;
+            logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
+        }
         counter.second.second ++;
     }
-    logFile << std::endl;
-    logFile.close();
+    if(debug){
+        logFile << std::endl;
+        logFile.close();
+    }
 }
 
 
@@ -160,6 +184,8 @@ int main(int argc, char* argv[]){
     std::string graphFile;
     graphFile = "graphs/inputs/gml/counterexample.gml";
     bool randomInput = false;
+    int max_nodes = 40;
+    int max_levels = 10; 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
 
@@ -167,7 +193,15 @@ int main(int argc, char* argv[]){
             graphFile = argv[++i];
         } else if ((arg == "-r" || arg == "--random")) {
             randomInput = true;
+        } else if((arg == "-n" || arg == "--nodes" && i + 1 < argc)){
+            max_nodes = std::stoi(argv[++i]);  
+        } else if((arg == "-l" || arg == "--levels" && i + 1 < argc)){
+            max_levels = std::stoi(argv[++i]);  
         }
+    }
+    auto logTimeFile = std::ofstream("profiling/time.dat"); 
+    if(!logTimeFile){
+        std::cerr << "Unable to open log time file" << std::endl;
     }
     GraphBuilder graphBuild; 
 
@@ -176,20 +210,24 @@ int main(int argc, char* argv[]){
     std::cout << std::endl; 
     std::cout << " ******** START of the program ********** " << std::endl;
     std::vector<std::vector<ogdf::node>> emb;
-    int max_levels = 10;
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
     if(randomInput){
         for(size_t levels = 1; levels < max_levels; levels ++){
-            for(size_t nodes = levels * 2; nodes < max_levels * 4; nodes++){
+            for(size_t nodes = levels * 2; nodes < max_nodes; nodes++){
                 emb = graphBuild.buildRandomLevelGraph(nodes, levels);
-                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, emb, counter);
+                auto start = std::chrono::steady_clock::now();
+                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, emb, counter, false);
+                auto end = std::chrono::steady_clock::now();
+                logTimeFile << ""<< levels << " " << nodes << " " 
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
             }
         }
     } else {
         emb = graphBuild.buildLevelGraphFromGML(graphFile);
-        process("customGraph", graphBuild, emb, counter);
+        process("customGraph", graphBuild, emb, counter, false);
     }
 
+    logTimeFile.close();
     std::cout << " Planarity check : " << counter.first.first << " PASSED, " << counter.first.second << " FAILED." <<std::endl;
     std::cout << " Acyclic relations check check : " << counter.second.first << " PASSED, " << counter.second.second << " FAILED." <<std::endl;
 
