@@ -96,15 +96,89 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
     return eq; 
 }
 
+// the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
+void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vector<ogdf::node>>& emb, std::pair<std::pair<int, int>, std::pair<int, int>>& counter){
+
+    ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+    std::ofstream logFile("graphs/outputs/log/" + title + ".log"); 
+    if(!logFile){
+        std::cerr << "Unable to open log file" << std::endl;
+    }
+    logFile << "*********************** Graph : " << title << std::endl;
+    std::cout << "*********************** Graph : " << title << std::endl;
+    logFile << std::endl; 
+    logFile << "> computing the equivalent classes"  << std::endl;
+    logFile << std::endl;
+
+    equivalentClasses eq = compute2SATClasses(emb);
+
+
+
+    logFile << std::endl; 
+    logFile << "> Reducing the equivalent classes"  << std::endl;
+    logFile << std::endl;
+
+    equivalentClasses oldEq; 
+    oldEq = Contribution::reduceEquivalentClasses(emb, eq);
+    logFile << std::endl;
+
+    logFile << "> Assigning the equivalent classes" << std::endl; 
+    logFile << std::endl;
+    std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
+
+
+
+    //TODO make it planarity check for the entire set of possible truth assignements.
+    if(planarityCheck(allAssignements, oldEq)){
+        logFile << std::endl;
+        std::cout << std::endl;
+        logFile << "> PLANARITY CHECK: PASSED" << std::endl;
+        std::cout << "> PLANARITY CHECK: PASSED" << std::endl;
+        counter.first.first ++;
+    } else {
+
+        logFile << std::endl;
+        std::cout << std::endl;
+        logFile << "> PLANARITY CHECK: FAILED" << std::endl;
+        std::cout << "> PLANARITY CHECK: FAILED" << std::endl;
+        counter.first.second ++;
+    }
+    logFile << std::endl;
+    std::cout << std::endl;
+    bool acyclic = AcyclicRelation(title, allAssignements); 
+    if(acyclic == true){
+        std::cout << std::endl;
+        logFile << std::endl;
+        logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
+        std::cout << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
+        counter.second.first ++;
+    } else {
+
+        std::cout << std::endl;
+        logFile << std::endl;
+        logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
+        std::cout << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
+        counter.second.second ++;
+    }
+    logFile << std::endl;
+    std::cout<< std::endl;
+    logFile.close();
+}
 
 
 int main(int argc, char* argv[]){
 
     std::string graphFile;
-    if(argc < 2){
-        graphFile = "graphs/inputs/gml/counterexample.gml";
-    } else {
-        graphFile = argv[1]; 
+    graphFile = "graphs/inputs/gml/counterexample.gml";
+    bool randomInput = false;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+
+        if ((arg == "-f" || arg == "--file") && i + 1 < argc) {
+            graphFile = argv[++i];
+        } else if ((arg == "-r" || arg == "--random")) {
+            randomInput = true;
+        }
     }
     GraphBuilder graphBuild; 
 
@@ -112,59 +186,25 @@ int main(int argc, char* argv[]){
 
     std::cout << std::endl; 
     std::cout << " ******** START of the program ********** " << std::endl;
-    auto emb = graphBuild.buildLevelGraphFromGML(graphFile);
-
-    ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/input_graph.svg", ogdf::GraphIO::drawSVG);
-
-    std::cout << std::endl; 
-    std::cout << "> computing the equivalent classes"  << std::endl;
-    std::cout << std::endl;
-
-    equivalentClasses eq = compute2SATClasses(emb);
-
-
-
-
-    std::cout << std::endl; 
-    std::cout << "> Reducing the equivalent classes"  << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "******************** equivalence class: " << std::endl; 
-    print_eq(eq);
-    equivalentClasses oldEq; 
-    oldEq = Contribution::reduceEquivalentClasses(emb, eq);
-    std::cout << std::endl;
-
-    std::cout << "******************** equivalence class: " << std::endl; 
-    print_eq(oldEq);
-    std::cout << "******************** reduced equivalence class: " << std::endl; 
-    print_eq(eq);
-    std::cout << "> Assigning the equivalent classes" << std::endl; 
-    std::cout << std::endl;
-    std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
-
-
-
-    //TODO make it planarity check for the entire set of possible truth assignements.
-    if(planarityCheck(allAssignements, oldEq)){
-        std::cout << std::endl;
-        std::cout << "> PLANARITY CHECK: PASSED" << std::endl;
+    std::vector<std::vector<ogdf::node>> emb;
+    int max_levels = 10;
+    std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
+    if(randomInput){
+        for(size_t levels = 1; levels < max_levels; levels ++){
+            for(size_t nodes = levels * 2; nodes < max_levels * 4; nodes++){
+                emb = graphBuild.buildRandomLevelGraph(nodes, levels);
+                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, emb, counter);
+            }
+        }
     } else {
-
-        std::cout << std::endl;
-        std::cout << "> PLANARITY CHECK: FAILED" << std::endl;
+        emb = graphBuild.buildLevelGraphFromGML(graphFile);
+        process("customGraph", graphBuild, emb, counter);
     }
-    std::cout << std::endl;
-    bool acyclic = AcyclicRelation(allAssignements); 
-    if(acyclic == true){
-        std::cout << std::endl;
-        std::cout << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
-    } else {
 
-        std::cout << std::endl;
-        std::cout << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
-    }
-    std::cout << std::endl;
+    std::cout << " Planarity check : " << counter.first.first << " PASSED, " << counter.first.second << " FAILED." <<std::endl;
+    std::cout << " Acyclic relations check check : " << counter.second.first << " PASSED, " << counter.second.second << " FAILED." <<std::endl;
+
+
 
     return 0;
 }

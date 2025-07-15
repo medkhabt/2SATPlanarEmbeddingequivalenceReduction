@@ -29,10 +29,11 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
         countery[mappings[node]]++;
     }
     ogdf::GraphIO::write(GA, "graphs/outputs/gml/" + nameFile + ".gml", ogdf::GraphIO::writeGML);
-    std::cout << " >> Generated 'graph/outputs/gml/ " << nameFile << ".gml' graph which represent the relative order between vertices of input Graph" << std::endl;
+    //TODO better way of logging this.
+    //std::cout << " >> Generated 'graph/outputs/gml/ " << nameFile << ".gml' graph which represent the relative order between vertices of input Graph" << std::endl;
     ogdf::GraphIO::write(GA, "graphs/outputs/svg/" + nameFile + ".svg", ogdf::GraphIO::drawSVG);
-    std::cout << " >>  Generated 'graph/outputs/svg/'" << nameFile << ".svg' drawing of the graph 'graph/outputs/gml/relation.gml'  " << std::endl; 
-    std::cout << std::endl;
+    //std::cout << " >>  Generated 'graph/outputs/svg/'" << nameFile << ".svg' drawing of the graph 'graph/outputs/gml/relation.gml'  " << std::endl; 
+    //std::cout << std::endl;
 
 }
 
@@ -49,7 +50,7 @@ bool planarityCheck(std::vector<equivalentClassesAssignement> eqAs, equivalentCl
     }
     return true;
 }
-bool AcyclicRelation(std::vector<equivalentClassesAssignement> assignement){
+bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement> assignement){
     for(size_t i = 0 ; i < assignement.size(); i++){
         std::map<int, ogdf::node> nodes;
         ogdf::Graph G; 
@@ -71,7 +72,7 @@ bool AcyclicRelation(std::vector<equivalentClassesAssignement> assignement){
                 }
             }
         }
-        createLayout("relation_assignement" + std::to_string(i), G);
+        createLayout(title + "_relation_assignement" + std::to_string(i), G);
         if(!ogdf::isAcyclic(G)){
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
             return false; 
