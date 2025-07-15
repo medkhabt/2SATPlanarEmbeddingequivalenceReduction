@@ -13,6 +13,7 @@ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/inputs/gml")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/svg")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/gml")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/log")
 add_custom_target(copy_resources ALL
                COMMAND ${CMAKE_COMMAND} -E copy_directory
                ${CMAKE_SOURCE_DIR}/resources

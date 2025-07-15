@@ -6,7 +6,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G);
 
 bool planarityCheck(std::vector<equivalentClassesAssignement> eqAs, equivalentClasses eq);
 
-bool AcyclicRelation(std::vector<equivalentClassesAssignement> assignement);
+bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement> assignement);
 
 std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq);
 

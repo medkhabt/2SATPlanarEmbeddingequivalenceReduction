@@ -2,6 +2,8 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/graph_generators/randomized.h>
+
 #include <utility>
 
 #include "NodePartition.h"
@@ -48,7 +50,8 @@ class GraphBuilder{
             
         }
         void from_cluster(ogdf::ClusterGraph* CG){
-            assert(CG->rootCluster()->nodes.size() == 0);
+            //TODO uncommnet
+            //assert(CG->rootCluster()->nodes.size() == 0);
             int i = 0;
             for(auto c :CG->rootCluster()->children){
                 assert(c->children.size() == 0);
@@ -73,6 +76,19 @@ class GraphBuilder{
 
 
             std::vector<std::vector<ogdf::NodeElement*>> emb = LVL.cells();
+            drawLevelGraph(&(this->GA), emb, 50, 100);
+            postTraitement();
+            return std::move(emb);  
+        }
+        std::vector<std::vector<ogdf::node>> buildRandomLevelGraph(int maxNodes, int maxLevels){
+            std::vector<std::vector<ogdf::NodeElement*>> emb; 
+            ogdf::ClusterGraph CG(this->G); 
+            ogdf::ClusterGraphAttributes CGA(CG, ogdf::ClusterGraphAttributes::all);
+            ogdf::randomProperMaximalLevelPlaneGraph(this->G, emb, maxNodes, maxLevels, false); 
+            //ogdf::randomClusterPlanarGraph(this->G, CG, 4, 10 , 4);
+
+            //from_cluster(&CG);
+
             drawLevelGraph(&(this->GA), emb, 50, 100);
             postTraitement();
             return std::move(emb);  
