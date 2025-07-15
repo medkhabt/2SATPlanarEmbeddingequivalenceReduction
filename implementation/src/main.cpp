@@ -105,7 +105,6 @@ void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vecto
         std::cerr << "Unable to open log file" << std::endl;
     }
     logFile << "*********************** Graph : " << title << std::endl;
-    std::cout << "*********************** Graph : " << title << std::endl;
     logFile << std::endl; 
     logFile << "> computing the equivalent classes"  << std::endl;
     logFile << std::endl;
@@ -131,37 +130,27 @@ void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vecto
     //TODO make it planarity check for the entire set of possible truth assignements.
     if(planarityCheck(allAssignements, oldEq)){
         logFile << std::endl;
-        std::cout << std::endl;
         logFile << "> PLANARITY CHECK: PASSED" << std::endl;
-        std::cout << "> PLANARITY CHECK: PASSED" << std::endl;
         counter.first.first ++;
     } else {
 
         logFile << std::endl;
-        std::cout << std::endl;
         logFile << "> PLANARITY CHECK: FAILED" << std::endl;
-        std::cout << "> PLANARITY CHECK: FAILED" << std::endl;
         counter.first.second ++;
     }
     logFile << std::endl;
-    std::cout << std::endl;
     bool acyclic = AcyclicRelation(title, allAssignements); 
     if(acyclic == true){
-        std::cout << std::endl;
         logFile << std::endl;
         logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
-        std::cout << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
         counter.second.first ++;
     } else {
 
-        std::cout << std::endl;
         logFile << std::endl;
         logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
-        std::cout << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
         counter.second.second ++;
     }
     logFile << std::endl;
-    std::cout<< std::endl;
     logFile.close();
 }
 
