@@ -28,49 +28,57 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
         GA.y(node) = 50 * countery[mappings[node]]; 
         countery[mappings[node]]++;
     }
-    ogdf::GraphIO::write(GA, "graphs/outputs/gml/relation.gml", ogdf::GraphIO::writeGML);
-    std::cout << " >> Generated 'graph/outputs/gml/relation.gml' graph which represent the relative order between vertices of input Graph" << std::endl;
-    ogdf::GraphIO::write(GA, "graphs/outputs/svg/relation.svg", ogdf::GraphIO::drawSVG);
-    std::cout << " >>  Generated 'graph/outputs/svg/relation.svg' drawing of the graph 'graph/outputs/gml/relation.gml'  " << std::endl; 
+    ogdf::GraphIO::write(GA, "graphs/outputs/gml/" + nameFile + ".gml", ogdf::GraphIO::writeGML);
+    std::cout << " >> Generated 'graph/outputs/gml/ " << nameFile << ".gml' graph which represent the relative order between vertices of input Graph" << std::endl;
+    ogdf::GraphIO::write(GA, "graphs/outputs/svg/" + nameFile + ".svg", ogdf::GraphIO::drawSVG);
+    std::cout << " >>  Generated 'graph/outputs/svg/'" << nameFile << ".svg' drawing of the graph 'graph/outputs/gml/relation.gml'  " << std::endl; 
     std::cout << std::endl;
 
 }
 
-bool planarityCheck(equivalentClassesAssignement eqAs, equivalentClasses eq){
+bool planarityCheck(std::vector<equivalentClassesAssignement> eqAs, equivalentClasses eq){
     for(auto& [key, equivalentset] : eq){
         for(auto& pair : *equivalentset){
-            if(eqAs[key]!= eqAs[pair]){
-                std::cout << "conflit between " << key.first << "," << key.second << " and " << pair.first << "," << pair.second << std::endl;
-                return false ;
+            for(size_t i = 0; i < eqAs.size(); i++){
+                if(eqAs[i][key]!= eqAs[i][pair]){
+                    std::cout << "conflit in eq assignement " << i << " between " << key.first << "," << key.second << " and " << pair.first << "," << pair.second << std::endl;
+                    return false ;
+                }
             }
         }
     }
     return true;
 }
-bool AcyclicRelation(equivalentClassesAssignement assignement){
-    std::map<int, ogdf::node> nodes;
-    ogdf::Graph G; 
-    ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::all);
-    for(const auto& [pair, relation]: assignement){
-        int u = pair.first; 
-        int v = pair.second; 
-        if(u < v){
-            if(nodes.find(u) == nodes.end()){
-                nodes[u] = G.newNode(u); 
+bool AcyclicRelation(std::vector<equivalentClassesAssignement> assignement){
+    for(size_t i = 0 ; i < assignement.size(); i++){
+        std::map<int, ogdf::node> nodes;
+        ogdf::Graph G; 
+        ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::all);
+        for(const auto& [pair, relation]: assignement[i]){
+            int u = pair.first; 
+            int v = pair.second; 
+            if(u < v){
+                if(nodes.find(u) == nodes.end()){
+                    nodes[u] = G.newNode(u); 
+                }
+                if(nodes.find(v) == nodes.end()){
+                    nodes[v] = G.newNode(v); 
+                }
+                if(relation){
+                    G.newEdge(nodes[u], nodes[v]);
+                }else{
+                    G.newEdge(nodes[v], nodes[u]);
+                }
             }
-            if(nodes.find(v) == nodes.end()){
-                nodes[v] = G.newNode(v); 
-            }
-            if(relation){
-                G.newEdge(nodes[u], nodes[v]);
-            }else{
-                G.newEdge(nodes[v], nodes[u]);
-            }
+        }
+        createLayout("relation_assignement" + std::to_string(i), G);
+        if(!ogdf::isAcyclic(G)){
+            std::cout << "Cyclic relation in the assignement " << i << std::endl;
+            return false; 
         }
     }
 
-    createLayout("test", G);
-    return ogdf::isAcyclic(G);
+    return true; 
 }
 
 void print_eq(const equivalentClasses& eq){
@@ -82,7 +90,7 @@ void print_eq(const equivalentClasses& eq){
         std::cout << std::endl;
     }
 }
-equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
+std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq){
     equivalentClassesAssignement eqAs; 
     // initiate the state of each order assignement to undertermined (-1) 
     for(const auto& [key, value] : eq){
@@ -100,9 +108,10 @@ equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
        }
        }
        */
-
+    std::vector<std::pair<int,int>> combinations;
     for(auto& [key, value] : eq){
         if(eqAs[key] == -1){
+            combinations.push_back(key);
             const auto u = key.first; 
             const auto w = key.second; 
             std::pair key_inverse(w,u);
@@ -117,6 +126,25 @@ equivalentClassesAssignement fillEquivalentClasses(const equivalentClasses& eq){
         }
     }
 
-    return eqAs; 
+    int size = combinations.size();
+    int instantiations = pow(2,size);
+    std::vector<equivalentClassesAssignement> allAssignement(instantiations);
+    //all ready went through the 2^size - 1 case above
+    for(int instantiation = 0 ; instantiation < instantiations; instantiation++){
+        for(int i = 0 ; i < size ; i++ ){
+            int value = (instantiation >> i) & 1;
+            allAssignement[instantiation][combinations[i]] = value;  
+            allAssignement[instantiation][std::pair(combinations[i].second, combinations[i].first)] = (value + 1) & 1; 
+            for(const auto& [u,w]: *(eq.at(combinations[i]))){
+                std::pair<int,int> pair(u,w);
+                std::pair<int,int> pairInverse(w,u);
+                allAssignement[instantiation][pair] = value; 
+                allAssignement[instantiation][pairInverse] = (value + 1) & 1; 
+
+            }
+        } 
+    }
+
+    return allAssignement; 
 
 }

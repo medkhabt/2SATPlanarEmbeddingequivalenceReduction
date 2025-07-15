@@ -195,6 +195,8 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
 
         for(int cc2: connectedCompsMerged){
             if(cc1 < cc2){
+                //TODO do i really need to consider C2 < C1, is it not possible to just push the smaller 
+                //encapsulated connected comp outside of the encapsulating one?
                 for(int vIndex: idConComps.first[cc1]) {
                     for(int wIndex: idConComps.first[cc2]){
                         if(eq.find(std::pair(vIndex, wIndex)) == eq.end()){
