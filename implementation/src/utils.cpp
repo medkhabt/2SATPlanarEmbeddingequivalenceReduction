@@ -37,7 +37,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
 
 }
 
-bool planarityCheck(std::vector<equivalentClassesAssignement> eqAs, equivalentClasses eq){
+bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq){
     for(auto& [key, equivalentset] : eq){
         for(auto& pair : *equivalentset){
             for(size_t i = 0; i < eqAs.size(); i++){
@@ -50,7 +50,16 @@ bool planarityCheck(std::vector<equivalentClassesAssignement> eqAs, equivalentCl
     }
     return true;
 }
-bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement> assignement){
+//std::map<nodePair, int>;
+std::string to_string(equivalentClassesAssignement& assignement){
+    std::string stringRepr;
+    std::stringstream ss; 
+    for(auto& [pair, value]: assignement){
+        stringRepr += "(" + std::to_string(pair.first) + "," + std::to_string(pair.second) + ") = " + std::to_string(value) + "\n";
+    }
+    return stringRepr;
+}
+bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement, std::ofstream& wrongAssignements){
     for(size_t i = 0 ; i < assignement.size(); i++){
         std::map<int, ogdf::node> nodes;
         ogdf::Graph G; 
@@ -75,6 +84,7 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
         //createLayout(title + "_relation_assignement" + std::to_string(i), G);
         if(!ogdf::isAcyclic(G)){
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
+            wrongAssignements << to_string(assignement[i]);
             return false; 
         }
     }

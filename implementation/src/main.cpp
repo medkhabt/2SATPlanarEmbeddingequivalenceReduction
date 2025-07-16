@@ -98,13 +98,23 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
 }
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
-void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vector<ogdf::node>>& emb, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug){
-
+void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling){
     ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+    if(profiling){
+        ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+        ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+    }else {
+        ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+        ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+    }
 
     std::ofstream logFile; 
     if(debug){
-        logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
+        if(profiling){
+            logFile = std::ofstream("../graphs/outputs/log/" + title + ".log"); 
+        }else {
+            logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
+        }
 
         if(!logFile){
             std::cerr << "Unable to open log file" << std::endl;
@@ -118,7 +128,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vecto
         logFile << std::endl;
     }
 
-    equivalentClasses eq = compute2SATClasses(emb);
+    equivalentClasses eq = compute2SATClasses(graphBuild.emb);
 
 
 
@@ -129,7 +139,13 @@ void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vecto
     }
 
     equivalentClasses oldEq; 
-    oldEq = Contribution::reduceEquivalentClasses(emb, eq);
+
+    auto start = std::chrono::steady_clock::now();
+    oldEq = Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    auto end = std::chrono::steady_clock::now();
+
+    logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
     logFile << std::endl;
 
     if(debug){
@@ -157,7 +173,18 @@ void process(std::string title, GraphBuilder& graphBuild, std::vector<std::vecto
     if(debug){
         logFile << std::endl;
     }
-    bool acyclic = AcyclicRelation(title, allAssignements); 
+
+    std::ofstream wrongAssignementsFile; 
+    if(profiling){
+        wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
+    } else {
+        wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
+    }
+    if(!wrongAssignementsFile){
+        std::cerr << "Unable to open log time file" << std::endl;
+    }
+    bool acyclic = AcyclicRelation(title, allAssignements, wrongAssignementsFile); 
+    wrongAssignementsFile.close();
     if(acyclic == true){
         if(debug){
             logFile << std::endl;
@@ -184,6 +211,7 @@ int main(int argc, char* argv[]){
     std::string graphFile;
     graphFile = "graphs/inputs/gml/counterexample.gml";
     bool randomInput = false;
+    bool profiling = false;
     int max_nodes = 40;
     int max_levels = 10; 
     for (int i = 1; i < argc; ++i) {
@@ -197,9 +225,11 @@ int main(int argc, char* argv[]){
             max_nodes = std::stoi(argv[++i]);  
         } else if((arg == "-l" || arg == "--levels" && i + 1 < argc)){
             max_levels = std::stoi(argv[++i]);  
+        } else if((arg == "-p" || arg == "--profiling")){
+            profiling = true; 
         }
     }
-    auto logTimeFile = std::ofstream("profiling/time.dat"); 
+    auto logTimeFile = std::ofstream("time.dat"); 
     if(!logTimeFile){
         std::cerr << "Unable to open log time file" << std::endl;
     }
@@ -213,18 +243,16 @@ int main(int argc, char* argv[]){
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
     if(randomInput){
         for(size_t levels = 1; levels < max_levels; levels ++){
-            for(size_t nodes = levels * 2; nodes < max_nodes; nodes++){
-                emb = graphBuild.buildRandomLevelGraph(nodes, levels);
-                auto start = std::chrono::steady_clock::now();
-                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, emb, counter, false);
-                auto end = std::chrono::steady_clock::now();
-                logTimeFile << ""<< levels << " " << nodes << " " 
-                    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+            for(size_t nodes = 1 ; nodes < max_nodes; nodes++){
+                std::cout << "Graph with nodes: " << nodes << " and levels: "  << levels << std::endl; 
+                graphBuild.buildRandomLevelGraph(nodes, levels);
+                logTimeFile << ""<< levels << " " << nodes << " " ;
+                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, counter, false, logTimeFile, profiling);
             }
         }
     } else {
-        emb = graphBuild.buildLevelGraphFromGML(graphFile);
-        process("customGraph", graphBuild, emb, counter, false);
+        graphBuild.buildLevelGraphFromGML(graphFile);
+        process("customGraph", graphBuild, counter, false, logTimeFile, profiling);
     }
 
     logTimeFile.close();

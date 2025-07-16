@@ -4,7 +4,7 @@ set dgrid3d 50,50
 set hidden3d 
 set contour base 
 set cntrparam levels 10 
-set view 60,40
+set view 60, 310 
 set xlabel "num of Levels" 
 set ylabel "num of Nodes" 
 set zlabel "Time"
