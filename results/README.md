@@ -6,7 +6,8 @@ the spike is fixed, it was probably some deep copy that I didn't intend to do so
 
 # The special case of a connected components encapsulated in an other
 My algorithm fails for now in the special case described in the title, ( i didn't implement it yet, wasn't sure if it was needed ), this example is a proof that it 
-is needed ![specialEncapsulation/randomProperLevelGraph_v_4_l_2.svg]
+is needed ![example_case_encapsulation](specialEncapsulation/randomProperLevelGraph_v_13_l_4.svg)
 
-You can also find the graph in gml format in `specialEncapsulation/randomProperLevelGraph_v_4_l_2.gml`
+You can also find the graph in gml format in `specialEncapsulation/randomProperLevelGraph_v_13_l_4.svg`
+
 
