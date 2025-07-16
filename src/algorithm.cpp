@@ -199,20 +199,22 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
                 //encapsulated connected comp outside of the encapsulating one?
                 for(int vIndex: idConComps.first[cc1]) {
                     for(int wIndex: idConComps.first[cc2]){
-                        if(eq.find(std::pair(vIndex, wIndex)) == eq.end()){
-                            eq[std::pair(vIndex, wIndex)] = std::make_shared<nodePairSet>(); 
-                            eq[std::pair(wIndex, vIndex)] = std::make_shared<nodePairSet>(); 
+                        std::pair vwPair(vIndex, wIndex);
+                        std::pair vwPair_inverse(wIndex, vIndex);
+                        if(eq.find(vwPair) == eq.end()){
+                            eq[vwPair] = std::make_shared<nodePairSet>(); 
+                            eq[vwPair]->insert(std::pair(vIndex, wIndex));
+                            eq[vwPair_inverse] = std::make_shared<nodePairSet>(); 
+                            eq[vwPair_inverse]->insert(std::pair(wIndex, vIndex));
                         }
                         if(npair_set == nullptr){
-                            u = vIndex; 
-                            w = wIndex;
-                            npair_set = eq[std::pair(vIndex, wIndex)];
-                            npair_inverse_set = eq[std::pair(wIndex, vIndex)];
+                            npair_set = eq[vwPair];
+                            npair_inverse_set = eq[vwPair_inverse];
                         }
-                        npair_set->insert(eq[std::pair(vIndex, wIndex)]->begin(),eq[std::pair(vIndex, wIndex)]->end() );
-                        eq[std::pair(vIndex, wIndex)] = npair_set; 
-                        npair_inverse_set->insert(eq[std::pair(wIndex, vIndex)]->begin(),eq[std::pair(wIndex, vIndex)]->end());
-                        eq[std::pair(wIndex, vIndex)] = npair_inverse_set; 
+                        npair_set->insert(eq[vwPair]->begin(),eq[vwPair]->end() );
+                        eq[vwPair] = npair_set; 
+                        npair_inverse_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end());
+                        eq[vwPair_inverse] = npair_inverse_set; 
 
                         //std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
                     }
@@ -222,6 +224,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
         }
     }
     for(auto& adj_v_index: adjIn){
+        std::cout << "DEBUG:::: creating a new edge between " << adj_v_index << " and " << v->index() << std::endl;
         G.newEdge(gVertices[adj_v_index], gVertices[v->index()]);
     }
 
@@ -256,6 +259,21 @@ equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
             addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
+        }
+        for(const auto& v : level){
+            std::vector<int> adjOut, adjIn;
+            for(const auto& adj : v->adjEntries){
+                ogdf::edge e = adj->theEdge(); 
+                if(v->index() == e->source()->index()){
+                    //TODO refactor so i work with vertices as keys for the containers that i am using.
+                    adjOut.push_back(e->target()->index());  
+                } else {
+                    adjIn.push_back(e->source()->index());
+                }
+            }
+            sort(adjIn.begin(), adjIn.end());
+            sort(adjOut.begin(), adjOut.end());
+        
             addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, connectedComps, adjIn, gVertices);
         }
         previousLevel = level;
