@@ -1,7 +1,9 @@
 #include "algorithm.hpp"
 #include "utils.hpp"
+#include "Tracy.hpp"
 
 /*equivalentClasses*/ std::vector<int> Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn ){
+    ZoneScopedN("addAjdacentEdges function"); 
     std::map<int,int> orderIn, orderOut; 
     int counter = 0;
     for(const auto i : adjIn){
@@ -12,6 +14,7 @@
         orderOut[i] = counter++;
     }
     for(const auto u:adjOut){
+        ZoneScopedN("outside ajdOut function"); 
         for(const auto w:adjOut){
             if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
                 // it means we already processed an equivalent class 
@@ -34,6 +37,7 @@
         }
     }
     for(const auto u:adjIn){
+        ZoneScopedN("outside inadj function"); 
         for(const auto w:adjIn){
             if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
                 // it means we already processed an equivalent class 
@@ -59,6 +63,7 @@
     std::shared_ptr<nodePairSet> e = nullptr, e_inverse = nullptr; 
     nodePair paar, paar_inverse; 
     for(const auto u: adjOut ){
+        ZoneScopedN("outside outdj eq sync "); 
         for(const auto  w : adjOut){
             if(u < w){
                 paar = std::make_pair(u,w); 
@@ -79,11 +84,20 @@
                     e = eq[paar]; 
                     e_inverse = eq[paar_inverse];
                 }
-                e->insert(eq[paar]->begin(), eq[paar]->end());
-                e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+                if(e->find(paar) == e->end() && e->find(paar_inverse) == e->end()){
 
-                eq[paar] = e;
-                eq[paar_inverse] = e_inverse;
+                    e->insert(eq[paar]->begin(), eq[paar]->end());
+                    e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+
+                    eq[paar] = e;
+                    eq[paar_inverse] = e_inverse;
+                    for(auto& [u1, w1]: *eq[paar]){
+                        std::pair<int, int> eqPaar(u1,w1);
+                        std::pair<int, int> eqPaar_inverse(w1,u1);
+                        eq[eqPaar] = e;  
+                        eq[eqPaar_inverse] = e_inverse;
+                    }
+                }
             }
         }
     }
@@ -92,16 +106,19 @@
     e_inverse = nullptr;
 
     for(const auto u: adjIn ){
+        ZoneScopedN("outside in eq sync "); 
         for(const auto  w : adjIn){
             if(u < w){
                 paar = std::make_pair(u,w); 
                 paar_inverse = std::make_pair(w,u);
                 if(orderIn[u] > orderIn[w]){
+                    ZoneScopedN("outside in eq sync "); 
                     std::swap(paar, paar_inverse);
                 }
                 // if the equivalent class doesn't exist yet due to vertex not 
                 // having an edge that is important (non-adjacent critical edges) edge.
                 if(eq.find(paar) == eq.end()){
+                    ZoneScopedN("if we don't find the pair "); 
                     eq[paar] = std::make_shared<nodePairSet>(); 
                     eq[paar]->insert(std::make_pair(u,w));
                     eq[paar_inverse] = std::make_shared<nodePairSet>(); 
@@ -109,14 +126,25 @@
                 }
 
                 if(e == nullptr){
+                    ZoneScopedN("nullptr case "); 
                     e = eq[paar]; 
                     e_inverse = eq[paar_inverse];
                 }
-                e->insert(eq[paar]->begin(), eq[paar]->end());
-                e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
+                if(e->find(paar)== e->end() && e->find(paar_inverse)== e->end() ){
+                    ZoneScopedN("the syncing  "); 
+                    e->insert(eq[paar]->begin(), eq[paar]->end());
+                    e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
 
-                eq[paar] = e;
-                eq[paar_inverse] = e_inverse;
+                    eq[paar] = e;
+                    eq[paar_inverse] = e_inverse;
+                    for(auto& [u1, w1]: *eq[paar]){
+                        ZoneScopedN("sync the other eq"); 
+                        std::pair<int, int> eqPaar(u1,w1);
+                        std::pair<int, int> eqPaar_inverse(w1,u1);
+                        eq[eqPaar] = e;  
+                        eq[eqPaar_inverse] = e_inverse;
+                    }
+                }
             }
         }
     }
@@ -145,9 +173,9 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
         equivalentClasses& eq, 
         const ogdf::node& v,
         ogdf::Graph& G, 
-        ogdf::NodeArray<int>& connectedComps,
         const std::vector<int>& adjIn, 
         std::map<int, ogdf::node>& gVertices){
+    ZoneScopedN("addWeakHanani function"); 
     // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
     // so i can just create a new node 
 
@@ -161,6 +189,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
 
 
     // TODO gotta work on the datastructure for saving the connected comps.
+    ogdf::NodeArray<int> connectedComps(G);
     ogdf::connectedComponents(G, connectedComps); 
     // map idNode -> concomp
     auto idConComps = connetectedCompsVerticesMap(connectedComps, G, previousLevel); 
@@ -189,10 +218,13 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     gVertices[v->index()] = G.newNode(v->index()); 
     sharedNodePairSet npair_set = nullptr; 
     sharedNodePairSet npair_inverse_set = nullptr; 
+    std::pair<int, int>rootPair;
+    bool rootSet = false;
+
+
     // TODO URGENT take in consideration the case where C2 < C2 from the hanani-tutte paper.
     int u,w;
     for(int cc1: connectedCompsMerged){
-
         for(int cc2: connectedCompsMerged){
             if(cc1 < cc2){
                 //TODO do i really need to consider C2 < C1, is it not possible to just push the smaller 
@@ -211,10 +243,42 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
                             npair_set = eq[vwPair];
                             npair_inverse_set = eq[vwPair_inverse];
                         }
-                        npair_set->insert(eq[vwPair]->begin(),eq[vwPair]->end() );
-                        eq[vwPair] = npair_set; 
-                        npair_inverse_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end());
-                        eq[vwPair_inverse] = npair_inverse_set; 
+                        if(npair_set->find(vwPair_inverse) == npair_set->end() && npair_set->find(vwPair) == npair_set->end()){
+                            {
+                                ZoneScopedN("syncing in weak ht1");
+                                npair_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end() );
+                                eq[vwPair_inverse] = npair_set; 
+                                npair_inverse_set->insert(eq[vwPair]->begin(),eq[vwPair]->end());
+                                eq[vwPair] = npair_inverse_set; 
+                            }
+                            npair_set->insert(eq[vwPair]->begin(),eq[vwPair]->end() );
+                            eq[vwPair] = npair_set; 
+                            npair_inverse_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end());
+                            eq[vwPair_inverse] = npair_inverse_set; 
+                            for(auto& [u1, w1]: *eq[vwPair]){
+                                std::pair<int, int> eqPaar(u1,w1);
+                                std::pair<int, int> eqPaar_inverse(w1,u1);
+                                eq[eqPaar] = npair_set;  
+                                eq[eqPaar_inverse] = npair_inverse_set;
+                            }
+                        } else {
+                            /*
+                            {
+                                ZoneScopedN("syncing in weak ht2");
+                                npair_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end() );
+                                eq[vwPair_inverse] = npair_set; 
+                                npair_inverse_set->insert(eq[vwPair]->begin(),eq[vwPair]->end());
+                                eq[vwPair] = npair_inverse_set; 
+                            }
+                            for(auto& [u1, w1]: *eq[vwPair]){
+                                std::pair<int, int> eqPaar(u1,w1);
+                                std::pair<int, int> eqPaar_inverse(w1,u1);
+                                eq[eqPaar] = npair_inverse_set;  
+                                eq[eqPaar_inverse] = npair_set;
+                            }
+
+                            */
+                        }
 
                         //std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
                     }
@@ -224,21 +288,21 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
         }
     }
     for(auto& adj_v_index: adjIn){
-        std::cout << "DEBUG:::: creating a new edge between " << adj_v_index << " and " << v->index() << std::endl;
+        //std::cout << "DEBUG:::: creating a new edge between " << adj_v_index << " and " << v->index() << std::endl;
         G.newEdge(gVertices[adj_v_index], gVertices[v->index()]);
     }
 
 }
-equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
-    equivalentClasses eq_old_save; 
+void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq, equivalentClasses& eq_old_save){
+    eq_old_save.clear();
     for(const auto& [pair,sharedset]: eq){
         eq_old_save[pair] = std::make_shared<nodePairSet>(); 
         for(const auto& eqPair : *sharedset){
             eq_old_save[pair]->insert(std::pair(eqPair.first, eqPair.second));
         }
     }
+    ZoneScopedN("the reduce function");
     ogdf::Graph G; 
-    ogdf::NodeArray<int> connectedComps(G);
     std::vector<int> adjIn, adjOut;
     //TODO started caring less about the structure, this needs refactoring
     std::map<int, ogdf::node> gVertices; 
@@ -259,24 +323,26 @@ equivalentClasses Contribution::reduceEquivalentClasses(std::vector<std::vector<
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
             addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
+            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices);
         }
-        for(const auto& v : level){
-            std::vector<int> adjOut, adjIn;
-            for(const auto& adj : v->adjEntries){
-                ogdf::edge e = adj->theEdge(); 
-                if(v->index() == e->source()->index()){
-                    //TODO refactor so i work with vertices as keys for the containers that i am using.
-                    adjOut.push_back(e->target()->index());  
-                } else {
-                    adjIn.push_back(e->source()->index());
-                }
-            }
-            sort(adjIn.begin(), adjIn.end());
-            sort(adjOut.begin(), adjOut.end());
-        
-            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, connectedComps, adjIn, gVertices);
+        /*
+           for(const auto& v : level){
+           std::vector<int> adjOut, adjIn;
+           for(const auto& adj : v->adjEntries){
+           ogdf::edge e = adj->theEdge(); 
+           if(v->index() == e->source()->index()){
+        //TODO refactor so i work with vertices as keys for the containers that i am using.
+        adjOut.push_back(e->target()->index());  
+        } else {
+        adjIn.push_back(e->source()->index());
         }
+        }
+        sort(adjIn.begin(), adjIn.end());
+        sort(adjOut.begin(), adjOut.end());
+
+        addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, connectedComps, adjIn, gVertices);
+        }
+        */
         previousLevel = level;
     }
-    return eq_old_save;
 }

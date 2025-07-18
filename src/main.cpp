@@ -17,9 +17,10 @@
 #include "algorithm.hpp"
 #include "type.hpp"
 #include "utils.hpp"
+#include "Tracy.hpp"
 
-
-std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>emb){
+void compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, std::map<nodePair, sharedNodePairSet>& eq){
+    ZoneScoped;
     // sync 
     std::map<nodePair, nodePairSet> sync; 
 
@@ -51,7 +52,6 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
         }
     }
 
-    equivalentClasses eq; 
     std::vector<nodePair> todo;
 
     for(const auto& [key, value] : sync){
@@ -94,18 +94,20 @@ std::map<nodePair, sharedNodePairSet> compute2SATClasses(std::vector<std::vector
 
         }
     }
-    return eq; 
 }
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
 void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling){
-    ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-    if(profiling){
-        ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-        ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
-    }else {
-        ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-        ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+    ZoneScopedN("process");
+    {
+        ZoneScopedN("image and gml creation");
+        if(profiling){
+            ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+            ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+        }else {
+            ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+            ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+        }
     }
 
     std::ofstream logFile; 
@@ -128,9 +130,14 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         logFile << std::endl;
     }
 
-    equivalentClasses eq = compute2SATClasses(graphBuild.emb);
+    equivalentClasses eq ;
+    {
+        ZoneScopedN("compute2SAT overhead"); 
+        compute2SATClasses(graphBuild.emb, eq);
+    }
 
-
+    //std::cout << "original eq class" << std::endl;
+    //print_eq(eq);
 
     if(debug){
         logFile << std::endl; 
@@ -141,18 +148,25 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     equivalentClasses oldEq; 
 
     auto start = std::chrono::steady_clock::now();
-    oldEq = Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    //oldEq = Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    {
+        ZoneScopedN("reduceEquivalentClasses overhead");
+        Contribution::reduceEquivalentClasses(graphBuild.emb, eq, oldEq);
+    }
     auto end = std::chrono::steady_clock::now();
+
+    //std::cout << "merged eq class" << std::endl;
+    //print_eq(eq);
 
     logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     logFile << std::endl;
-
     if(debug){
         logFile << "> Assigning the equivalent classes" << std::endl; 
         logFile << std::endl;
     }
     std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
+     fillEquivalentClasses(eq);
 
 
 
@@ -162,26 +176,29 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: PASSED" << std::endl;
         }
-        counter.first.first ++;
+        //counter.first.first ++;
     } else {
         if(debug){
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: FAILED" << std::endl;
         }
-        counter.first.second ++;
+        //counter.first.second ++;
     }
     if(debug){
         logFile << std::endl;
     }
 
-    std::ofstream wrongAssignementsFile; 
-    if(profiling){
-        wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
-    } else {
-        wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
-    }
-    if(!wrongAssignementsFile){
-        std::cerr << "Unable to open log time file" << std::endl;
+        std::ofstream wrongAssignementsFile; 
+    {
+        ZoneScopedN("wrongAssigmenetFileWriting");
+        if(profiling){
+            wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
+        } else {
+            wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
+        }
+        if(!wrongAssignementsFile){
+            std::cerr << "Unable to open wrong assigment file" << std::endl;
+        }
     }
     bool acyclic = AcyclicRelation(title, allAssignements, wrongAssignementsFile); 
     wrongAssignementsFile.close();
