@@ -13,7 +13,7 @@ else
 
 fi
 
-../2SATEquivalenceReduction -r -n ${nodes} -l ${levels} 
+../2SATEquivalenceReduction -r -n ${nodes} -l ${levels} -p
 
 gnuplot level_nodes_to_time.gp 
 
