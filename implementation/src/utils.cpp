@@ -5,6 +5,7 @@
 #include <string>
 #include "type.hpp"
 #include "utils.hpp"
+#include "Tracy.hpp"
 void createLayout(std::string nameFile, ogdf::Graph& G){
     ogdf::GraphAttributes GA(G,
             ogdf::GraphAttributes::all );
@@ -38,6 +39,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
 }
 
 bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq){
+    ZoneScoped; 
     for(auto& [key, equivalentset] : eq){
         for(auto& pair : *equivalentset){
             for(size_t i = 0; i < eqAs.size(); i++){
@@ -59,7 +61,8 @@ std::string to_string(equivalentClassesAssignement& assignement){
     }
     return stringRepr;
 }
-bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement, std::ofstream& wrongAssignements){
+bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement, std::ofstream& wrongAssignements ){
+    ZoneScoped;
     for(size_t i = 0 ; i < assignement.size(); i++){
         std::map<int, ogdf::node> nodes;
         ogdf::Graph G; 
@@ -81,7 +84,7 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
                 }
             }
         }
-        //createLayout(title + "_relation_assignement" + std::to_string(i), G);
+        createLayout(title + "_relation_assignement" + std::to_string(i), G);
         if(!ogdf::isAcyclic(G)){
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
             wrongAssignements << to_string(assignement[i]);
@@ -104,6 +107,7 @@ void print_eq(const equivalentClasses& eq){
 std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq){
     equivalentClassesAssignement eqAs; 
     // initiate the state of each order assignement to undertermined (-1) 
+    ZoneScopedN("filling"); 
     for(const auto& [key, value] : eq){
         eqAs[key] = -1; 
     }
@@ -156,6 +160,6 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalent
         } 
     }
 
-    return allAssignement; 
+    return std::move(allAssignement); 
 
 }

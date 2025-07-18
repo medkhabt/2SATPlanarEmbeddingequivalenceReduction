@@ -26,14 +26,22 @@ add_custom_target(copy_resources ALL
            )
 
 include_directories(include)
+include_directories(tracy/public/tracy)
 include_directories(/home/medkha/.local/share/ogdf/include)
+
 link_directories(/home/medkha/.local/share/ogdf)
 
-add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp)
+option( TRACY_ENABLE "" ON)
+add_subdirectory(tracy)
+
+option( TRACY_ON_DEMAND "" ON)
+
+add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
 
 target_link_libraries(2SATEquivalenceReduction
     OGDF 
     COIN
+    Tracy::TracyClient
 )
 
 
