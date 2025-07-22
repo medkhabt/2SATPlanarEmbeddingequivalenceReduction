@@ -20,4 +20,19 @@ the source code is basically the bloc calling the function, so it's just some ov
 
 I am still in debug mode, it could be the reason behind it. I can't switch to release mode, as i get some assertion problems that I can't debug yet.
 
+## UPDATE
+I just didn't put the Zone marker for the profiling in the beginning of the function. Basically the deep copy of the equivalence class before starting my 
+algorithm is the one responsible for the overhead. this deep copy is needed for the planarity test, therfore we can associate this overhead with the planarity test. 
+
+# More profiling after altering the addWeakHananiTutteCase 
+I had to alter the function to include the case where one connected component is encapsulated by another. Still in progress, but it added some execution time 
+for my algorithm. I fixed some instructions that take more time for no purpose to the algorithm. Basically I made less lookups to maps, compared the sharedpointers 
+before merging to equivalence classes, and not synchronzing the equivalence class of the pairs in the equivalence class that is being treated if it didn't change.
+
+All of this small changes helped fastening the execution significally ![flame](profiling_buttleneck_WeakHananiTutteCase/flames.jpg) ![statistics](statistics.jpg)  
+Let's put the focus on the `reduce function` in blue, it takes 2.40 % of the execution time compared to the calculation of the 2-SAt equivalence classes that only 
+takes 0.64% of the total execution time. I need to still be careful, is it a linear difference or asymptotic difference, is it also a difference due to bad implementation ? 
+
+
+
 

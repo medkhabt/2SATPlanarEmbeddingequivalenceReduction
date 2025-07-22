@@ -2,9 +2,8 @@
 #include "utils.hpp"
 #include "Tracy.hpp"
 
-/*equivalentClasses*/ std::vector<int> Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn ){
+/*equivalentClasses*/ void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn, std::map<int, int>& orderOut, std::map<int,int>& orderIn){
     ZoneScopedN("addAjdacentEdges function"); 
-    std::map<int,int> orderIn, orderOut; 
     int counter = 0;
     for(const auto i : adjIn){
         orderIn[i] = counter++;
@@ -39,7 +38,15 @@
     for(const auto u:adjIn){
         ZoneScopedN("outside inadj function"); 
         for(const auto w:adjIn){
-            if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
+            if(u < w){
+                if(eq.find(std::make_pair(u, w)) == eq.end()){
+                    std::pair pair(u,w);
+                    std::pair pair_inverse(w,u);
+                    eq[pair] = std::make_shared<nodePairSet>(); 
+                    eq[pair]->insert(pair);
+                    eq[pair_inverse] = std::make_shared<nodePairSet>(); 
+                    eq[pair_inverse]->insert(pair_inverse);
+                }
                 // it means we already processed an equivalent class 
                 // that has the inverse of this order.
                 if(orderIn[u] > orderIn[w]){
@@ -68,7 +75,7 @@
             if(u < w){
                 paar = std::make_pair(u,w); 
                 paar_inverse = std::make_pair(w,u);
-                if(orderIn[u] > orderIn[w]){
+                if(orderOut[u] > orderOut[w]){
                     std::swap(paar, paar_inverse);
                 }
                 // if the equivalent class doesn't exist yet due to vertex not 
@@ -149,15 +156,16 @@
         }
     }
 
-    return std::move(adjIn);
 }
 
 std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connetectedCompsVerticesMap(const ogdf::NodeArray<int>& connectedcomps, const ogdf::Graph& G, const std::vector<ogdf::NodeElement*>& level){
+    ZoneScoped;
     std::pair<std::map<int,std::set<int>>, std::map<int,int>> result; 
     std::map<int, std::set<int>> compToVertices;
     std::map<int, int> vertexToComp;
     ogdf::Array<ogdf::node> nodes; 
     G.allNodes(nodes);
+    
     for(const auto& n : nodes){
         for(const auto & levelNode : level){
             if(n->index() == levelNode->index()){
@@ -174,7 +182,11 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
         const ogdf::node& v,
         ogdf::Graph& G, 
         const std::vector<int>& adjIn, 
-        std::map<int, ogdf::node>& gVertices){
+        std::map<int, ogdf::node>& gVertices,
+        ogdf::NodeArray<int>& vertexLevel,
+        int levelIndex, 
+        const std::map<int,int>& orderIn
+        ){
     ZoneScopedN("addWeakHanani function"); 
     // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
     // so i can just create a new node 
@@ -186,16 +198,25 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
        }
        hmm but the issue is that there is a check to seee if the vertex is part of the graph.., so i can't just sneak in a new vertex just for the mapping (either way i can't use the ElementNode constructor..)
        */
-
-
-    // TODO gotta work on the datastructure for saving the connected comps.
+    
+    // I need to map the vertices to the levels  
+    // this is done in the function that calls hanani-tutte weak    
+    //
     ogdf::NodeArray<int> connectedComps(G);
-    ogdf::connectedComponents(G, connectedComps); 
+    std::map<int, int> minLevelPerComp;
+    int n = ogdf::connectedComponents(G, connectedComps); 
+    std::vector<int> componentsOrder;
+    // Order the connected components based on their vertices with the minimum level.
+    
+
+
+    // After ordering the new connected component. Merge the two connected components. And do the process again.
     // map idNode -> concomp
     auto idConComps = connetectedCompsVerticesMap(connectedComps, G, previousLevel); 
     bool v_connets_2_comps = false;
     std::set<int> connectedCompsMerged; 
     for(auto adj_v: adjIn){
+    ZoneScopedN("cut-vertex to which comps?"); 
         for(auto adj_w: adjIn){
             if(idConComps.second[adj_v] != idConComps.second[adj_w]){
                 connectedCompsMerged.insert(idConComps.second[adj_v]);
@@ -215,7 +236,9 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
        std::cout << std::endl;
        */
 
+    std::cout << "DEGUB ::: adding vertex " << v->index() << " to gVertices." << std::endl;
     gVertices[v->index()] = G.newNode(v->index()); 
+    vertexLevel[gVertices[v->index()]] = levelIndex;
     sharedNodePairSet npair_set = nullptr; 
     sharedNodePairSet npair_inverse_set = nullptr; 
     std::pair<int, int>rootPair;
@@ -224,93 +247,293 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
 
     // TODO URGENT take in consideration the case where C2 < C2 from the hanani-tutte paper.
     int u,w;
-    for(int cc1: connectedCompsMerged){
-        for(int cc2: connectedCompsMerged){
-            if(cc1 < cc2){
-                //TODO do i really need to consider C2 < C1, is it not possible to just push the smaller 
-                //encapsulated connected comp outside of the encapsulating one?
-                for(int vIndex: idConComps.first[cc1]) {
-                    for(int wIndex: idConComps.first[cc2]){
-                        std::pair vwPair(vIndex, wIndex);
-                        std::pair vwPair_inverse(wIndex, vIndex);
-                        if(eq.find(vwPair) == eq.end()){
-                            eq[vwPair] = std::make_shared<nodePairSet>(); 
-                            eq[vwPair]->insert(std::pair(vIndex, wIndex));
-                            eq[vwPair_inverse] = std::make_shared<nodePairSet>(); 
-                            eq[vwPair_inverse]->insert(std::pair(wIndex, vIndex));
-                        }
-                        if(npair_set == nullptr){
-                            npair_set = eq[vwPair];
-                            npair_inverse_set = eq[vwPair_inverse];
-                        }
-                        if(npair_set->find(vwPair_inverse) == npair_set->end() && npair_set->find(vwPair) == npair_set->end()){
-                            {
-                                ZoneScopedN("syncing in weak ht1");
-                                npair_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end() );
-                                eq[vwPair_inverse] = npair_set; 
-                                npair_inverse_set->insert(eq[vwPair]->begin(),eq[vwPair]->end());
-                                eq[vwPair] = npair_inverse_set; 
-                            }
-                            npair_set->insert(eq[vwPair]->begin(),eq[vwPair]->end() );
-                            eq[vwPair] = npair_set; 
-                            npair_inverse_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end());
-                            eq[vwPair_inverse] = npair_inverse_set; 
-                            for(auto& [u1, w1]: *eq[vwPair]){
-                                std::pair<int, int> eqPaar(u1,w1);
-                                std::pair<int, int> eqPaar_inverse(w1,u1);
-                                eq[eqPaar] = npair_set;  
-                                eq[eqPaar_inverse] = npair_inverse_set;
-                            }
-                        } else {
-                            /*
-                            {
-                                ZoneScopedN("syncing in weak ht2");
-                                npair_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end() );
-                                eq[vwPair_inverse] = npair_set; 
-                                npair_inverse_set->insert(eq[vwPair]->begin(),eq[vwPair]->end());
-                                eq[vwPair] = npair_inverse_set; 
-                            }
-                            for(auto& [u1, w1]: *eq[vwPair]){
-                                std::pair<int, int> eqPaar(u1,w1);
-                                std::pair<int, int> eqPaar_inverse(w1,u1);
-                                eq[eqPaar] = npair_inverse_set;  
-                                eq[eqPaar_inverse] = npair_set;
-                            }
-
-                            */
-                        }
-
-                        //std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
-                    }
-                }
-
+    if(v_connets_2_comps){
+        ZoneScopedN("cut-vertex v");
+        for(auto it = connectedComps.begin(); it != connectedComps.end(); it++ ){
+            ZoneScopedN("finding min level per connected comp");
+            auto v = it.key();
+            int conComp = *it; 
+            if((connectedCompsMerged.find(conComp) != connectedCompsMerged.end()) && (minLevelPerComp.find(conComp)== minLevelPerComp.end() || vertexLevel[v] <  minLevelPerComp[conComp])){
+                minLevelPerComp[conComp]  = vertexLevel[v];
             }
         }
+
+        for(auto& [c,k]: minLevelPerComp){
+            componentsOrder.push_back(c); 
+        }
+
+        {
+        ZoneScopedN("quicksort");
+        quickSort<int>(componentsOrder, 0, componentsOrder.size()-1, minLevelPerComp); 
+        }
+        // order the adjacent vertices (sloppy..)
+        int orderAdjacentVertices[orderIn.size()]; 
+        for(auto [v,order] : orderIn){
+            orderAdjacentVertices[order] = v;   
+        }
+        // First component doesn't need any traitement
+        for(size_t i = 1; i < componentsOrder.size(); i++){
+            ZoneScopedN("merging connected comps");
+            int lastVFromC1 = -1; 
+            for(int vIndex: orderAdjacentVertices){
+                ZoneScopedN("finding closest vertex from comp 0 in vertices Neighbors to v in h - 1");
+                // If we found the first vertex from the connected component that we want to draw, we stop
+                if(idConComps.second[vIndex] == componentsOrder[i]){
+                    break;
+                }
+                // look for the last vertex from the adjacent vertices to v while still not finding a vertex from the connected comp to draw.
+                if(idConComps.second[vIndex] == componentsOrder[0]){
+                    lastVFromC1 = vIndex;
+                } 
+            }
+            /* TODO gotta solve the v = 14, l=3 with vertex 7 situation
+            if(lastVFromC1 == -1){
+                for(int vIndex = adjIn.size() - 1; vIndex >= 0 ; vIndex--){
+                    // If we found the first vertex from the connected component that we want to draw, we stop
+                    if(idConComps.second[vIndex] == componentsOrder[i]){
+                        break;
+                    }
+                    // look for the last vertex from the adjacent vertices to v while still not finding a vertex from the connected comp to draw.
+                    if(idConComps.second[vIndex] == componentsOrder[0]){
+                        lastVFromC1 = vIndex;
+                    } 
+                }
+            
+            }
+            */
+            if(lastVFromC1 != -1){
+                ZoneScopedN("in case we found the closet v from c0 before comp in question");
+                npair_set = nullptr;
+                for(int wIndex: idConComps.first[componentsOrder[i]]){
+                    std::pair mainPair(lastVFromC1, wIndex);
+                    std::pair mainPair_inverse(wIndex,lastVFromC1);
+                    auto& set_mainPair = eq[mainPair]; 
+                    auto& set_mainPair_inverse = eq[mainPair_inverse]; 
+                    if(!set_mainPair){
+                        set_mainPair = std::make_shared<nodePairSet>();
+                        set_mainPair->insert(mainPair);
+                        set_mainPair_inverse = std::make_shared<nodePairSet>();
+                        set_mainPair_inverse->insert(mainPair_inverse);
+                    }
+                    
+
+                    if(npair_set == nullptr){
+                           npair_set = eq[mainPair]; 
+                           npair_inverse_set = eq[mainPair_inverse];
+                    }
+
+                    if(npair_set->find(mainPair_inverse) == npair_set->end()){
+                        npair_set->insert(eq[mainPair]->begin(), eq[mainPair]->end());
+                        eq[mainPair] = npair_set;
+                        npair_inverse_set->insert(eq[mainPair_inverse]->begin(), eq[mainPair_inverse]->end());
+                        eq[mainPair_inverse] = npair_inverse_set;
+                    
+                    }else {
+                        npair_set->insert(eq[mainPair_inverse]->begin(), eq[mainPair_inverse]->end());
+                        eq[mainPair_inverse] = npair_set;
+                        npair_inverse_set->insert(eq[mainPair]->begin(), eq[mainPair]->end());
+                        eq[mainPair] = npair_inverse_set;
+                    }
+                    
+                    for(int vIndex: idConComps.first[componentsOrder[0]]){
+                        ZoneScopedN("work with all vertices of c0");
+                        if(vIndex != lastVFromC1){
+                            std::pair pair(lastVFromC1, vIndex); 
+                            std::pair copierPair(wIndex, vIndex);
+                            std::pair pair_inverse(vIndex, lastVFromC1); 
+                            std::pair copierPair_inverse(vIndex, wIndex);
+                            auto& set_pair = eq[pair];
+                            auto& set_pair_inverse = eq[pair_inverse];
+                            auto& set_copierPair = eq[copierPair];
+                            auto& set_copierPair_inverse = eq[copierPair_inverse];  
+                            if(!set_pair){
+                                set_pair = std::make_shared<nodePairSet>();
+                                set_pair->insert(pair);
+                                set_pair_inverse = std::make_shared<nodePairSet>();
+                                set_pair_inverse->insert(pair_inverse);
+                            }
+
+                            if(!set_copierPair){
+                                set_copierPair = std::make_shared<nodePairSet>();
+                                set_copierPair ->insert(copierPair);
+                                set_copierPair_inverse = std::make_shared<nodePairSet>();
+                                set_copierPair_inverse->insert(copierPair_inverse);
+                                 
+                            }
+
+                            if(set_pair->find(copierPair_inverse) == set_pair->end()){
+                                if(set_pair != set_copierPair){
+                                    set_pair->insert(set_copierPair->begin(), set_copierPair->end());
+                                    set_copierPair = set_pair; 
+                                    set_pair_inverse->insert(set_copierPair_inverse->begin(), set_copierPair_inverse->end()); 
+                                    set_copierPair_inverse = set_pair_inverse;
+                                    for(auto& [u1, w1]: *eq[copierPair]){
+                                        ZoneScopedN("propagate the merge if");
+                                        eq[std::pair(u1,w1)] = set_copierPair; 
+                                        eq[std::pair(w1,u1)] = set_copierPair_inverse; 
+                                    }
+                                }
+                            } else {
+                                if(set_pair != set_copierPair_inverse){
+                                    set_pair->insert(set_copierPair_inverse->begin(), set_copierPair_inverse->end());
+                                    set_copierPair_inverse = set_pair; 
+                                    set_pair_inverse->insert(set_copierPair->begin(), set_copierPair->end()); 
+                                    set_copierPair = set_pair_inverse;
+                                    for(auto& [u1, w1]: *eq[copierPair]){
+                                        ZoneScopedN("propagate the merge else");
+                                        eq[std::pair(u1,w1)] = set_copierPair; 
+                                        eq[std::pair(w1,u1)] = set_copierPair_inverse; 
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    // Put wIndex in first connected comp
+                }
+                for(int wIndex: idConComps.first[componentsOrder[i]]){
+                    idConComps.first[componentsOrder[0]].insert(wIndex);
+                    idConComps.second[wIndex] = componentsOrder[0];
+                }
+                
+
+            } else {
+                ZoneScopedN("in case we didn't find the closest v in c0 before c in question");
+                npair_set = nullptr;
+                for(int wIndex: idConComps.first[componentsOrder[i]]){
+                    for(int vIndex: idConComps.first[componentsOrder[0]]){
+                        std::pair pair(wIndex, vIndex); 
+                        std::pair pair_inverse(vIndex, wIndex); 
+
+                        if(eq.find(pair) == eq.end()){
+                            eq[pair] = std::make_shared<nodePairSet>(); 
+                            eq[pair]->insert(pair);
+                            eq[pair_inverse] = std::make_shared<nodePairSet>(); 
+                            eq[pair_inverse]->insert(pair_inverse);
+                        }
+                        if(npair_set == nullptr){
+                            npair_set = eq[pair]; 
+                            npair_inverse_set = eq[pair_inverse];
+                        }
+
+                        if(npair_set->find(pair_inverse) == npair_set->end()){
+                            npair_set->insert(eq[pair]->begin(), eq[pair]->end());
+                            eq[pair] = npair_set;
+                            npair_inverse_set->insert(eq[pair_inverse]->begin(), eq[pair_inverse]->end());
+                            eq[pair_inverse] = npair_inverse_set;
+
+                        } else {
+                            npair_set->insert(eq[pair_inverse]->begin(), eq[pair_inverse]->end());
+                            eq[pair_inverse] = npair_set;
+                            npair_inverse_set->insert(eq[pair]->begin(), eq[pair]->end());
+                            eq[pair] = npair_inverse_set;
+                        }
+
+
+                        for(auto& [u1, w1]: *eq[pair]){
+                            std::pair<int, int> eqPaar(u1,w1);
+                            std::pair<int, int> eqPaar_inverse(w1,u1);
+                            eq[eqPaar] = eq[pair]; 
+                            eq[eqPaar_inverse] = eq[pair_inverse]; 
+                        }
+                    }
+                    // Put wIndex in first connected comp
+                }
+                for(int wIndex: idConComps.first[componentsOrder[i]]){
+                    idConComps.first[componentsOrder[0]].insert(wIndex);
+                    idConComps.second[wIndex] = componentsOrder[0];
+                }
+
+                std::cout << "ALERT? SHOULD THIS HAPPEN?" << std::endl;
+                //  ?
+            }
+        }
+
+        // TODO TO REMOVE
+        /*for(int cc1: connectedCompsMerged){
+            for(int cc2: connectedCompsMerged){
+                npair_set = nullptr;
+                if(cc1 < cc2){
+                    //TODO do i really need to consider C2 < C1, is it not possible to just push the smaller 
+                    //encapsulated connected comp outside of the encapsulating one?
+                    for(int vIndex: idConComps.first[cc1]) {
+                        for(int wIndex: idConComps.first[cc2]){
+                            if(vIndex == 6 && wIndex == 5 || vIndex == 5 && wIndex == 12){
+                                std::cout << "vIndex: " << vIndex << ", wIndex: " << wIndex <<std::endl; 
+                                std::cout << "debug" <<std::endl; 
+                            }
+                            std::pair vwPair(vIndex, wIndex);
+                            std::pair vwPair_inverse(wIndex, vIndex);
+                            if(eq.find(vwPair) == eq.end()){
+                                eq[vwPair] = std::make_shared<nodePairSet>(); 
+                                eq[vwPair]->insert(std::pair(vIndex, wIndex));
+                                eq[vwPair_inverse] = std::make_shared<nodePairSet>(); 
+                                eq[vwPair_inverse]->insert(std::pair(wIndex, vIndex));
+                            }
+                            if(npair_set == nullptr){
+                                npair_set = eq[vwPair];
+                                npair_inverse_set = eq[vwPair_inverse];
+                            }
+                            if(npair_set->find(vwPair_inverse) != npair_set->end()){
+                                {
+                                    ZoneScopedN("syncing in weak ht2");
+                                    npair_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end() );
+                                    eq[vwPair_inverse] = npair_set; 
+                                    npair_inverse_set->insert(eq[vwPair]->begin(),eq[vwPair]->end());
+                                    eq[vwPair] = npair_inverse_set; 
+                                }
+                                for(auto& [u1, w1]: *eq[vwPair]){
+                                    std::pair<int, int> eqPaar(u1,w1);
+                                    std::pair<int, int> eqPaar_inverse(w1,u1);
+                                    eq[eqPaar] = npair_inverse_set;  
+                                    eq[eqPaar_inverse] = npair_set;
+                                }
+                            } else {
+                                {
+                                    ZoneScopedN("syncing in weak ht1");
+                                    npair_set->insert(eq[vwPair]->begin(),eq[vwPair]->end() );
+                                    eq[vwPair] = npair_set; 
+                                    npair_inverse_set->insert(eq[vwPair_inverse]->begin(),eq[vwPair_inverse]->end());
+                                    eq[vwPair_inverse] = npair_inverse_set; 
+                                }
+                                for(auto& [u1, w1]: *eq[vwPair]){
+                                    std::pair<int, int> eqPaar(u1,w1);
+                                    std::pair<int, int> eqPaar_inverse(w1,u1);
+                                    eq[eqPaar] = npair_set;  
+                                    eq[eqPaar_inverse] = npair_inverse_set;
+                                }
+
+                            }
+
+                            //std::cout << "DEBUG ::: "<< vIndex << "," << wIndex << " merged with " << u << "," << w <<std::endl; 
+                        }
+                    }
+
+                }
+            }
+        }*/
     }
     for(auto& adj_v_index: adjIn){
-        //std::cout << "DEBUG:::: creating a new edge between " << adj_v_index << " and " << v->index() << std::endl;
+        std::cout << "DEBUG:::: creating a new edge between " << adj_v_index << " and " << v->index() << std::endl;
         G.newEdge(gVertices[adj_v_index], gVertices[v->index()]);
     }
 
 }
-void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq, equivalentClasses& eq_old_save){
-    eq_old_save.clear();
-    for(const auto& [pair,sharedset]: eq){
-        eq_old_save[pair] = std::make_shared<nodePairSet>(); 
-        for(const auto& eqPair : *sharedset){
-            eq_old_save[pair]->insert(std::pair(eqPair.first, eqPair.second));
-        }
-    }
+void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
     ZoneScopedN("the reduce function");
+    
     ogdf::Graph G; 
+    ogdf::NodeArray<int> vertexlevel(G);
     std::vector<int> adjIn, adjOut;
     //TODO started caring less about the structure, this needs refactoring
     std::map<int, ogdf::node> gVertices; 
     // the instantiation doesn't change much here, I just don't want it to be null.
     std::vector<ogdf::node> previousLevel = emb[0];
+    int levelIndex = 0;
     for(const auto& level : emb){
         for(const auto& v : level){
             std::vector<int> adjOut, adjIn;
+            std::map<int, int> orderIn, orderOut;
             for(const auto& adj : v->adjEntries){
                 ogdf::edge e = adj->theEdge(); 
                 if(v->index() == e->source()->index()){
@@ -322,8 +545,8 @@ void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeEle
             }
             sort(adjIn.begin(), adjIn.end());
             sort(adjOut.begin(), adjOut.end());
-            addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
-            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices);
+            addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn, orderOut, orderIn);
+            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices, vertexlevel, levelIndex, orderIn);
         }
         /*
            for(const auto& v : level){
@@ -344,5 +567,6 @@ void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeEle
         }
         */
         previousLevel = level;
+        levelIndex++;
     }
 }
