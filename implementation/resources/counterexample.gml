@@ -172,30 +172,6 @@ graph
 	]
 	node
 	[
-		id  20	
-		template	""
-		label	"z"
-		weight	0
-		type	"vertex"
-		graphics
-		[
-			x	505.0000000000
-			y	100.0000000000
-			z	0.0000000000
-			label [ x 0.0000000000 y 0.0000000000 z 0.0000000000 ]
-			w	20.0000000000
-			h	20.0000000000
-			fill	"#FFFFFF"
-			fillbg	"#000000"
-			outline	"#000000"
-			pattern	"Solid"
-			stipple	"Solid"
-			lineWidth	1.0000000000
-			type	"Rect"
-		]
-	]
-	node
-	[
 		id	9
 		template	""
 		label	"l"
@@ -442,40 +418,6 @@ graph
 	]
 	edge
 	[
-		source  3	
-		target  20	
-		generalization	0
-		label ""
-		weight	1.0000000000
-		intWeight	1
-		graphics
-		[
-			type	"line"
-			arrow	"last"
-			stipple	"Solid"
-			lineWidth	1.0000000000
-			fill "#000000"
-		]
-	]
-	edge
-	[
-		source  20	
-		target	9
-		generalization	0
-		label ""
-		weight	1.0000000000
-		intWeight	1
-		graphics
-		[
-			type	"line"
-			arrow	"last"
-			stipple	"Solid"
-			lineWidth	1.0000000000
-			fill "#000000"
-		]
-	]
-	edge
-	[
 		source	10
 		target	8
 		generalization	0
@@ -665,7 +607,6 @@ rootcluster
 		vertex "12"
 		vertex "13"
 		vertex "10"
-		vertex "20"
 	]
 	cluster
 	[

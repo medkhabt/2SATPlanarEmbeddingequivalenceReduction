@@ -38,6 +38,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
 
 }
 
+//TODO Parallelize this.
 bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq){
     ZoneScoped; 
     for(auto& [key, equivalentset] : eq){
@@ -73,13 +74,17 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
             if(u < v){
                 if(nodes.find(u) == nodes.end()){
                     nodes[u] = G.newNode(u); 
+                    //GA.label(nodes[u]) = std::to_string(u);
                 }
                 if(nodes.find(v) == nodes.end()){
                     nodes[v] = G.newNode(v); 
+                    //GA.label(nodes[v]) = std::to_string(v);
                 }
                 if(relation){
+                    std::cout << "edge created between : "  << u << " and " << v << std::endl;
                     G.newEdge(nodes[u], nodes[v]);
                 }else{
+                    std::cout << "edge created between : "  << v << " and " << u << std::endl;
                     G.newEdge(nodes[v], nodes[u]);
                 }
             }
@@ -88,6 +93,8 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
         if(!ogdf::isAcyclic(G)){
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
             wrongAssignements << to_string(assignement[i]);
+            std::cout << to_string(assignement[i]) << std::endl;
+
             return false; 
         }
     }
@@ -161,5 +168,6 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalent
     }
 
     return std::move(allAssignement); 
+
 
 }

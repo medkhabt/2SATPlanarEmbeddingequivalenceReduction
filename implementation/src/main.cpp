@@ -110,115 +110,124 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         }
     }
 
-    std::ofstream logFile; 
+    //std::ofstream logFile; 
     if(debug){
         if(profiling){
-            logFile = std::ofstream("../graphs/outputs/log/" + title + ".log"); 
+            //logFile = std::ofstream("../graphs/outputs/log/" + title + ".log"); 
         }else {
-            logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
+            //logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
         }
 
+        /*
         if(!logFile){
             std::cerr << "Unable to open log file" << std::endl;
         }
+        */
     }
-
+/*
     if(debug){
         logFile << "*********************** Graph : " << title << std::endl;
         logFile << std::endl; 
         logFile << "> computing the equivalent classes"  << std::endl;
         logFile << std::endl;
     }
+    */
 
     equivalentClasses eq ;
-    {
-        ZoneScopedN("compute2SAT overhead"); 
-        compute2SATClasses(graphBuild.emb, eq);
-    }
+    compute2SATClasses(graphBuild.emb, eq);
 
-    //std::cout << "original eq class" << std::endl;
-    //print_eq(eq);
+    std::cout << "original eq class" << std::endl;
+    print_eq(eq);
 
+    //std::cout << "***************** after" << std::endl;
+
+    /*
     if(debug){
         logFile << std::endl; 
         logFile << "> Reducing the equivalent classes"  << std::endl;
         logFile << std::endl;
     }
+    */
 
     equivalentClasses oldEq; 
-
-    auto start = std::chrono::steady_clock::now();
-    //oldEq = Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
     {
-        ZoneScopedN("reduceEquivalentClasses overhead");
-        Contribution::reduceEquivalentClasses(graphBuild.emb, eq, oldEq);
+        ZoneScopedN("deep copy for planarity test");
+        for(const auto& [pair,sharedset]: eq){
+            oldEq[pair] = std::make_shared<nodePairSet>(); 
+            for(const auto& eqPair : *sharedset){
+                oldEq[pair]->insert(std::pair(eqPair.first, eqPair.second));
+            }
+        }
     }
+    auto start = std::chrono::steady_clock::now();
+    Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
     auto end = std::chrono::steady_clock::now();
 
-    //std::cout << "merged eq class" << std::endl;
-    //print_eq(eq);
+    std::cout << "merged eq class" << std::endl;
+    print_eq(eq);
 
     logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    logFile << std::endl;
+    //logFile << std::endl;
     if(debug){
-        logFile << "> Assigning the equivalent classes" << std::endl; 
-        logFile << std::endl;
+        //logFile << "> Assigning the equivalent classes" << std::endl; 
+        //logFile << std::endl;
     }
     std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
-     fillEquivalentClasses(eq);
 
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
     if(planarityCheck(allAssignements, oldEq)){
+        /*
         if(debug){
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: PASSED" << std::endl;
         }
-        //counter.first.first ++;
+        */
+        counter.first.first ++;
     } else {
+        /*
         if(debug){
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: FAILED" << std::endl;
         }
-        //counter.first.second ++;
+        */
+        counter.first.second ++;
     }
+    /*
     if(debug){
         logFile << std::endl;
     }
 
-        std::ofstream wrongAssignementsFile; 
-    {
-        ZoneScopedN("wrongAssigmenetFileWriting");
-        if(profiling){
-            wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
-        } else {
-            wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
-        }
-        if(!wrongAssignementsFile){
-            std::cerr << "Unable to open wrong assigment file" << std::endl;
-        }
+    */
+    std::ofstream wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
+    if(profiling){
+        wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
+    } 
+    if(!wrongAssignementsFile){
+        std::cerr << "Unable to open wrong assigment file" << std::endl;
     }
+
     bool acyclic = AcyclicRelation(title, allAssignements, wrongAssignementsFile); 
     wrongAssignementsFile.close();
     if(acyclic == true){
         if(debug){
-            logFile << std::endl;
-            logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
+            //logFile << std::endl;
+            //logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
         }
         counter.second.first ++;
     } else {
 
         if(debug){
-            logFile << std::endl;
-            logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
+            //logFile << std::endl;
+            //logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
         }
         counter.second.second ++;
     }
     if(debug){
-        logFile << std::endl;
-        logFile.close();
+        //logFile << std::endl;
+        //logFile.close();
     }
 }
 
@@ -250,7 +259,6 @@ int main(int argc, char* argv[]){
     if(!logTimeFile){
         std::cerr << "Unable to open log time file" << std::endl;
     }
-    GraphBuilder graphBuild; 
 
     std::cout << std::endl; 
 
@@ -261,6 +269,7 @@ int main(int argc, char* argv[]){
     if(randomInput){
         for(size_t levels = 1; levels < max_levels; levels ++){
             for(size_t nodes = 1 ; nodes < max_nodes; nodes++){
+                GraphBuilder graphBuild; 
                 std::cout << "Graph with nodes: " << nodes << " and levels: "  << levels << std::endl; 
                 graphBuild.buildRandomLevelGraph(nodes, levels);
                 logTimeFile << ""<< levels << " " << nodes << " " ;
@@ -268,6 +277,7 @@ int main(int argc, char* argv[]){
             }
         }
     } else {
+        GraphBuilder graphBuild; 
         graphBuild.buildLevelGraphFromGML(graphFile);
         process("customGraph", graphBuild, counter, false, logTimeFile, profiling);
     }
