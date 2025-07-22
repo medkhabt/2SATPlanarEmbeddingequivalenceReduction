@@ -29,7 +29,7 @@ I had to alter the function to include the case where one connected component is
 for my algorithm. I fixed some instructions that take more time for no purpose to the algorithm. Basically I made less lookups to maps, compared the sharedpointers 
 before merging to equivalence classes, and not synchronzing the equivalence class of the pairs in the equivalence class that is being treated if it didn't change.
 
-All of this small changes helped fastening the execution significally ![flame](profiling_buttleneck_WeakHananiTutteCase/flames.jpg) ![statistics](statistics.jpg)  
+All of this small changes helped fastening the execution significally ![flame](profiling_buttleneck_WeakHananiTutteCase/flames.jpg) ![statistics](profiling_buttleneck_WeakHananiTutteCase/statistics.jpg)  
 Let's put the focus on the `reduce function` in blue, it takes 2.40 % of the execution time compared to the calculation of the 2-SAt equivalence classes that only 
 takes 0.64% of the total execution time. I need to still be careful, is it a linear difference or asymptotic difference, is it also a difference due to bad implementation ? 
 
