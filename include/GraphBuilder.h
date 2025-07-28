@@ -89,16 +89,16 @@ def to_cluster_attrs(GA, LVL):
     return CG, CGA
     */
         void toCluster(){
-            std::cout << "*************** START OF GENERATING CLUSTERS ***************** "<< std::endl;
+            //std::cout << "*************** START OF GENERATING CLUSTERS ***************** "<< std::endl;
             for (auto& level : this->emb){
                 auto c = this->CG.newCluster(this->CG.rootCluster()); 
-                std::cout << ">>>>> create new cluster: "  << c->index() << std::endl;
+                //std::cout << ">>>>> create new cluster: "  << c->index() << std::endl;
                 for(auto& n : level){
                     this->CG.reassignNode(n,c);
-                    std::cout << ">>>>>>>>>> reasign " << n->index() << " to cluster " << c->index() << std::endl;
+                    //std::cout << ">>>>>>>>>> reasign " << n->index() << " to cluster " << c->index() << std::endl;
                 }
             }
-            std::cout << "*************** END OF GENERATING CLUSTERS ***************** "<< std::endl;
+            //std::cout << "*************** END OF GENERATING CLUSTERS ***************** "<< std::endl;
         } 
         ogdf::ClusterGraphAttributes toClusterAttrs(){
             auto CGA = ogdf::ClusterGraphAttributes(this->CG, this->GA.attributes());

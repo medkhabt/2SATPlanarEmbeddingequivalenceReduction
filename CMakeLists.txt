@@ -15,11 +15,15 @@ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/svg")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/gml")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/log")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/profiling")
+file(COPY "${CMAKE_SOURCE_DIR}/run" DESTINATION "${CMAKE_BINARY_DIR}")
 
 add_custom_target(copy_resources ALL
                COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources
                        ${CMAKE_BINARY_DIR}/graphs/inputs/gml
+               COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/src/profiling
+                       ${CMAKE_BINARY_DIR}/profiling
                COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/src/profiling
                        ${CMAKE_BINARY_DIR}/profiling
