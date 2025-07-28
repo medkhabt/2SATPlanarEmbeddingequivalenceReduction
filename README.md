@@ -31,9 +31,13 @@ The executable generates three additional files
 ## Contribution 
 The main contribution of the thesis is in the `Contribution` class 
 
+## Results 
+Main checkpoints and progress are logged in results/README.md
+
 
 ## TODO
-- [ ] Fix a bug with the graph (v=45, l=9),  
+- [X] Fix a bug with the graph (v=45, l=9),  
 - [ ] Switch to Release mode and see what assert is triggered.
-- [ ] planarity test eaiser (just test equivalence classes to each other)? , drop it of ? 
-- [ ] implement the weak hanani tutte in the right level. example (29,7)
+- [X] planarity test eaiser (just test equivalence classes to each other)? , drop it of ? YES
+- [X] implement the weak hanani tutte in the right level. example (29,7)
+- [ ] FIX implementation of weak hanani tutte case, so it solves the graph (v=300, l=25) (explained it in results/README.md)
