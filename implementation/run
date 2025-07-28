@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then 
+    levels=20 
+else 
+    levels=$1
+    if [ "$levels" -lt 20 ]; then
+        echo "Error: Level count ${levels} has to be at least 20"
+    fi
+fi
+
+if [ -z "$2" ]; then 
+    nodes=100 
+else 
+    nodes=$2
+    if [ "$nodes" -lt 100 ]; then
+        echo "Error: Node count ${nodes} has to be at least 100"
+    fi
+
+fi
+
+rm result.log 2>/dev/null
+
+echo ""
+echo "# Acyclic relations bewteen vertices of the same level in all possible embeddings from the Algorithm" > result.log
+echo "NumOfLevels NumberOfNodes {0:FAIL, 1:PASS}" >> result.log
+
+for l in $(seq 20 5 ${levels}); do       
+    for n in $(seq 100 50 ${nodes}); do   
+    echo "Running with -n $n -l $l"
+    ./2SATEquivalenceReduction -r -n $n -l $l 1>/dev/null
+  done
+done
+
+rm summary.log 2>/dev/null 
+
+echo "# Acyclic relations bewteen vertices of the same level in all possible embeddings from the Algorithm" > summary.log
+echo "## SUMMARY:" >> summary.log
+echo "PASS FAIL" >> summary.log
+awk '$3 == 0 { zero++ }{ one++ } END {print one*1, zero*1}' result.log >> summary.log 
+
+
+echo ""
+cat summary.log
+echo ""
+echo "OPEN result.log for more details.."
+
+rm -r failedGraphs 2>/dev/null
+mkdir -p failedGraphs
+
+awk '$3 == 0 {print $1, $2}' result.log
+

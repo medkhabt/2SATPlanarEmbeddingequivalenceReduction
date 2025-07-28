@@ -29,10 +29,10 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
         GA.y(node) = 50 * countery[mappings[node]]; 
         countery[mappings[node]]++;
     }
-    ogdf::GraphIO::write(GA, "graphs/outputs/gml/" + nameFile + ".gml", ogdf::GraphIO::writeGML);
+    //ogdf::GraphIO::write(GA, "graphs/outputs/gml/" + nameFile + ".gml", ogdf::GraphIO::writeGML);
     //TODO better way of logging this.
     //std::cout << " >> Generated 'graph/outputs/gml/ " << nameFile << ".gml' graph which represent the relative order between vertices of input Graph" << std::endl;
-    ogdf::GraphIO::write(GA, "graphs/outputs/svg/" + nameFile + ".svg", ogdf::GraphIO::drawSVG);
+    //ogdf::GraphIO::write(GA, "graphs/outputs/svg/" + nameFile + ".svg", ogdf::GraphIO::drawSVG);
     //std::cout << " >>  Generated 'graph/outputs/svg/'" << nameFile << ".svg' drawing of the graph 'graph/outputs/gml/relation.gml'  " << std::endl; 
     //std::cout << std::endl;
 
@@ -62,7 +62,7 @@ std::string to_string(equivalentClassesAssignement& assignement){
     }
     return stringRepr;
 }
-bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement, std::ofstream& wrongAssignements ){
+bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement){
     ZoneScoped;
     for(size_t i = 0 ; i < assignement.size(); i++){
         std::map<int, ogdf::node> nodes;
@@ -81,20 +81,27 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
                     //GA.label(nodes[v]) = std::to_string(v);
                 }
                 if(relation){
-                    std::cout << "edge created between : "  << u << " and " << v << std::endl;
+                    //std::cout << "edge created between : "  << u << " and " << v << std::endl;
                     G.newEdge(nodes[u], nodes[v]);
                 }else{
-                    std::cout << "edge created between : "  << v << " and " << u << std::endl;
+                    //std::cout << "edge created between : "  << v << " and " << u << std::endl;
                     G.newEdge(nodes[v], nodes[u]);
                 }
             }
         }
-        createLayout(title + "_relation_assignement" + std::to_string(i), G);
+        std::string assignementTitle = title + "_relation_assignement" + std::to_string(i);
+        //createLayout(assignementTitle, G);
+        //TODO also check for profiling 
         if(!ogdf::isAcyclic(G)){
+        std::ofstream wrongAssignements = std::ofstream("graphs/outputs/log/wrong_assignement_" + assignementTitle); 
+        if(!wrongAssignements){
+            std::cerr << "Unable to open wrong assigment file" << std::endl;
+        }
             std::cout << "Cyclic relation in the assignement " << i << std::endl;
             wrongAssignements << to_string(assignement[i]);
-            std::cout << to_string(assignement[i]) << std::endl;
+            //std::cout << to_string(assignement[i]) << std::endl;
 
+            wrongAssignements.close();
             return false; 
         }
     }
@@ -153,21 +160,23 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalent
     std::vector<equivalentClassesAssignement> allAssignement(instantiations);
     //all ready went through the 2^size - 1 case above
     for(int instantiation = 0 ; instantiation < instantiations; instantiation++){
+        auto& pInstantiationAssignement = allAssignement[instantiation];
         for(int i = 0 ; i < size ; i++ ){
             int value = (instantiation >> i) & 1;
-            allAssignement[instantiation][combinations[i]] = value;  
-            allAssignement[instantiation][std::pair(combinations[i].second, combinations[i].first)] = (value + 1) & 1; 
-            for(const auto& [u,w]: *(eq.at(combinations[i]))){
+            pInstantiationAssignement[combinations[i]] = value;  
+            pInstantiationAssignement[std::pair(combinations[i].second, combinations[i].first)] = (value + 1) & 1; 
+            auto& setEqAtCombI = *(eq.at(combinations[i]));
+            for(const auto& [u,w]: setEqAtCombI){
                 std::pair<int,int> pair(u,w);
                 std::pair<int,int> pairInverse(w,u);
-                allAssignement[instantiation][pair] = value; 
-                allAssignement[instantiation][pairInverse] = (value + 1) & 1; 
-
+                pInstantiationAssignement[std::pair(u,w)] = value; 
+                pInstantiationAssignement[std::pair(w,u)] = (value + 1) & 1; 
             }
         } 
     }
 
-    return std::move(allAssignement); 
+    eqAs.clear();
+    return allAssignement; 
 
 
 }

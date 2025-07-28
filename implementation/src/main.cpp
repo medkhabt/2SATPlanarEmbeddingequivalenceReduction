@@ -12,6 +12,7 @@
 #include <memory>
 #include <cmath>
 #include <chrono>
+#include <malloc.h>
 #include "NodePartition.h"
 #include "GraphBuilder.h"
 #include "algorithm.hpp"
@@ -19,7 +20,7 @@
 #include "utils.hpp"
 #include "Tracy.hpp"
 
-void compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, std::map<nodePair, sharedNodePairSet>& eq){
+void compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
     ZoneScoped;
     // sync 
     std::map<nodePair, nodePairSet> sync; 
@@ -103,10 +104,10 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         ZoneScopedN("image and gml creation");
         if(profiling){
             ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-            ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+            //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
         }else {
             ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-            ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+            //ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
         }
     }
 
@@ -136,8 +137,8 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     equivalentClasses eq ;
     compute2SATClasses(graphBuild.emb, eq);
 
-    std::cout << "original eq class" << std::endl;
-    print_eq(eq);
+    //std::cout << "original eq class" << std::endl;
+    //print_eq(eq);
 
     //std::cout << "***************** after" << std::endl;
 
@@ -149,6 +150,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     }
     */
 
+    /*
     equivalentClasses oldEq; 
     {
         ZoneScopedN("deep copy for planarity test");
@@ -159,12 +161,13 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
             }
         }
     }
+    */
     auto start = std::chrono::steady_clock::now();
     Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
     auto end = std::chrono::steady_clock::now();
 
-    std::cout << "merged eq class" << std::endl;
-    print_eq(eq);
+    //std::cout << "merged eq class" << std::endl;
+    //print_eq(eq);
 
     logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
@@ -174,43 +177,37 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         //logFile << std::endl;
     }
     std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
-
+    eq.clear();
+    equivalentClasses().swap(eq);
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
-    if(planarityCheck(allAssignements, oldEq)){
+    //if(planarityCheck(allAssignements, oldEq)){
         /*
         if(debug){
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: PASSED" << std::endl;
         }
         */
-        counter.first.first ++;
-    } else {
+        //counter.first.first ++;
+    //} else {
         /*
         if(debug){
             logFile << std::endl;
             logFile << "> PLANARITY CHECK: FAILED" << std::endl;
         }
         */
-        counter.first.second ++;
-    }
+        //counter.first.second ++;
+    //}
     /*
     if(debug){
         logFile << std::endl;
     }
 
     */
-    std::ofstream wrongAssignementsFile = std::ofstream("graphs/outputs/log/wrong_assignement_" + title + ".log");
-    if(profiling){
-        wrongAssignementsFile = std::ofstream("../graphs/outputs/log/wrong_assignement_" + title + ".log");
-    } 
-    if(!wrongAssignementsFile){
-        std::cerr << "Unable to open wrong assigment file" << std::endl;
-    }
-
-    bool acyclic = AcyclicRelation(title, allAssignements, wrongAssignementsFile); 
-    wrongAssignementsFile.close();
+    bool acyclic = AcyclicRelation(title, allAssignements); 
+    allAssignements.clear();
+    std::vector<equivalentClassesAssignement>().swap(allAssignements);
     if(acyclic == true){
         if(debug){
             //logFile << std::endl;
@@ -255,7 +252,12 @@ int main(int argc, char* argv[]){
             profiling = true; 
         }
     }
+    auto logResult = std::ofstream("result.log" , std::ios_base::app);
     auto logTimeFile = std::ofstream("time.dat"); 
+
+    if(!logResult){
+        std::cerr << "Unable to open log result file" << std::endl;
+    }
     if(!logTimeFile){
         std::cerr << "Unable to open log time file" << std::endl;
     }
@@ -267,15 +269,17 @@ int main(int argc, char* argv[]){
     std::vector<std::vector<ogdf::node>> emb;
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
     if(randomInput){
-        for(size_t levels = 1; levels < max_levels; levels ++){
-            for(size_t nodes = 1 ; nodes < max_nodes; nodes++){
+        //for(size_t levels = 10; levels < max_levels; levels ++){
+            //for(size_t nodes = 20 ; nodes < max_nodes; nodes++){
                 GraphBuilder graphBuild; 
-                std::cout << "Graph with nodes: " << nodes << " and levels: "  << levels << std::endl; 
-                graphBuild.buildRandomLevelGraph(nodes, levels);
-                logTimeFile << ""<< levels << " " << nodes << " " ;
-                process("randomProperLevelGraph_v_" + std::to_string(nodes) + "_l_" + std::to_string(levels), graphBuild, counter, false, logTimeFile, profiling);
-            }
-        }
+                std::cout << "Graph with nodes: " << max_nodes << " and levels: "  << max_levels << std::endl; 
+                graphBuild.buildRandomLevelGraph(max_nodes, max_levels);
+                logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
+                logResult << max_levels <<  " " << max_nodes << " " ; 
+                process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling);
+                malloc_trim(0);
+            //}
+        //}
     } else {
         GraphBuilder graphBuild; 
         graphBuild.buildLevelGraphFromGML(graphFile);
@@ -285,9 +289,7 @@ int main(int argc, char* argv[]){
     logTimeFile.close();
     std::cout << " Planarity check : " << counter.first.first << " PASSED, " << counter.first.second << " FAILED." <<std::endl;
     std::cout << " Acyclic relations check check : " << counter.second.first << " PASSED, " << counter.second.second << " FAILED." <<std::endl;
-
-
-
+    logResult << ((counter.second.first) ? "1" : "0") << std::endl; 
     return 0;
 }
 
