@@ -34,7 +34,6 @@ Let's put the focus on the `reduce function` in blue, it takes 2.40 % of the exe
 takes 0.64% of the total execution time. I need to still be careful, is it a linear difference or asymptotic difference, is it also a difference due to bad implementation ? 
 
 # Wrong Implementation of the weak hanani-tute encapsulation case: 
-
 Now, we are checking the neighboring vertices $N_G'(v)$ to the new added cutvertex $v$. The cutvertex merge the set 
 of connected components $\mathcal{C}$, we check there order from the equivalence classes that we have so far.
 
@@ -44,12 +43,12 @@ We take the first component as the 'base' graph. Then we add the closest compone
 new 'base' graph. 
 
 for each connected component $C'$ beside the first in the order $\mathcal{C_1}$ (the one used in the 'base' graph), we look for the nearest vertex $u$ in the $N_G'(v)$ 
-and in $\mathcal{C_1}$. We just copy the relations of the vertices $w\in \mathcal{C_1}$ with $ l(w) = l(u)$ and $w != u$
+and in $\mathcal{C_1}$. We just copy the relations of the vertices $w\in \mathcal{C_1}$ with $l(w) = l(u)$ and $w != u$
 
 The issue with this is that the equivalence class doesn't have a vision that can extend all the elements of the connected component $C_1$ in 
-the zone from $l(u)$ to $h(C')_min = \min_{z\in C'}{l\left(z\right)}$. The best would be to do the same procedure but from the level $h(C')_min$.  
+the zone from $l(u)$ to $h_\mathrm{min}(C') = \min_{z\in C'}{l\left(z\right)}$. The best would be to do the same procedure but from the level $h_mathrm{min}(C')$.  
 
-With that I fixed the random graph that failed to give us just equivalence classes that do not generate cyclic order between some vertices of the same level. ![example_wrong_impl_weak](results/weakHananiTutteEncapsImplNotComplete/randomProperLevelGraph_v_29_l_7.svg)
+With that I fixed the random graph that failed to give us just equivalence classes that do not generate cyclic order between some vertices of the same level. ![example_wrong_impl_weak](weakHananiTutteEncapsImplNotComplete/randomProperLevelGraph_v_29_l_7.svg)
 
 UPDATE: I implemented the special case of the weak hanani-tutte encapsulation with this idea and I found an issue with this reasoning.  
 
@@ -57,14 +56,14 @@ UPDATE: I implemented the special case of the weak hanani-tutte encapsulation wi
 
 There are some vertices that are not taking in consideration when doing the 'synchronization' between two connected components. 
 I show this illustration to showcase the problem 
-![first](results/propagationWeakHananiTutte/first)
-![second](results/propagationWeakHananiTutte/second)
-![third](results/propagationWeakHananiTutte/third)
-![fourth](results/propagationWeakHananiTutte/fourth)
-![fifth](results/propagationWeakHananiTutte/fifth)
+![first](propagationWeakHananiTutte/first.svg)
+![second](propagationWeakHananiTutte/second.svg)
+![third](propagationWeakHananiTutte/third.svg)
+![fourth](propagationWeakHananiTutte/fourth.svg)
+![fifth](propagationWeakHananiTutte/fifth.svg)
 
-So now the task is to find a way to take in consideration also these vertices $v$ that are don't have a path $P$ to a vertex in $h(C')_min$ if we consider paths that only 
-have endpoints between $h(C')_min$ and $l(v)$.
+So now the task is to find a way to take in consideration also these vertices $v$ that are don't have a path $P$ to a vertex in $h_\mathrm{min}(C')$ if we consider paths that only 
+have endpoints between $h_\mathrm{min}(C')$ and $l(v)$.
 
 # Space bottleneck
 ## std::map not getting freed back to the os 
