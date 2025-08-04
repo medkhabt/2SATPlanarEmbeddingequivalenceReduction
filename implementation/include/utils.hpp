@@ -1,16 +1,35 @@
 #pragma once
+#include <utility>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/RegisteredArray.h>
 #include "type.hpp"
+#include "GraphWithPairNode.hpp"
+#include <ogdf/basic/GraphList.h>
 // TODO customize the naming of the creation of a layout.
+
+namespace ogdf {
+
+    class PairNodeElement;
+    using pairNode = PairNodeElement*; 
+    namespace internal{
+        using GraphPairNodeRegistry = GraphRegistry<PairNodeElement>; 
+    }
+
+    template<typename Value, bool WithDefault= true> 
+        using PairNodeArray = RegisteredArray<PairNodeElement, Value, WithDefault, GraphWithPairNode>;
+
+    
+}
+
 void createLayout(std::string nameFile, ogdf::Graph& G);
 
-bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq);
+//bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq);
 
 bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement);
 
-std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq);
+//std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq);
 
-void print_eq(const equivalentClasses& eq);
+//void print_eq(const equivalentClasses& eq);
 
 template < class Key>
 int partition(std::vector<Key> arr, int leftIndex, int rightIndex, std::map<int, Key>& comparator )
