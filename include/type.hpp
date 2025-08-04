@@ -1,5 +1,6 @@
 #pragma once
 #include <utility> 
+#include <ogdf/basic/DisjointSets.h>
 #include <map>
 #include <set>
 #include <unordered_set>
@@ -7,6 +8,9 @@
 #include <memory>
 #include <boost/container/flat_map.hpp>
 
+namespace ogdf{
+    class PairNodeElement;
+}
 struct pair_hash {
     template <typename T1, typename T2>
     std::size_t operator()(const std::pair<T1, T2> &p) const noexcept {
@@ -15,11 +19,13 @@ struct pair_hash {
         return h1 ^ (h2 << 1); // or use boost::hash_combine
     }
 };
+using pairNode = ogdf::PairNodeElement*;
 using nodePair = std::pair<int, int>;
 using nodePairSet = std::unordered_set<nodePair,pair_hash>; 
 using sharedNodePairSet = std::shared_ptr<nodePairSet>;
 //using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
-using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
+//using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
+using equivalenceClasses = ogdf::DisjointSets<>;  
 //using equivalentClassesAssignement = std::map<nodePair, int>;
 using equivalentClassesAssignement = boost::container::flat_map<nodePair, int>;
 

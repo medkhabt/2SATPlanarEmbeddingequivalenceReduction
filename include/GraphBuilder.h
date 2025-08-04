@@ -1,3 +1,4 @@
+#pragma once
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -10,6 +11,8 @@
 #include <utility>
 
 #include "NodePartition.h"
+#include "GraphWithPairNode.hpp"
+
 class GraphBuilder{
     public:
         ogdf::Graph G; 

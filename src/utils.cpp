@@ -39,6 +39,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G){
 }
 
 //TODO Parallelize this.
+/*
 bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq){
     ZoneScoped; 
     for(auto& [key, equivalentset] : eq){
@@ -53,6 +54,7 @@ bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentC
     }
     return true;
 }
+*/
 //std::map<nodePair, int>;
 std::string to_string(equivalentClassesAssignement& assignement){
     std::string stringRepr;
@@ -109,6 +111,7 @@ bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement
     return true; 
 }
 
+/*
 void print_eq(const equivalentClasses& eq){
     for(const auto& [pair, pset] : eq){
         std::cout << "[(" << pair.first << "," << pair.second << ")] = " ;   
@@ -118,6 +121,8 @@ void print_eq(const equivalentClasses& eq){
         std::cout << std::endl;
     }
 }
+*/
+/*
 std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq){
     equivalentClassesAssignement eqAs; 
     // initiate the state of each order assignement to undertermined (-1) 
@@ -126,17 +131,16 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalent
         eqAs[key] = -1; 
     }
 
-    /* TODO check all the possible drawings from the reduced eq classse.
-       std::map<nodePair, int> equivalentClassesClusters; 
-       int counter = 0;
-       for(auto& [key, value] : eq){
-       if(equivalentClassesClusters.find(key) == equivalentClassesClusters.end())
-       equivalentClassesClusters[key] = counter++;
-       for(auto& [u,w]: *value){
-       equivalentClassesClusters[std::pair(u,w)] = equivalentClassesClusters[key]; 
-       }
-       }
-       */
+    // TODO check all the possible drawings from the reduced eq classse.
+    //   std::map<nodePair, int> equivalentClassesClusters; 
+    //   int counter = 0;
+    //   for(auto& [key, value] : eq){
+     //  if(equivalentClassesClusters.find(key) == equivalentClassesClusters.end())
+    //   equivalentClassesClusters[key] = counter++;
+    //   for(auto& [u,w]: *value){
+    //   equivalentClassesClusters[std::pair(u,w)] = equivalentClassesClusters[key]; 
+    //   }
+    //   }
     std::vector<std::pair<int,int>> combinations;
     for(auto& [key, value] : eq){
         if(eqAs[key] == -1){
@@ -180,3 +184,4 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalent
 
 
 }
+*/
