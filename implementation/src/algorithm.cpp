@@ -1,8 +1,10 @@
 #include "algorithm.hpp"
 #include "utils.hpp"
 #include "Tracy.hpp"
+#include <unordered_set>
 
-/*equivalentClasses*/ void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn, std::map<int, int>& orderOut, std::map<int,int>& orderIn){
+/*
+void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn, std::map<int, int>& orderOut, std::map<int,int>& orderIn){
     ZoneScopedN("addAjdacentEdges function"); 
     int counter = 0;
     for(const auto i : adjIn){
@@ -157,7 +159,9 @@
     }
 
 }
+*/
 
+/*
 std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connetectedCompsVerticesMap(const ogdf::NodeArray<int>& connectedcomps, const ogdf::Graph& G, const std::vector<ogdf::NodeElement*>& level){
     ZoneScoped;
     std::pair<std::map<int,std::set<int>>, std::map<int,int>> result; 
@@ -172,6 +176,8 @@ std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connet
     } 
     return std::pair(compToVertices, vertexToComp);
 }
+*/
+/*
 void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeElement*>& level, 
         const std::vector<ogdf::NodeElement*>& previousLevel,
         equivalentClasses& eq, 
@@ -187,13 +193,12 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     // from GraphRegistery<Key> static inline int keyToIndex(Key* key) { return key->index(); }
     // so i can just create a new node 
 
-    /*
-       value_ref_type operator[](key_type key) {
-       OGDF_ASSERT(getRegistry().isKeyAssociated(key));
-       return m_data[registeredAt()->keyToIndex(key)];
-       }
-       hmm but the issue is that there is a check to seee if the vertex is part of the graph.., so i can't just sneak in a new vertex just for the mapping (either way i can't use the ElementNode constructor..)
-       */
+    //
+    //   value_ref_type operator[](key_type key) {
+    //   OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+    //   return m_data[registeredAt()->keyToIndex(key)];
+    //   }
+    //   hmm but the issue is that there is a check to seee if the vertex is part of the graph.., so i can't just sneak in a new vertex just for the mapping (either way i can't use the ElementNode constructor..)
     
     // I need to map the vertices to the levels  
     // this is done in the function that calls hanani-tutte weak    
@@ -221,17 +226,6 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
             }
         }
     }
-    /*
-       for(int cc: connectedCompsMerged){
-       std::cout << cc << ": "; 
-       for(int v: idConComps.first[cc]){
-       std::cout << " " << v ; 
-       }
-       std::cout << std::endl;
-       }
-       std::cout << std::endl;
-       */
-
     gVertices[v->index()] = G.newNode(v->index()); 
     vertexLevel[gVertices[v->index()]] = levelIndex;
     sharedNodePairSet npair_set = nullptr; 
@@ -666,28 +660,40 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
 
                 }
             }
-        }*/
+        }
     }
     for(auto& adj_v_index: adjIn){
         G.newEdge(gVertices[adj_v_index], gVertices[v->index()]);
     }
-
 }
-void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
+*/
+void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, int nodesSize, equivalenceClasses& eq, equivalenceClass* eqsOfPairs, size_t sizeOfEqOfPairs ){
     ZoneScopedN("the reduce function");
     
-    ogdf::Graph G; 
-    ogdf::NodeArray<int> vertexlevel(G);
-    std::vector<int> adjIn, adjOut;
+    //std::vector<std::pair<int,int>> pairsPerEq(sizeOfEqOfPairs); 
+    std::vector<std::unordered_set<int>> pairsPerEq(sizeOfEqOfPairs); 
+    /*
+    for(size_t i = 0 ; i < sizeOfEqOfPairs; i++){
+        //pairsPerEq[eqsOfPairs[i]] = std::pair<int,int>(i/nodesSize, i%nodesSize) ; 
+        pairsPerEq[eqsOfPairs[i]].insert(i);  
+    }
+    */
+    //ogdf::Graph G; 
+    //ogdf::NodeArray<int> vertexlevel(G);
     //TODO started caring less about the structure, this needs refactoring
-    std::map<int, ogdf::node> gVertices; 
+    //std::map<int, ogdf::node> gVertices; 
     // the instantiation doesn't change much here, I just don't want it to be null.
+
+
+
+
+
+    std::vector<int> adjIn, adjOut;
     std::vector<ogdf::node> previousLevel = emb[0];
     int levelIndex = 0;
     for(const auto& level : emb){
         for(const auto& v : level){
             std::vector<int> adjOut, adjIn;
-            std::map<int, int> orderIn, orderOut;
             for(const auto& adj : v->adjEntries){
                 ogdf::edge e = adj->theEdge(); 
                 if(v->index() == e->source()->index()){
@@ -697,13 +703,40 @@ void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeEle
                     adjIn.push_back(e->source()->index());
                 }
             }
-            {
-                ZoneScopedN("sort");
-            sort(adjIn.begin(), adjIn.end());
-            sort(adjOut.begin(), adjOut.end());
+            // go over all the combinations of the neighbor of v in l - 1.
+            ogdf::Graph G;
+            std::unordered_set<int> visitedEquivalenceClasses; 
+            std::unordered_set<int> concernedEquivalenceClasses; 
+            std::unordered_map<int, ogdf::node> nodesInG;
+            for(const int v: adjIn){
+                for(const int w: adjIn){
+                    if(v != w) {
+                        // if we didn't define the direction of the equivalence class. 
+                        pairsPerEq[eqsOfPairs[v * nodesSize + w].value].insert(v * nodesSize + w);
+                        concernedEquivalenceClasses.insert(eqsOfPairs[v * nodesSize + w].value);
+                    }
+                }
+            } 
+            for(const int eqN : concernedEquivalenceClasses){
+                // get the pair first 
+                for(const int p: pairsPerEq[eqN]){
+                    int u = p / nodesSize; 
+                    int v = p % nodesSize; 
+                    if(nodesInG.find(u) == nodesInG.end()){
+                        nodesInG[u] = G.newNode(u);  
+                    }
+                    if(nodesInG.find(v) == nodesInG.end()){
+                        nodesInG[v] = G.newNode(v);  
+                    }
+                    
+                }
             }
-            addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn, orderOut, orderIn);
-            addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices, vertexlevel, levelIndex, orderIn);
+
+            
+            //adjacentEdgesRestriction 
+            
+            //addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
+            //addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices, vertexlevel, levelIndex, orderIn);
         }
         /*
            for(const auto& v : level){

@@ -71,31 +71,44 @@ eqivalent classe of vw and it's .. wv (since we respect the consistency clause)
 With the equivalent class that we got from the algorithm based on (insert paper),  
 \subsection{Algorithm description}%
 \label{sub:Algorithm description}
-    
-    We have as input a proper level Graph $G = (V,E,l)$  with a level ordering $l$ and an index order and equivalent classes based 
-    on the 2-SAT formulation of level planar embedding presented by Randerth et al~\cite{randerath2001satisfiability}. 
+    % TODO definition of a planar proper level graph 
+    % TODO definition of a level assignement.
+    We have as input a planar proper level graph $G=\left( V,E,l \right) $ with a level assignement
+    $l$, and equivalence classes based on the 2-SAT formulation of level planar embedding presented by 
+    %TODO the 2SAT formula representation ( the constraints )  
+    Randert et al~\cite{randerath2001satisfiability}. The 2-SAT formulation tests wether a proper level graph 
+    is planar. The truth assignements that solve the 2-SAT formula give embeddings that respect the planarity constraints 
+    but some of the assigments can't be translated to an embeddings in a plane surface due to the existence of cyclic relation between some of the vertices from the same level. 
+    These set of these assignements is equal to the set of possible combinations of assignement of the equivalence classes.
 
-    We will construct the graph $G$ from scartch for the second part of the algorithm. Let the graph $G'$ be a subgraph of $G$ 
-    containing all the vertices we loop over so far. 
+    The goal of the algorithm is to merge some of the equivalence classes which means less possible truth assigment claiming that with the newly merged equivalence classes 
+    all the possible assignements of these equivalence classes lead to an embedding. 
 
-    We traverse the graph level by level. Let the variable $h$ be the current level. 
-    We look at each vertex $v$ in the level $h$, the algorithm has two main tasks inside the loop of the vertex $v$, 
-    synchronization of adjacent vertices to vertex $v$ and synchronization of the connected components that were merged after adding $v$ to $G'$.
+    We first make the edges of $G$ point to the same direction.(part of the computation of the equivalent classes)
 
-    For the first part, we look for incident vertices to the vertex $v$ in the upper incident level to level $h$. We look for an ordering $\mathcal{V}$ of the 
-    incident vertices so that all the equivalent classes from the combination of two incident vertices (u,w) of the ordering $\mathcal{V}$  with $u < w$ in the ordering point to the same direction. 
-    We assign for each of the equivalent classes of the combinations $(u,v)$ of the ordering $\mathcal{V}$ with $u < w$ the union of all their equivalent classes. We update also the 
-    equivalent classes of the opposite order for synchronization by also assigning them their union. We do the same for the incident vertices to the vertex $v$ in the lower incident level to $h$.
-    
- 
-    For the second part of the algorithm,
-    we add $v$ to $G'$ and the edges incident to v with vertices from $G'-\{v\}$.
-    If the vertex $v$ is a cut-vertex in $G'$, we also look for the connected components in $G'-\{v\}$, we pick an arbitrary order of the 
-    connected comps $(C_1,C_2)$ we then force the relation of a vertex $w_1$ of the connected component $C_1$ with its level $l(w_1) = h - 1$ 
-    to each vertex $w_2$ in the connected component $C_2$ on the same level $l(w_1)$ to be the same, that's by assiging for each relation $(w_1,w_2)$
-    the union of all the equivelant classes between a fixed $w_1$ with all $w_2 \in C_2$ with $l(w_1) = l(w_2) = h$. We also synchronize the equivalent classes of 
-    the opposite order $\left( w_2, w_1 \right)$ with $w_1$ still fixed. If $C_2$ encapsulate $C_1$ then we inverse the pair before forcing the relations. 
-    
+    We traverse the graph level by level, we also keep track of the vertices that we went throught by adding them to a graph $G'$ that is initially an empty graph. 
+    Let $h$ be the current level. In each level we go throught all the vertices, for each vertex $v$ we execute two main taskes. The first task is to 
+    merge the equivalence classes of neighboring vertices to $v$ that belong in the same adjacent level to level $h$. % TODO this requires some cleaning it's unclear
+    The second task is to merge the equivalence classes of pair of vertices $(u,w)$ with $u$ and $w$ 
+    are in different connected components $C_1$ and $C_2$ of $G-\{v\})$ and $v$ is a cut vertex of $G$ connecting $C_1$ and $C_2$. 
+
+    For the first task, we consider vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)}$ adjacent to the vertex $v$ on the level $h-1$. We compute an ordering $\mathcal{V}$ of the vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)} $
+    so that for all pairs of vertices $\left( u,w \right)\in V_{\mathrm{v}}^{\left( h - 1 \right)} \times V_{\mathrm{v}}^{\left( h - 1 \right)}$ and $u < w$ the equivalence classes point 
+    to the same direction.
+
+    We merge those equivalence classes of the pairs $(u,w) \in \mathcal{V}$ with $u < w$. We merge also the equivalence classes 
+    of the pairs $\left( u,w \right) \in \mathcal{V}$ with $u > w$ to hold the consistency clause. 
+
+    We will also do the same steps for vertices in $V_{\mathrm{v}}^{\left( h + 1 \right)}$ that are adjacent to the vertex $v$ on the level $h+1$.
+
+    For the second task. we add $v$ to $G'$. If the vertex $v$ is a cut-vertex in $G'$, we look 
+    for the connected components $S_{\mathcal{C}}$ in $G' - \{v\}$. We pick an arbitrary absolute ordering $\mathcal{V}_{S_\mathcal{C}}$ of the connected components in $S_{\mathcal{C}}$. 
+    For each pair of connected components $\left(  C_1, C_2\right) \in \mathcal{V}_{S_\mathcal{C}}$, for each $w_1 \in C_1$ with $l(w_1) = h-1$ we merge 
+    the equivalence classes of $w_1$ with all $w_2 \in C_2$ and $l(w_2) = h-1$. 
+
+    %In case there exists $w_{21}, w_{22} \in C_2$ with $w_1 \in C_1$
+    %and $\left( w_1, w_{22} \right) \in eq(w_{21}, w_1)$ meaning that  
+    %%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \subsection{Correctness of the algorithm}

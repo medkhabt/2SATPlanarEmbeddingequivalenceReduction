@@ -21,7 +21,7 @@
 #include "utils.hpp"
 #include "Tracy.hpp"
 
-void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
+equivalenceClass* compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     ZoneScoped;
     // sync 
     auto& emb = builder.emb;
@@ -40,10 +40,11 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     // TODO It would be nice if i can implement pairnodearray
     //ogdf::PairNodeArray<int> pairNodes(builder.G);
     //TODO free it
-    int *pairsEq = (int*) malloc(maxNumberOfDijointSets * sizeof(int));  
+    equivalenceClass* pairsEq = (equivalenceClass*) malloc(maxNumberOfDijointSets * sizeof(equivalenceClass));  
     for(const auto& v : builder.G.nodes){
         for(const auto& w: builder.G.nodes){
-            pairsEq[v->index() * nodesSize + w->index()] = -1; 
+            pairsEq[v->index() * nodesSize + w->index()].value = -1; 
+            pairsEq[v->index() * nodesSize + w->index()].reverseValue = -1; 
         }
     }
     // Initializing the 2D array with -1 for all the pairs in the graph
@@ -56,8 +57,10 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
             //O(|V|/l) -> O(n^2)
             for(const auto& v : nodes){
                 if((u->index()) < (v->index())){
-                    pairsEq[u->index() * nodesSize + v->index()] = eqDs.makeSet();
-                    pairsEq[v->index() * nodesSize + u->index()] = eqDs.makeSet();            
+                    pairsEq[u->index() * nodesSize + v->index()].value = eqDs.makeSet();
+                    pairsEq[v->index() * nodesSize + u->index()].value = eqDs.makeSet();            
+                    pairsEq[u->index() * nodesSize + v->index()].reverseValue = pairsEq[v->index() * nodesSize + u->index()].value ;
+                    pairsEq[v->index() * nodesSize + u->index()].reverseValue = pairsEq[u->index() * nodesSize + v->index()].value ;
                 }
             }
         }
@@ -71,7 +74,7 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
         std::cout<<std::endl;
     }
     */
-    // o(l)
+    // o(l) with children O(|E|^2/l) -> O(n^2)
     for(const auto& nodes : emb){
         E.clear();
         // o(|V|/l)
@@ -87,7 +90,7 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
         ogdf::node a,b,c,d ; 
         // o(|E|/l)
         for(size_t i = 0 ; i < E.size() ; i++){
-            //o(|E|/l)
+            //o(|E|/l) 
             for(size_t j = i + 1 ; j < E.size() ; j++){
                 f = E[i];  
                 s = E[j];
@@ -95,24 +98,33 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
                 c = f->target(); d = s->target(); 
                 if(!(a->index() == b->index() || c->index() == d->index()) ) {
                     // O(1)
-                    eqDs.quickUnion(pairsEq[a->index() * nodesSize + b->index()], pairsEq[c->index() * nodesSize + d->index()]); 
-                    pairsEq[a->index() * nodesSize + b->index()] = eqDs.getRepresentative(pairsEq[a->index() * nodesSize + b->index()]);   
-                    pairsEq[c->index() * nodesSize + d->index()] = eqDs.getRepresentative(pairsEq[c->index() * nodesSize + d->index()]);   
+                    eqDs.quickUnion(pairsEq[a->index() * nodesSize + b->index()].value, pairsEq[c->index() * nodesSize + d->index()].value); 
+                    pairsEq[a->index() * nodesSize + b->index()].value = eqDs.getRepresentative(pairsEq[a->index() * nodesSize + b->index()].value);   
+                    pairsEq[b->index() * nodesSize + a->index()].reverseValue = eqDs.getRepresentative(pairsEq[a->index() * nodesSize + b->index()].value);   
 
-                    eqDs.quickUnion(pairsEq[b->index() * nodesSize + a->index()], pairsEq[d->index() * nodesSize + c->index()]); 
-                    pairsEq[b->index() * nodesSize + a->index()] = eqDs.getRepresentative(pairsEq[b->index() * nodesSize + a->index()]);   
-                    pairsEq[d->index() * nodesSize + c->index()] = eqDs.getRepresentative(pairsEq[d->index() * nodesSize + c->index()]);   
+                    pairsEq[c->index() * nodesSize + d->index()].value = eqDs.getRepresentative(pairsEq[c->index() * nodesSize + d->index()].value);   
+                    pairsEq[d->index() * nodesSize + c->index()].reverseValue = eqDs.getRepresentative(pairsEq[c->index() * nodesSize + d->index()].value);   
+
+                    eqDs.quickUnion(pairsEq[b->index() * nodesSize + a->index()].value, pairsEq[d->index() * nodesSize + c->index()].value); 
+                    pairsEq[b->index() * nodesSize + a->index()].value = eqDs.getRepresentative(pairsEq[b->index() * nodesSize + a->index()].value);   
+                    pairsEq[a->index() * nodesSize + b->index()].reverseValue= eqDs.getRepresentative(pairsEq[b->index() * nodesSize + a->index()].value);   
+
+                    pairsEq[d->index() * nodesSize + c->index()].value = eqDs.getRepresentative(pairsEq[d->index() * nodesSize + c->index()].value);   
+                    pairsEq[c->index() * nodesSize + d->index()].reverseValue = eqDs.getRepresentative(pairsEq[d->index() * nodesSize + c->index()].value);   
                 }
             }
         }
     }
 
+    // O(l) with children O(|V|^2/l)->O(n^2)
     for(const auto& nodes: emb){
         for(const auto& v : nodes) {
             for(const auto& w: nodes){
                 if(v->index() < w->index()){
-                    pairsEq[v->index() * nodesSize + w->index()] = eqDs.getRepresentative(pairsEq[v->index() * nodesSize + w->index()]);
-                    pairsEq[w->index() * nodesSize + v->index()] = eqDs.getRepresentative(pairsEq[w->index() * nodesSize + v->index()]);
+                    pairsEq[v->index() * nodesSize + w->index()].value = eqDs.getRepresentative(pairsEq[v->index() * nodesSize + w->index()].value);
+                    pairsEq[w->index() * nodesSize + v->index()].reverseValue = eqDs.getRepresentative(pairsEq[v->index() * nodesSize + w->index()].value);
+                    pairsEq[w->index() * nodesSize + v->index()].value = eqDs.getRepresentative(pairsEq[w->index() * nodesSize + v->index()].value);
+                    pairsEq[v->index() * nodesSize + w->index()].reverseValue = eqDs.getRepresentative(pairsEq[w->index() * nodesSize + v->index()].value);
                 }
             } 
         }
@@ -122,90 +134,15 @@ void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     for(const auto& nodes: emb){
         for(const auto& v : nodes) {
             for(const auto& w: nodes){
-                std::cout << "("<< v->index() << ","  << w->index() << ") = "  << pairsEq[v->index() * nodesSize + w->index()] << std::endl; 
+                std::cout << "("<< v->index() << ","  << w->index() << ") = "  << pairsEq[v->index() * nodesSize + w->index()].value << std::endl; 
                 if(v->index() != w->index()){
-                    std::cout << "("<< w->index() << ","  << v->index() << ") = "  << pairsEq[w->index() * nodesSize + v->index()] << std::endl; 
+                    std::cout << "("<< w->index() << ","  << v->index() << ") = "  << pairsEq[w->index() * nodesSize + v->index()].value << std::endl; 
                 }
             } 
         }
     }
 
-    free(pairsEq);
-    /*
-    std::map<nodePair, nodePairSet> sync; 
-
-    std::vector<ogdf::edge> E; 
-    for(const auto& nodes : emb){
-        E.clear();
-        for(const auto& n : nodes){
-            for(const auto& adj : n->adjEntries) {
-                if(adj->isSource()) {
-                    E.push_back(adj->theEdge());
-                }
-            }
-        }
-        ogdf::edge f, s; 
-        ogdf::node a,b,c,d ; 
-        for(size_t i = 0; i < E.size(); i++){
-            for(size_t j = i + 1; j < E.size(); j++){
-                f = E[i];  
-                s = E[j];
-                a = f->source(); b = s->source();
-                c = f->target(); d = s->target(); 
-                if(!(a->index() == b->index() || c->index() == d->index())){
-
-                    sync[std::make_pair(a->index(), b->index())].insert(std::make_pair(c->index(),d->index())); 
-                    sync[std::make_pair(b->index(), a->index())].insert(std::make_pair(d->index(),c->index())); 
-                    sync[std::make_pair(c->index(), d->index())].insert(std::make_pair(a->index(),b->index())); 
-                    sync[std::make_pair(d->index(), c->index())].insert(std::make_pair(b->index(),a->index())); 
-                }
-            } 
-        }
-    }
-
-    std::vector<nodePair> todo;
-
-    for(const auto& [key, value] : sync){
-        int a = key.first;
-        int b = key.second;
-        if(a  > b ){
-            int temp = a ; 
-            a  = b ; 
-            b  = temp;
-        }
-        if(eq.find(std::make_pair(a ,b ))!= eq.end()){
-            continue;
-        }
-        nodePair mainPair(a,b);
-        nodePair mainPairInversed(b,a);
-        eq[mainPair] = std::make_shared<nodePairSet>(); 
-        eq[mainPairInversed] = std::make_shared<nodePairSet>(); 
-        todo.clear(); 
-        todo.push_back(mainPair);
-
-        while(!todo.empty()){
-            int c = todo.back().first; 
-            int d = todo.back().second; 
-            nodePair pair(c,d), pairInversed(d,c);
-            todo.pop_back();
-            if(mainPair != pair){
-                // TODO add the assert.
-            }
-            eq[pair] = eq[mainPair];
-            eq[pairInversed] = eq[mainPairInversed];
-
-            eq[mainPair]->insert(sync[pair].begin(), sync[pair].end());
-            eq[mainPairInversed]->insert(sync[pairInversed].begin(), sync[pairInversed].end());
-
-            for(auto& p : sync[pair]) {
-                // if we don't find the pair yet in the eq class. 
-                if( eq.find(p) == eq.end())
-                    todo.push_back(std::make_pair(p.first, p.second));    
-            }
-
-        }
-    }
-*/
+    return pairsEq;
 }
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
@@ -246,8 +183,10 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     */
 
     equivalenceClasses eq ;
-    compute2SATClasses(graphBuild, eq);
+    int* eqPairs = compute2SATClasses(graphBuild, eq);
 
+    //Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    free(eqPairs);
     //std::cout << "original eq class" << std::endl;
     //print_eq(eq);
 
