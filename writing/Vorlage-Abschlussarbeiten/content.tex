@@ -10,13 +10,9 @@ The content chapters of your thesis should of course be renamed. How many chapte
 
 
 
-\section{The induced Hannani-tutte from 2-SAT and planarity}
 
-\dots
 
-\section{Equivalent classes and Hannani-tutte}
 
-\section{Reduction of the equivalent classes}
 
 After linking the Equivalent Classes to the hanani-tutte drawing induced by the 2-Sat formula (insert paper), and also presenting 
 the cases that lead to a cyclic relation between some vertices of the same level, we can now present 
@@ -69,7 +65,7 @@ equal eachother) we can fix the problem of cyclic relations between adjacent edg
 we suggest going with the index order of vertices, to do so we will need to concatinate the the 
 eqivalent classe of vw and it's .. wv (since we respect the consistency clause)
 With the equivalent class that we got from the algorithm based on (insert paper),  
-\subsection{Algorithm description}%
+\section{Algorithm description}%
 \label{sub:Algorithm description}
     % TODO definition of a planar proper level graph 
     % TODO definition of a level assignement.
@@ -92,7 +88,8 @@ With the equivalent class that we got from the algorithm based on (insert paper)
     The second task is to merge the equivalence classes of pair of vertices $(u,w)$ with $u$ and $w$ 
     are in different connected components $C_1$ and $C_2$ of $G-\{v\})$ and $v$ is a cut vertex of $G$ connecting $C_1$ and $C_2$. 
 
-    For the first task, we consider vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)}$ adjacent to the vertex $v$ on the level $h-1$. We compute an ordering $\mathcal{V}$ of the vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)} $
+    For the first task, we consider vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)}$ adjacent to the vertex $v$ on the level $h-1$.
+    We compute an ordering $\mathcal{V}$ of the vertices in $V_{\mathrm{v}}^{\left( h - 1 \right)} $
     so that for all pairs of vertices $\left( u,w \right)\in V_{\mathrm{v}}^{\left( h - 1 \right)} \times V_{\mathrm{v}}^{\left( h - 1 \right)}$ and $u < w$ the equivalence classes point 
     to the same direction.
 
@@ -111,7 +108,77 @@ With the equivalent class that we got from the algorithm based on (insert paper)
     %%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Correctness of the algorithm}
+
+\section{Strong Hanani-tutte to Weak Hanani-tutte}
+
+In this section, we will focus on how to transform a strong hanani-tutte embedding to a weak hanani-tutte embedding. 
+First we will present the theorem from $\ldots$. Then we will show what are the characteristics of 
+the equivalence classes induced from the 2-SAT formulation in correspandence to this transformation. 
+
+\begin{lemma}
+   for each triple of vertices with each vertex in a different connected comp  
+\end{lemma}
+\begin{algorithm}[bt]
+\caption{\textsc{MergeAdjacentEdgestEquivalenceClasses}}\label{alg:MAEEq}
+
+% Some settings
+\DontPrintSemicolon %dontprintsemicolon
+\SetFuncSty{textsc}
+\SetKwFor{ForAll}{forall}{do}
+
+% Declaration of data containers and functions
+\SetKwData{Q}{Q}
+\SetKwData{dist}{d}
+\SetKwData{pred}{pred}
+\SetKwFunction{queueDeleteMin}{deleteMin}
+\SetKwFunction{adj}{$\mathrm{adj}$}
+\SetKwFunction{adjBool}{$\mathcal{V}_{\mathrm{adj}}$}
+\SetKwFunction{adjOrderBool}{$\mathcal{V}_{\mathrm{ord}}$}
+\SetKwFunction{equiClass}{$\mathrm{Eq}$}
+\SetKwFunction{queueInsert}{insert}
+\SetKwFunction{queueDecreaseKey}{decreaseKey}
+\SetKwFunction{queueContains}{contains}
+
+% Algorithm interface
+% TODO need to defin Eqs
+% TODO need to define l outside of the algo, and just mention it in G 
+\KwIn{proper level Graph $G = (V,E,l)$ and  $\mathrm{Eq}$}
+% TODO how to use this one if needed ? 
+\KwOut{$\mathrm{Eq}$}
+%$\forall uw \in \mathcal{V} \, \colon \mathrm{Eq}\left( uw \right) =
+%                                      \mathrm{Eq}\left( uw \right) \cup
+%                                      \left\{ \neg \left( vx \right) \, | \, vx \in Eq\left( wu \right)  \right\} $ \;
+
+\tcc{reducing the equivalance classes of adjacent edges}
+%we have an empty list of vertices order 
+%loop over the distinct vertices x: 
+%    if first eq class make it the parent eq class.
+%    for each vertex w in the list:
+%        if the eq (w,x) and eq(x,w) don't exist in parent eq
+%            merge eq(w,x) with parent eq  
+%        add vertex to the list of visited vertices.
+\ForAll{$h \in l\left( V \right) $}{
+    \ForAll{$v \in \left\{V \, | \, l\left( v \right) \in \left\{h - 1, h + 1\right\}   \right\} $}{
+           $visited \leftarrow \emptyset$\;
+           $parentEq \leftarrow \mathrm{NULL}$\;
+        \ForAll{$w \in \adj{h,v}$}{
+            \ForAll{$u \in \mathrm{visited}$}{
+                \If{$parentEq = \mathrm{NULL}$}{
+                    $\mathrm{parentEq} \leftarrow eq\left(u,w\right)$ \;
+                }
+                \If{$ \left(eq\left( u,w \right) \not\in parentEq \right) \wedge \left( eq\left( w,u \right) \not\in parentEq \right) $}{
+                    Merge $eq\left( u,w \right)$ with $parentEq$ \;
+                }
+                add vertex $w$ to $visited$ \;
+            }
+        }
+    }
+}
+
+% The algorithm
+\end{algorithm}
+
+\section{Correctness of the algorithm}
 The algorithm is based on the fact that we can convert a 2-SAT truth assignement to a 
 strong hanani-tutte drawing and that we can convert a strong hanani-tutte drawing to a planar drawing.
 
