@@ -1,6 +1,21 @@
 \newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{RSB{\etalchar{+}}01}
 
+\bibitem[BRS22]{bruckner2022level}
+Guido Br{\"u}ckner, Ignaz Rutter, and Peter Stumpf.
+\newblock Level-planarity: Transitivity vs. even crossings.
+\newblock {\em The Electronic Journal of Combinatorics}, pages P4--22, 2022.
+
+\bibitem[FPS{\v{S}}12]{fulek2012hanani}
+Radoslav Fulek, Michael~J Pelsmajer, Marcus Schaefer, and Daniel {\v{S}}tefankovi{\v{c}}.
+\newblock Hanani--tutte, monotone drawings, and level-planarity.
+\newblock In {\em Thirty essays on geometric graph theory}, pages 263--287. Springer, 2012.
+
+\bibitem[Kro67]{krom1967decision}
+Melven~R Krom.
+\newblock The decision problem for a class of first-order formulas in which all disjunctions are binary.
+\newblock {\em Zeitschrift fur mathematische Logik und Grundlagen der Mathematik}, 13(1-2), 1967.
+
 \bibitem[RSB{\etalchar{+}}01]{randerath2001satisfiability}
 Bert Randerath, Ewald Speckenmeyer, Endre Boros, Peter Hammer, Alex Kogan, Kazuhisa Makino, Bruno Simeone, and Ondrej Cepek.
 \newblock A satisfiability formulation of problems on level graphs.

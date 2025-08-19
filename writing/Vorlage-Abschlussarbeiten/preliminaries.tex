@@ -33,8 +33,139 @@ for the understanding of this problem.
     only intersect with each other at their endpoints.
 \end{definition}
 
-\begin{definition}[2SAT]
+\subsection{Equivalence relation and the 2-SAT formulation}%
+\label{sub:Equivalence relation and the 2-SAT formulation}
+Randerath et al.~\cite{randerath2001satisfiability} present some simple constraints that decide the 
+existence of a level-planar drawing. The constraints are as follows: 
+\begin{itemize}
+    \item \textit{consistency:} $ uw \iff \neg wu   \quad \forall \, uw \in \mathcal{V} $
+    \item \textit{transitivity:} $ \left( uw \wedge wx \right) \Rightarrow ux  \quad \forall \, uw, wx \in \mathcal{V} $ and with $ux \in \mathcal{V}$
+    \item \textit{planarity:} $uw \iff vx \quad \forall uw, vx \in \mathcal{V} \text{ with }  \left( u,v \right), \left( w,x \right) \left( \in E \text{ and are independant} \right)$ 
+\end{itemize}
+
+
+\begin{definition}[Equivalence relation]
+   An equivalence relation on a set $X$ is a binary relation $\sim$ on $X$ satisfying the following constraints: 
+   \begin{itemize}
+       \item \textit{reflexivity:} $a \sim a \, \forall a \in X$. 
+       \item \textit{symmetry:} $a \sim b$ implies $b \sim a \quad \forall a, b \in X$.
+       \item \textit{transitivity:} $a \sim b \wedge b \sim c $ implies $a \sim c \quad \forall a, b, c \in X$.
+   \end{itemize}
+\end{definition}
+
+The planarity constraint can be formulated as an \textit{equivalence relation} over the set $\mathcal{V}$ according to Randerath et
+al.~\cite{randerath2001satisfiability}.
+
+\begin{definition}[Orbit relation]
+    \label{def:orbit}
+\ \\ 
+     Let's consider a proper level graph $G = \left( V,E \right)$, and a boolean set 
+    $\mathcal{V} = \left\{ uw \; | \; u,w \in V,\, l\left( u \right)=l\left( w \right)   \right\}$. \\
+    The orbit relation is an equivalence relation on the boolean set $\mathcal{V}$ with a binary 
+    relation $\sim$ on $\mathcal{V}$ satisfying the following constraints:  
+    \begin{itemize}
+        \item \textit{reflexivity:} $ uw \sim uw   \quad \forall \, uw \in \mathcal{V} $
+        \item \textit{symmetry:} $ uw \sim vx $ implies $ vx \sim uw \quad \forall \, uw, vx \in \mathcal{V} $
+        \item \textit{transitivity:} $ \left(uw \sim zy \right) \wedge  \left( zy \sim vx \right) $ implies $ uw \sim vx \quad \forall \, uw, zy, vx \in \mathcal{V} $
+    \end{itemize}
+\end{definition}
+
+The interperation of the orbit of a variable $uw \in \mathcal{V}$ is that for each boolean variable $vx$ 
+of $\mathcal{V}$ in the orbit of $uw$ we have: $\left( u < w \right) \iff \left( v < x \right)$.\cite{randerath2001satisfiability}
+
+\begin{theorem}
+    \label{th:randert6}
+    A proper level graph $G$ is level planar iff there exists no $uw \in \mathcal{V}$ such that $wu$ in orbit of $uw$. 
+\end{theorem}
+\begin{proof}
+    Refer to Theorem 6 from~\cite{randerath2001satisfiability}.
+\end{proof}
+
+%which means for a level planar graph, there is an other constraint that (paper) named consistency constraint that is also
+
+by considering the orbit which represents the \textit{planarity} constraint and by considering the \textit{consistency} constraint, 
+that is necessary to prove the existence of a level planar based on the Theorem~\ref{th:randert6}. Randert et al~\cite{randerath2001satisfiability} 
+proves that the transitivity clause is not needed for the satisfiability of this system of constraints and it is equivalent to 
+the satisfiability of a reduced constraint system which omits the transitivity clause. 
+
+The reduced constraint system can be expressed in terms of 2-SAT, which can be solved efficiently with a quadratic-time 
+algorithm for testing level planarity~\cite{krom1967decision}. Randert et al. also prove that a solution can be made transitive 
+without invalidating the other constraints in Theorem~\ref{th:randert6}.
+
+\subsection{Hanani-Tutte drawing and Embedding}%
+\label{sub:Hanani-Tutte drawing and Embedding}
+
+\begin{theorem}
+    \label{th:strongHT}
+   If $G$ has an (x-) monotone drawing with every pair of independant edges crosses evenly then $G$ has (x-) monotone
+   embedding with the same vertex locations (over x). 
+\end{theorem}
+\begin{proof}
+    Refer to theorem 3.1 from~\cite{fulek2012hanani} 
+\end{proof}
+
+\subsection{Equivalence classes of the orbits and Hanani-Tutte drawing }%
+\label{sub:eqcl&htd}
+In this section we want to link the equivalence classes with the Hanani-Tutte drawing induced from the truth assignement 
+of the 2-SAT formulation that is based on equivalence classes of the orbits.  
+
+\begin{definition}[Equivalence class]
+    For a given set $X$ and an equivalent relation $\sim$ in $X$, for an element $x$ of $X$, the 
+    equivalence class $[x]_\sim = \left\{ y \sim x, y \in X\right\}$. 
+
+    The set of all equivalence classes of $X$ with a relation $\sim$ is represented with $X/\sim$ 
+\end{definition}
+
+\begin{definition}[Orbit class]
+    For a boolean variable $uw \in \mathcal{V}$, the orbit class $[uw]_\mathcal{\sim}$ is 
+    the set of all elements $vx \in \mathcal{V}$ with $vx \sim uw$. 
+
+    The set of all orbit classes of $\mathcal{V}$ with the relation $\sim$ is $\mathcal{V}/\sim$.
+
+\end{definition}
+
+\begin{lemma}
+    $\forall uw \in \mathcal{V} \  \forall vx \in [uw]_{\sim} : \neg vx \in [\neg uw]_{\sim}$  
+\end{lemma}
+\begin{proof}
+    by the consistency clause, $\forall uw \in \mathcal{V} : uw \iff \neg wu$ and  $\forall vx \in [uw]_{\sim} vx \iff uw$ 
+    therefore \[\forall uw \in \mathcal{V} \; \forall vx \in [uw]_{\sim} vx \iff \neg wu\]
+    thus \[\forall uw \in \mathcal{V} \; \forall vx \in [uw]_{\sim} \neg vx \iff wu \iff \neg uw \] 
+    and that's why \[\forall uw \in \mathcal{V} \; \forall vx \in [uw]_{\sim} \neg vx \in [\neg uw]_{\sim} \] 
+\end{proof}
+
+Each assignment of the equivalence classes of the orbit is represented in the hanani-tutte drawing $\Gamma^*$ of $G^*$ in the 
+level $l$ where the single vertex $v'$ of origin $v$ in $G$ is one of the pair of vertices in the equivalence class and the other vertex $w$
+of the pair is the edge $e'$ passing through the level $l$ with an endpoint of origin $w$ in the graph $G$. 
+If for example we assign one to $[vw]_{\sim}$, then the vertex $v'$ lays before $e'$ on the level $l$ in the drawing $\Gamma^*$. 
+
+\begin{definition}[Horizental Gang]
+    a \textit{Horizental Gang} is a set of distinct vertices that belong to the same level of the level graph $G$ and that are the distinct 
+   endpoints of adjacent edges.
+\end{definition}
+
+\begin{definition}[Base Orbit Class]
+    a base orbit class $\mathcal{B}\left( [uv]_\sim \right)$ is the merge of $[uv]_\sim$ and $[vu]_\sim$. 
+    The orbit classes $[uv]_\sim$ and $[vu]_\sim$ are the directions of the base orbit class $\mathcal{B}\left( [uv]_\sim \right)$.
     
+\end{definition}
+\begin{lemma}
+    \label{lm:cyclerel}
+   Let a level planar graph $G=\left( V,E \right)$ with a level assignment $l$ and let the drawing $\Gamma^*$ be the induced 
+   Hanani-Tutte drawing of the graph $G^*$ induced from the orbit classes of $G$. An odd crossing in $\Gamma^*$ is 
+   equivalent to a cyclic relation between a triple of members of a horizental gang $V_{HG}$, in other words
+   a pair or triple of base orbit classes of members of the horizental gang can have directions that are cyclic. 
+\end{lemma}
+\begin{proof}
+   TODO proof 
+\end{proof}
+
+The algorithm that we designed might merges some of the orbit classes, we want to seperate the orbit classes before 
+the execution of the algorithm from any other state of the $\mathcal{V}/\sim$, for this reason we introduce this definition. 
+
+\begin{definition}[first-gen orbit class]
+    A \textit{first-gen} orbit class is an orbit class purely based on the planarity constraint, wich is not contaminated 
+    with other elements of $\mathcal{V}$ that are not par of it from the planarity constraint.
 \end{definition}
 
 
