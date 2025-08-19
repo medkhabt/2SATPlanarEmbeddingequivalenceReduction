@@ -58,6 +58,9 @@ our algorithm that reduce the set equivalent classes resulted from resolving the
 \label{sub:Algorithm description}
     % TODO definition of a planar proper level graph 
     % TODO definition of a level assignement.
+    \textbf{*TODO THIS NEEDS REFACTORING} 
+
+
     We have as input a planar proper level graph $G=\left( V,E,l \right) $ with a level assignement
     $l$, and equivalence classes based on the 2-SAT formulation of level planar embedding presented by 
     %TODO the 2SAT formula representation ( the constraints )  
@@ -108,16 +111,9 @@ our algorithm that reduce the set equivalent classes resulted from resolving the
 %   for each triple of vertices with each vertex in a different connected comp  
 %\end{lemma}
 %
-\section{Correctness of the algorithm}
-\subsection{Merging orbit classes of horizental gangs}%
-\label{sub:mocohg}
-
-In this section, we will prove that the part of algorithm that might merges some of
-the orbit classes between members of the same horizental gangs, and that 
-leads to a new set of orbit classes that for all their assignements there exists a weak 
-Hanani-Tutte drawing in $G^*$.
-
-
+    \subsection{Merging orbit classes of horizental gangs}%
+    \label{sub:Merging orbit classes of horizental gangs}
+    We present the Algorithm~\ref{alg:MAEEq}.
 \begin{algorithm}[bt]
 \caption{\textsc{MergeAdjacentEdgestOrbitClasses}}\label{alg:MAEEq}
 
@@ -190,67 +186,77 @@ Hanani-Tutte drawing in $G^*$.
 
 % The algorithm
 \end{algorithm}
+    
+\section{Correctness of the algorithm}
+\subsection{Merging orbit classes of horizental gangs}%
+\label{sub:mocohg}
 
+In this section, we will prove that the part of algorithm, that might merges some of
+the orbit classes between members of the same horizental gangs, leads to a new set of 
+orbit classes that for all their assignements there exists a weak Hanani-Tutte drawing in $G^*$.
+
+We will define two invariants that we will use in some of our proofs. 
+\begin{itemize}
+    \item The invariant $H_1$ of having the orbit classes not breaking the \textit{consistency constraint} 
+        and the \textit{planarity constraint}
+    \item The invariant $H_2$ of having acyclic relations between 
+        the members of the horizental gang of the set. 
+\end{itemize}
 \begin{lemma}
-    let $\left( w_1, \ldots, w_j \right)$ subset $HG_{A}$of vertices of a horizental gang $HG$
-    with no assignement of the orbit classes in $HG_{A}$ resulting in a cylic relation. 
+    \label{lm:newgangmember}
+    let $\left( w_1, \ldots, w_j \right)$ subset $HG_{A}$ of vertices of a horizental gang $HG$, that 
+    respect  having the orbit classes not breaking the \textit{consistency constraint} 
+    and the \textit{planarity constraint}  and  that there is no 
+    assignement of the orbit classes in $HG_{A}$ resulting in a cylic relation. 
     let $w_{j+1} \in HG$
-    After the algorithm~\ref{alg:MAEEq} treats $w_{j+1}$ in the loop. $HG_{A} \cup \{w_{j+1}\}$ has no
-    assignement of the orbit classes in $HG_{A} \cup \{w_{j+1}\}$ that lead to a cyclic relation between 
-    some of the members of the subset $HG_{A} \cup \{w_{j+1}\}$
+    After the algorithm~\ref{alg:MAEEq} treats $w_{j+1}$ in the loop. $HG_{A} \cup \{w_{j+1}\}$ also 
+    respects same constraints. 
 \end{lemma}
 \begin{proof}
 
-    We proceed the proof by induction on members of the horizental gang $HG_{i+1}$ which correspendence to the loop of the gang in 
-    the algorithm.
+    To prove this we will prove by induction that merging the equivalence class between $w_{j+1}$ and the members of $HG_{A}$ hold the two
+    constraints. 
+    Let $\mathrm{VHG}$ the set of visited members of the horizental gank $HG_{A}^j$.
 
-    The base case consists only from a single vertex member of the horizental gang $HG_{i+1}^1$ which holds the invariant of the induction on 
-    the horizental gangs and also hold the invariant of having acyclic relations between the members of the horizental gang $HG_{i+1}^1$
-    since the gang has no cyclic relations, since there are no relations. 
+    For the base case we have only one visited member $\mathrm{VHG}_1 = \left\{w_1\right\}$ from the gang $HG_{A}^j$.
+    Which means we are considering only one orbit class $eq\left( w_1, w_{j+1} \right)$, which doesn't lead to any cyclic 
+    relation since we need three vertices at least for that to be possible.
 
-    For the induction step, let's consider that the provisional horizental gang $HG_{i+1}^j$ consists of $\left( w_1, \ldots, w_j \right)$ members,
-    with $ j < l$, we want to prove adding the vertex member $w_{j+1}$ to the gang $HG_{i+1}^j$ will hold both invariants. 
+    For the induction step, let $\mathrm{VHG}_k = \left( w_1, \ldots, w_k \right) $  with $k < j$. 
+    let's consider the orbit class $eq\left( w_k, w_{j+1} \right)$. If the base orbit class $\mathcal{B}\left( w_k, w_{j+1} \right)$ is 
+    different than the base of the root equivalence class then we merge the correspending direction 
+    of the base orbit class $\mathcal{B}\left(eq\left( w_k, w_{j+1} \right)\right)$, depending 
+    on the mode, with the root equivalence class $eq\left( w_0, w_1 \right)$. 
 
-    To prove this we will prove by induction that merging the equivalence class between $w_{j+1}$ and the members of $HG_{i+1}^j$ hold the two
-    invariants. 
-    Let $\mathrm{VHG}$ the set of visited members of the horizental gank $HG_{i+1}^j$.
-
-    For the base case we have only one visited member $\mathrm{VHG}_1 = \left\{w_1\right\}$ from the gang $HG_{i+1}^j$.
-    Which means we are considering only one equivalence class $eq\left( w_1, w_{j+1} \right)$, which doesn't lead to any cyclic 
-    relation since we need a three vertices at least for that to be possible.
-
-    For the induction step, let $\mathrm{VHG}_k = \left( w_1, \ldots, w_k \right) $  with $k < j$. The equivalence class 
-    let's consider the $eq\left( w_k, w_{j+1} \right)$. If the equivalence class origin is different than the root equivalence class
-    origin then we merge $eq\left( w_k, w_{j+1} \right)$  with the root equivalence class $eq\left( w_0, w_1 \right)$. 
-
-    This first keeps the first invariance (TODO give a name to the invariance?) because merging $eq\left( w_k, w_{j+1} \right)$  and 
+    This first keeps the invariant $H_1$ because merging $eq\left( w_k, w_{j+1} \right)$  and 
     the root equivalence class, without losing generality, is only possible if the opposite direction of $eq\left( w_k, w_{j+1} \right)$ which is 
     $eq\left( w_{j+1}, w_k \right)$ doesn't exist in the parent equivalence class, which means the consistency clause is still respected, and 
-    since we are just merging equivalence classes and not adding any new relations between vertices the planarity constraint is also respected.
-    For the second invariant (TODO give it a name), let's consider prove by contradiction that merging the origin equivalence class of $w_k$ and $w_{j+1}$ ,with 
+    since we are just merging orbit classes and not adding any new relations between vertices and the consistency is respected, the planarity constraint is also respected.
+    For the invariant $H_2$, let's prove by contradiction that merging the base orbit class of $w_k$ and $w_{j+1}$, with 
     a direction depending on the phase of the algorithm, with the parent equivalence class will lead to a cyclic relation in one of the 'new' triples 
     $\left( x, w_k, w_{j+1} \right)$ with $x \in \mathrm{VHG}_k - \left\{w_k\right\}$. For the first mode, where $inverse=false$ which means 
-    that we didn't find a member of the gang that must be after $w_{j+1}$. `That can't happen if the base of equivalence class  $\left( w_k, w_{j+1} \right)$ 
-    is not part of the base of the parent equivalence class, because whatever the direction of the base of the equivalence class $\left( w_k, w_{j+1} \right)$, 
-    it doesn't lead to a cyclic relation if we merge the origin of that equivalence with one of the direction with the parent equivalent class.
-    For the case where we only have the parent equivalence class between the triple. It can't be an original equivalence class as these don't lead 
-    to a cyclic relation (TODO lemma?). It the the equivalence class in the triple is a result of one or multiple merges, We know that a triple of
-    gang members that can have a cyclic relation don't share more than one edge with any other triple of gang members (lemma) which means that, we can't 
-    have this case since if we had at least one merge of the equivalence class in the triple it means at least two equivalence classes where part 
+    that we didn't find a member of the gang that must be after $w_{j+1}$. That can't happen if the base of orbit class  $\left( w_k, w_{j+1} \right)$ 
+    is not part of the base of the parent orbit class, because whatever the direction of the base of the orbit class $\mathcal{B}\left(\left( w_k, w_{j+1} \right)\right)$, 
+    it doesn't lead to a cyclic relation if we merge the base of that orbit class with one of the direction with the parent orbit class.
+
+    For the case where we only have the parent orbit class between the triple. It can't be an first-gen equivalence class as these don't lead 
+    to a cyclic relation (TODO lemma?). It the the orbit class in the triple is a result of one or multiple merges, We know that a triple of
+    gang members that can have a cyclic relation don't share more than one edge with any other triple of gang members (TODO lemma) which means that, we can't 
+    have this case since if we had at least one merge of the orbit class in the triple, it only means at least two equivalence classes were part 
     of another triple of gang members.
     For the second mode, where $inverse=true$ where we found that $w_{j+1}$ needs to be before a gang member of $VHG$. For each triple  $\left( x, w_k, w_{j+1} \right)$ 
-    with $x \in \mathrm{VHG}_k - \left\{w_k\right\}$, they can induce two equivalence classes or one. In the case of two, the base equivalence class between $x, w_{j+1}$ is 
-    of the direction from $w_{j+1}$ to $x$ and the base equivalence class $x, w_k$ is of a direction from $x$ to $w_k$ since $x$ comes before $w_k$ in visited linked
-    list. Since we are in the reverse mode of the algorithm, the algorithm will merge the base equivalence class of $w_k, w_{j+1}$ with the direction from 
-    $w_{j+1}$ to $w_k$ with the other mentionned induced equivalence classes, which contradicts. For the case, where we have only one equivalence class induced from the triple, it's 
+    with $x \in \mathrm{VHG}_k - \left\{w_k\right\}$, they can induce two orbit classes or one. In the case of two, the base orbit class between $x, w_{j+1}$ is 
+    of the direction from $w_{j+1}$ to $x$ and the base orbit class $x, w_k$ is of a direction from $x$ to $w_k$ since $x$ comes before $w_k$ in visited linked
+    list. Since we are in the reverse mode of the algorithm, the algorithm will merge the base orbit class of $w_k, w_{j+1}$ with the direction from 
+    $w_{j+1}$ to $w_k$ with the other mentionned induced orbit classes, which contradicts. For the case, where we have only one orbit class induced from the triple, it's 
     not possible due to the same contradiction from the first mode.
 
-    The merge of the appropriate equivalence class from the base of $\left( w_{j+1}, w_k \right)$ doesn't affect any existing triple order, since we are just 
-    changing the new equivalence class. 
+    The merge of the appropriate orbit class from the base of $\left( w_{j+1}, w_k \right)$ doesn't affect any existing triple order, since we are just 
+    changing the new orbit class. 
 
-    Therefore merging the equivalence classes between $w_{j+1}$ and the members of $HG_{i+1}^j$ ,when needed, hold the two invariants. 
+    Therefore merging the equivalence classes between $w_{j+1}$ and the members of $HG_{A}^j$, when needed, hold the two invariants. 
 
-    Thus adding the vertex member $w_{j+1}$ to the gang $HG_{i+1}^j$ will hold both invariants. 
+    Thus adding the vertex member $w_{j+1}$ to the gang $HG_{A}^j$ will hold both invariants. 
 
 \end{proof}
 \begin{theorem}
@@ -293,52 +299,62 @@ to prove that the merging done in the algorithm is correct, we need to prove tha
 holds the invariant of $H_1$ and also hold the invariant $H_2$ of having acyclic relations between 
 the members of the horizental gang $HG_{i+1}$. 
 
+    We proceed the proof by induction on members of the horizental gang $HG_{i+1}$ which correspendence to the loop of the gang in 
+    the algorithm.
+
+    The base case consists only from a single vertex member of the horizental gang $HG_{i+1}^1$ which holds the invariant of the induction on 
+    the horizental gangs and also hold the invariant of having acyclic relations between the members of the horizental gang $HG_{i+1}^1$
+    since the gang has no cyclic relations, since there are no relations. 
+
+    For the induction step, let's consider that the provisional horizental gang $HG_{i+1}^j$ consists of $\left( w_1, \ldots, w_j \right)$ members,
+    with $ j < l$, we want to prove adding the vertex member $w_{j+1}$ to the gang $HG_{i+1}^j$ will hold both invariants. 
+
+    By Lemma~\ref{lm:newgangmember}, we prove that adding the vertex $w_{j+1}$ to the gang $HG_{i+1}^j$ holds both invariants.  
+    
 Which means that treating the horizental gang $HG_{i+1}$ holds the invariant and also removes any possible cyclic relation between the horizental
-gang memberes of $HG_{i+1}$ from the set of resulted equivalence classes. 
+gang memberes of $HG_{i+1}$ from the set of resulted orbit classes. 
 
-Therefore, we proved that the algorithm removes all the cyclic relations between any members of the same horizental gang. Which is all what we need to prove 
-since the proof of transforming strong hanani-tutte drawing to weak hanai-tutte drawing from theorem 3.1 from .. induce on the the number of odd pairs between adjacent edges.
-The gang members are only the vertices that can lead to the odd crossings described in theorem 3.1.  
+Therefore, we proved that the algorithm removes all the cyclic relations between any members of the same horizental gang. 
 \end{proof}
 
-For the induction step, let's consider a subgraph $G_i$ of our graph $G$. Let $v_{i+1}$ be the vertex to add 
-to the subgraph $G_i$. 
+%For the induction step, let's consider a subgraph $G_i$ of our graph $G$. Let $v_{i+1}$ be the vertex to add 
+%to the subgraph $G_i$. 
 
-If $v_{i+1}$ has no more than one adjacent edge 
+%If $v_{i+1}$ has no more than one adjacent edge 
 
 
-The algorithm is based on the fact that we can convert a 2-SAT truth assignement to a 
-strong hanani-tutte drawing and that we can convert a strong hanani-tutte drawing to a planar drawing.
+%The algorithm is based on the fact that we can convert a 2-SAT truth assignement to a 
+%strong hanani-tutte drawing and that we can convert a strong hanani-tutte drawing to a planar drawing.
 
-The assignement of equivalent classes represent the set of solutions from solving the 2-SAT assignement. 
+%The assignement of equivalent classes represent the set of solutions from solving the 2-SAT assignement. 
 
-The algorithm reduce the set of truth assignement solutions to get rid of false positives and that by reducing 
-the number of equivalent classes by concatining some of them, which lead to smaller number of possible solution 
-that can lead to a level planar drawing.
+%The algorithm reduce the set of truth assignement solutions to get rid of false positives and that by reducing 
+%the number of equivalent classes by concatining some of them, which lead to smaller number of possible solution 
+%that can lead to a level planar drawing.
 
-\begin{proof}
-   Since we are just reducing the set of truth assignement that already satisfies 2-SAT, the planarity 
-   and the consistency clauses are still respected.
-
-   if we take a truth assignement $\phi$ from 2-sat solutions, we can induce a strong hanani-tutte drawing. The goal is 
-   to convert this strong hanani-tutte drawing into a x-montone embedding which is a planar drawing. 
-
-   To convert the strong hanani-tutte drawing to weak hanani-tutte, we must remove any odd crossing of adjacent edges by making it an even crossing. 
-   We either have two edges consecutive in the rotation of the shared endpoint, so we can just cross them 
-   one more time near the shared endpoint, this doesn't change the order of the vertices in the hanani-tutte drawing Figure~\ref{fig:occ}. The other cases are when there is at 
-   least an edge between the two edges that crosses oddly and this edge crosses evenly all edges of the constructed graph so far, we have three major cases 
-   (TODO describing the cases from the hanani-tutte to xmonotone paper) , and we can get rid the odd crossing by concatinating the equivalent classes while still respecting the consistency clause 
-   Figure~\ref{fig:toi} 
-
-   After the modification, each element of the set of solutions from the reduced equivalent classes will lead to a weak hanani-tutte drawing, there is 
-   a special case in weak hanani-tutte that doesn't lead to an equivalent x-monotone embedding wich means that we need to change the relative order 
-   of some vertices. We mimick the construction in the proof of theorem 2.1 (reference hanani-tutte to xmononte paper) of the graph $G'$ (which equals $G$ at the end of the construction) , when the algorithm reach the special case which is 
-   when the new added $x_1$ adds more than one edge to the graph $G'$ and it is not connected to the last added vertex before it in $G'$, from the proof 
-   we can notice that we fix the order of two connected comps to each other if they don't have any relative order (TODO explain what's a relative order in this context), if they do, meaning that one encapsulate the other 
-   then each vertex of the encapsulating component forces that it has the same equivalent class to all vertices of the encapsulated comp. From the algorithm 
-   we take an arbitary order of the components $(C_1, C_2)$ and we force all elements of $C_2$ to have the same equivalent class with the same vertex from $C_1$. If $C_1$ is the encapsulated component, we just switch $C_1$ with $C_2$.
-
-\end{proof}
+%%\begin{proof}
+%   Since we are just reducing the set of truth assignement that already satisfies 2-SAT, the planarity 
+%   and the consistency clauses are still respected.
+%
+%   if we take a truth assignement $\phi$ from 2-sat solutions, we can induce a strong hanani-tutte drawing. The goal is 
+%   to convert this strong hanani-tutte drawing into a x-montone embedding which is a planar drawing. 
+%
+%   To convert the strong hanani-tutte drawing to weak hanani-tutte, we must remove any odd crossing of adjacent edges by making it an even crossing. 
+%   We either have two edges consecutive in the rotation of the shared endpoint, so we can just cross them 
+%   one more time near the shared endpoint, this doesn't change the order of the vertices in the hanani-tutte drawing Figure~\ref{fig:occ}. The other cases are when there is at 
+%   least an edge between the two edges that crosses oddly and this edge crosses evenly all edges of the constructed graph so far, we have three major cases 
+%   (TODO describing the cases from the hanani-tutte to xmonotone paper) , and we can get rid the odd crossing by concatinating the equivalent classes while still respecting the consistency clause 
+%   Figure~\ref{fig:toi} 
+%%%
+%   After the modification, each element of the set of solutions from the reduced equivalent classes will lead to a weak hanani-tutte drawing, there is 
+%   a special case in weak hanani-tutte that doesn't lead to an equivalent x-monotone embedding wich means that we need to change the relative order 
+%   of some vertices. We mimick the construction in the proof of theorem 2.1 (reference hanani-tutte to xmononte paper) of the graph $G'$ (which equals $G$ at the end of the construction) , when the algorithm reach the special case which is 
+%   when the new added $x_1$ adds more than one edge to the graph $G'$ and it is not connected to the last added vertex before it in $G'$, from the proof 
+%   we can notice that we fix the order of two connected comps to each other if they don't have any relative order (TODO explain what's a relative order in this context), if they do, meaning that one encapsulate the other 
+%   then each vertex of the encapsulating component forces that it has the same equivalent class to all vertices of the encapsulated comp. From the algorithm 
+%   we take an arbitary order of the components $(C_1, C_2)$ and we force all elements of $C_2$ to have the same equivalent class with the same vertex from $C_1$. If $C_1$ is the encapsulated component, we just switch $C_1$ with $C_2$.
+%
+%\end{proof}
 % Always reference figures, tables etc. To give a few simple examples, this section contains Algorithm \ref{theorem:doof}, Table \ref{tbl:randomnumbers}, Figure \ref{fig:somegraph}, and Theorem \ref{theorem:doof}. To give an example citation we recommend the book of Garey and Johnson \cite{gj-ci-79}.
 
 %\begin{theorem}
@@ -349,81 +365,81 @@ that can lead to a level planar drawing.
 %  Weil ist so.
 %\end{proof}
 
-\begin{algorithm}[bt]
-\caption{\textsc{Equivalence Classes Reduction}}\label{alg:EqRed}
+%\begin{algorithm}[bt]
+%\caption{\textsc{Equivalence Classes Reduction}}\label{alg:EqRed}
 
 % Some settings
-\DontPrintSemicolon %dontprintsemicolon
-\SetFuncSty{textsc}
-\SetKwFor{ForAll}{forall}{do}
+%\DontPrintSemicolon %dontprintsemicolon
+%\SetFuncSty{textsc}
+%\SetKwFor{ForAll}{forall}{do}
 
 % Declaration of data containers and functions
-\SetKwData{Q}{Q}
-\SetKwData{dist}{d}
-\SetKwData{pred}{pred}
-\SetKwFunction{queueDeleteMin}{deleteMin}
-\SetKwFunction{adjBool}{$\mathcal{V}_{\mathrm{adj}}$}
-\SetKwFunction{adjOrderBool}{$\mathcal{V}_{\mathrm{ord}}$}
-\SetKwFunction{equiClass}{$\mathrm{Eq}$}
-\SetKwFunction{queueInsert}{insert}
-\SetKwFunction{queueDecreaseKey}{decreaseKey}
-\SetKwFunction{queueContains}{contains}
+%\SetKwData{Q}{Q}
+%\SetKwData{dist}{d}
+%\SetKwData{pred}{pred}
+%\SetKwFunction{queueDeleteMin}{deleteMin}
+%\SetKwFunction{adjBool}{$\mathcal{V}_{\mathrm{adj}}$}
+%\SetKwFunction{adjOrderBool}{$\mathcal{V}_{\mathrm{ord}}$}
+%\SetKwFunction{equiClass}{$\mathrm{Eq}$}
+%\SetKwFunction{queueInsert}{insert}
+%\SetKwFunction{queueDecreaseKey}{decreaseKey}
+%\SetKwFunction{queueContains}{contains}
 
 % Algorithm interface
 % TODO need to defin Eqs
 % TODO need to define l outside of the algo, and just mention it in G 
-\KwIn{proper level Graph $G = (V,E,l)$ and  $\mathrm{Eq}$}
+%\KwIn{proper level Graph $G = (V,E,l)$ and  $\mathrm{Eq}$}
 % TODO how to use this one if needed ? 
-\KwOut{$\mathrm{Eq}$}
-$\mathcal{V} = \left\{ uw \, | \, u,w\in V, \, u \neq w, \, l\left( u \right) = l\left( w \right)  \right\}$\;
+%\KwOut{$\mathrm{Eq}$}
+%$\mathcal{V} = \left\{ uw \, | \, u,w\in V, \, u \neq w, \, l\left( u \right) = l\left( w \right)  \right\}$\;
 %$\forall uw \in \mathcal{V} \, \colon \mathrm{Eq}\left( uw \right) =
-%                                      \mathrm{Eq}\left( uw \right) \cup
+%%                                      \mathrm{Eq}\left( uw \right) \cup
 %                                      \left\{ \neg \left( vx \right) \, | \, vx \in Eq\left( wu \right)  \right\} $ \;
-
-\tcc{reducing the equivalance classes of adjacent edges}
-\ForAll{$h \in l\left( V \right) $}{
-    \tcc{i still need to make sure adding h + 1 is valid here.}
-    \ForAll{$v \in \left\{V \, | \, l\left( v \right) \in \left\{h - 1, h + 1\right\}   \right\} $}{
-           $S \leftarrow \emptyset$\;
-           $\mathcal{V}_{\mathrm{ord}} \leftarrow \emptyset$\;
-        \ForAll{$uw \in \adjBool{h,v}$}{
-            \If{$wu \in S$}{
-                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{wu\}$\;
-                $S\leftarrow S \cup \equiClass{wu}$\;
-            }
-            \Else{
-                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{uw\}$\;
-                $S\leftarrow S \cup \equiClass{uw}$\;
-            }
-        }
-
-
-        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( uw \right) 
-        = \bigcup_{u',w' \in \mathcal{V}_{\mathrm{ord}}}{\equiClass{u'w'}}$ \;
-
-        \tcc{Synchronize with the symmetrical order to $\mathcal{V}_{\mathrm{ord}}$}
-        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( wu \right) 
-        = \left\{xv, \, vx \in \equiClass{uw}\right\}$\;
-
-        \tcc{we have equivalent classes that can induce a weak hanani-tutte drawing}
-        
-        \ForAll{$v$ in vertices of level $h$}{
-            $G' \rightarrow G' \cup \left\{(w,v) \, | \, w \in V, \left( w,v \right) \in E \text{ and } l\left( w \right) = l\left( v \right) + 1 \right\}$\;
-            \If{$v$ is a cut vertex of $G'$ }{
-                $\mathrm{Comps}$  list of connected comps of $G' - \{v\}$ \;
-                we pick an arbitary order of the list $\mathrm{Comps}$\;
-                \ForAll{$\left( C_1, C_2 \right)$ in combinaisons of pairs of connected components in $\mathrm{Comps}$ with the respect to the specified order}{
-                    if $C_1$ is encapsulated by $C_2$ then  $(C_1,C_2) \leftarrow (C_2, C_1)$ \;
-                } 
-                \tcc{we consider the vertices of the $h$ level only}
-                $\forall v \in C_1\left( h \right)  \, \forall w \in C_2\left( h \right) \colon Eq(v,w) \leftarrow \displaystyle \bigcup_{w' \in C_2\left( h \right)} {Eq \left( v,w' \right)} $\;
-            }
-        } 
-    }
-}
-
-% The algorithm
-\end{algorithm}
+%
+%\tcc{reducing the equivalance classes of adjacent edges}
+%\ForAll{$h \in l\left( V \right) $}{
+%    \tcc{i still need to make sure adding h + 1 is valid here.}
+%    \ForAll{$v \in \left\{V \, | \, l\left( v \right) \in \left\{h - 1, h + 1\right\}   \right\} $}{
+%           $S \leftarrow \emptyset$\;
+%           $\mathcal{V}_{\mathrm{ord}} \leftarrow \emptyset$\;
+%        \ForAll{$uw \in \adjBool{h,v}$}{
+%            \If{$wu \in S$}{
+%                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{wu\}$\;
+%                $S\leftarrow S \cup \equiClass{wu}$\;
+%            }
+%            \Else{
+%                $\mathcal{V}_{\mathrm{ord}} \leftarrow \mathcal{V}_{\mathrm{ord}} \cup \{uw\}$\;
+%                $S\leftarrow S \cup \equiClass{uw}$\;
+%            }
+%        }
+%
+%
+%        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( uw \right) 
+%        = \bigcup_{u',w' \in \mathcal{V}_{\mathrm{ord}}}{\equiClass{u'w'}}$ \;
+%
+%        \tcc{Synchronize with the symmetrical order to $\mathcal{V}_{\mathrm{ord}}$}
+%        $\forall uw \in  \mathcal{V}_{\mathrm{ord}} \colon \mathrm{Eq}\left( wu \right) 
+%        = \left\{xv, \, vx \in \equiClass{uw}\right\}$\;
+%
+%        \tcc{we have equivalent classes that can induce a weak hanani-tutte drawing}
+%        
+%        \ForAll{$v$ in vertices of level $h$}{
+%            $G' \rightarrow G' \cup \left\{(w,v) \, | \, w \in V, \left( w,v \right) \in E \text{ and } l\left( w \right) = l\left( v \right) + 1 \right\}$\;
+%            \If{$v$ is a cut vertex of $G'$ }{
+%                $\mathrm{Comps}$  list of connected comps of $G' - \{v\}$ \;
+%                we pick an arbitary order of the list $\mathrm{Comps}$\;
+%                \ForAll{$\left( C_1, C_2 \right)$ in combinaisons of pairs of connected components in $\mathrm{Comps}$ with the respect to the specified order}{
+%                    if $C_1$ is encapsulated by $C_2$ then  $(C_1,C_2) \leftarrow (C_2, C_1)$ \;
+%                } 
+%                \tcc{we consider the vertices of the $h$ level only}
+%                $\forall v \in C_1\left( h \right)  \, \forall w \in C_2\left( h \right) \colon Eq(v,w) \leftarrow \displaystyle \bigcup_{w' \in C_2\left( h \right)} {Eq \left( v,w' \right)} $\;
+%            }
+%        } 
+%    }
+%}
+%
+%% The algorithm
+%\end{algorithm}
 \begin{figure} [bt]
   \centering
   \includegraphics{figures/odd_cross_consecutive.pdf
