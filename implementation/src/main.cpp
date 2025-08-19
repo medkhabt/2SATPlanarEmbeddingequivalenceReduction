@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
@@ -15,20 +16,70 @@
 #include <malloc.h>
 #include "NodePartition.h"
 #include "GraphBuilder.h"
-#include "algorithm.hpp"
+//#include "algorithm.hpp"
 #include "type.hpp"
 #include "utils.hpp"
 #include "Tracy.hpp"
 
-void compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equivalentClasses& eq){
+equivalenceClass* compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     ZoneScoped;
     // sync 
-    std::map<nodePair, nodePairSet> sync; 
+    auto& emb = builder.emb;
+    int nodesSize = builder.G.numberOfNodes();
+    // each vertex can have up to |V(G)| - 1 relations, reversing the relation result in an other |V(G)| - 1 relation per vertex.  
+    // TODO be careful of the number of vertices. the constructor only accepts int.
+    
+    OGDF_ASSERT(nodesSize < INT_MAX / 2); 
+    OGDF_ASSERT(2 * nodesSize < INT_MAX / (nodesSize - 1)); 
 
-    std::vector<ogdf::edge> E; 
+    int maxNumberOfDijointSets = 2 * nodesSize * (nodesSize-1); 
+    // Build the disjoint set union of the equivalence classes 
+    eqDs = equivalenceClasses(maxNumberOfDijointSets); 
+
+    // TODO I need a graph registery, probably inheriting from ogdf::Graph
+    // TODO It would be nice if i can implement pairnodearray
+    //ogdf::PairNodeArray<int> pairNodes(builder.G);
+    //TODO free it
+    equivalenceClass* pairsEq = (equivalenceClass*) malloc(maxNumberOfDijointSets * sizeof(equivalenceClass));  
+    for(const auto& v : builder.G.nodes){
+        for(const auto& w: builder.G.nodes){
+            pairsEq[v->index() * nodesSize + w->index()].value = -1; 
+            pairsEq[v->index() * nodesSize + w->index()].reverseValue = -1; 
+        }
+    }
+    // Initializing the 2D array with -1 for all the pairs in the graph
+    std::vector<ogdf::edge>E;
+    // Initializing the 2D array with each pair in a level with a disjointed set for all levels.
+    // O(l)
+    for(const auto& nodes : emb){
+        // O(|V|/l)
+        for(const auto& u : nodes){
+            //O(|V|/l) -> O(n^2)
+            for(const auto& v : nodes){
+                if((u->index()) < (v->index())){
+                    pairsEq[u->index() * nodesSize + v->index()].value = eqDs.makeSet();
+                    pairsEq[v->index() * nodesSize + u->index()].value = eqDs.makeSet();            
+                    pairsEq[u->index() * nodesSize + v->index()].reverseValue = pairsEq[v->index() * nodesSize + u->index()].value ;
+                    pairsEq[v->index() * nodesSize + u->index()].reverseValue = pairsEq[u->index() * nodesSize + v->index()].value ;
+                }
+            }
+        }
+    }
+/*
+    std::cout << "FULL list" << std::endl;
+    for(const auto& v : builder.G.nodes){
+        for(const auto& w: builder.G.nodes){
+            std::cout << " " << pairsEq[v->index() * nodesSize + w->index()] << " ";  
+        }
+        std::cout<<std::endl;
+    }
+    */
+    // o(l) with children O(|E|^2/l) -> O(n^2)
     for(const auto& nodes : emb){
         E.clear();
+        // o(|V|/l)
         for(const auto& n : nodes){
+            // o(\delta(G))
             for(const auto& adj : n->adjEntries) {
                 if(adj->isSource()) {
                     E.push_back(adj->theEdge());
@@ -37,64 +88,61 @@ void compute2SATClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, equiv
         }
         ogdf::edge f, s; 
         ogdf::node a,b,c,d ; 
-        for(size_t i = 0; i < E.size(); i++){
-            for(size_t j = i + 1; j < E.size(); j++){
+        // o(|E|/l)
+        for(size_t i = 0 ; i < E.size() ; i++){
+            //o(|E|/l) 
+            for(size_t j = i + 1 ; j < E.size() ; j++){
                 f = E[i];  
                 s = E[j];
                 a = f->source(); b = s->source();
                 c = f->target(); d = s->target(); 
-                if(!(a->index() == b->index() || c->index() == d->index())){
-                    sync[std::make_pair(a->index(), b->index())].insert(std::make_pair(c->index(),d->index())); 
-                    sync[std::make_pair(b->index(), a->index())].insert(std::make_pair(d->index(),c->index())); 
-                    sync[std::make_pair(c->index(), d->index())].insert(std::make_pair(a->index(),b->index())); 
-                    sync[std::make_pair(d->index(), c->index())].insert(std::make_pair(b->index(),a->index())); 
+                if(!(a->index() == b->index() || c->index() == d->index()) ) {
+                    // O(1)
+                    eqDs.quickUnion(pairsEq[a->index() * nodesSize + b->index()].value, pairsEq[c->index() * nodesSize + d->index()].value); 
+                    pairsEq[a->index() * nodesSize + b->index()].value = eqDs.getRepresentative(pairsEq[a->index() * nodesSize + b->index()].value);   
+                    pairsEq[b->index() * nodesSize + a->index()].reverseValue = eqDs.getRepresentative(pairsEq[a->index() * nodesSize + b->index()].value);   
+
+                    pairsEq[c->index() * nodesSize + d->index()].value = eqDs.getRepresentative(pairsEq[c->index() * nodesSize + d->index()].value);   
+                    pairsEq[d->index() * nodesSize + c->index()].reverseValue = eqDs.getRepresentative(pairsEq[c->index() * nodesSize + d->index()].value);   
+
+                    eqDs.quickUnion(pairsEq[b->index() * nodesSize + a->index()].value, pairsEq[d->index() * nodesSize + c->index()].value); 
+                    pairsEq[b->index() * nodesSize + a->index()].value = eqDs.getRepresentative(pairsEq[b->index() * nodesSize + a->index()].value);   
+                    pairsEq[a->index() * nodesSize + b->index()].reverseValue= eqDs.getRepresentative(pairsEq[b->index() * nodesSize + a->index()].value);   
+
+                    pairsEq[d->index() * nodesSize + c->index()].value = eqDs.getRepresentative(pairsEq[d->index() * nodesSize + c->index()].value);   
+                    pairsEq[c->index() * nodesSize + d->index()].reverseValue = eqDs.getRepresentative(pairsEq[d->index() * nodesSize + c->index()].value);   
+                }
+            }
+        }
+    }
+
+    // O(l) with children O(|V|^2/l)->O(n^2)
+    for(const auto& nodes: emb){
+        for(const auto& v : nodes) {
+            for(const auto& w: nodes){
+                if(v->index() < w->index()){
+                    pairsEq[v->index() * nodesSize + w->index()].value = eqDs.getRepresentative(pairsEq[v->index() * nodesSize + w->index()].value);
+                    pairsEq[w->index() * nodesSize + v->index()].reverseValue = eqDs.getRepresentative(pairsEq[v->index() * nodesSize + w->index()].value);
+                    pairsEq[w->index() * nodesSize + v->index()].value = eqDs.getRepresentative(pairsEq[w->index() * nodesSize + v->index()].value);
+                    pairsEq[v->index() * nodesSize + w->index()].reverseValue = eqDs.getRepresentative(pairsEq[w->index() * nodesSize + v->index()].value);
                 }
             } 
         }
     }
 
-    std::vector<nodePair> todo;
-
-    for(const auto& [key, value] : sync){
-        int a = key.first;
-        int b = key.second;
-        if(a  > b ){
-            int temp = a ; 
-            a  = b ; 
-            b  = temp;
-        }
-        if(eq.find(std::make_pair(a ,b ))!= eq.end()){
-            continue;
-        }
-        nodePair mainPair(a,b);
-        nodePair mainPairInversed(b,a);
-        eq[mainPair] = std::make_shared<nodePairSet>(); 
-        eq[mainPairInversed] = std::make_shared<nodePairSet>(); 
-        todo.clear(); 
-        todo.push_back(mainPair);
-
-        while(!todo.empty()){
-            int c = todo.back().first; 
-            int d = todo.back().second; 
-            nodePair pair(c,d), pairInversed(d,c);
-            todo.pop_back();
-            if(mainPair != pair){
-                // TODO add the assert.
-            }
-            eq[pair] = eq[mainPair];
-            eq[pairInversed] = eq[mainPairInversed];
-
-            eq[mainPair]->insert(sync[pair].begin(), sync[pair].end());
-            eq[mainPairInversed]->insert(sync[pairInversed].begin(), sync[pairInversed].end());
-
-            for(auto& p : sync[pair]) {
-                // if we don't find the pair yet in the eq class. 
-                if( eq.find(p) == eq.end())
-                    todo.push_back(std::make_pair(p.first, p.second));    
-            }
-
+    std::cout << "Merging" << std::endl;
+    for(const auto& nodes: emb){
+        for(const auto& v : nodes) {
+            for(const auto& w: nodes){
+                std::cout << "("<< v->index() << ","  << w->index() << ") = "  << pairsEq[v->index() * nodesSize + w->index()].value << std::endl; 
+                if(v->index() != w->index()){
+                    std::cout << "("<< w->index() << ","  << v->index() << ") = "  << pairsEq[w->index() * nodesSize + v->index()].value << std::endl; 
+                }
+            } 
         }
     }
+
+    return pairsEq;
 }
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
@@ -134,9 +182,11 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     }
     */
 
-    equivalentClasses eq ;
-    compute2SATClasses(graphBuild.emb, eq);
+    equivalenceClasses eq ;
+    int* eqPairs = compute2SATClasses(graphBuild, eq);
 
+    //Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    free(eqPairs);
     //std::cout << "original eq class" << std::endl;
     //print_eq(eq);
 
@@ -162,23 +212,25 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         }
     }
     */
+    /*
     auto start = std::chrono::steady_clock::now();
     Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
     auto end = std::chrono::steady_clock::now();
+    */
 
     //std::cout << "merged eq class" << std::endl;
     //print_eq(eq);
 
-    logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+    //logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     //logFile << std::endl;
     if(debug){
         //logFile << "> Assigning the equivalent classes" << std::endl; 
         //logFile << std::endl;
     }
-    std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
-    eq.clear();
-    equivalentClasses().swap(eq);
+    //std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
+    //eq.clear();
+    //equivalentClasses().swap(eq);
 
 
     //TODO make it planarity check for the entire set of possible truth assignements.
@@ -205,10 +257,10 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     }
 
     */
-    bool acyclic = AcyclicRelation(title, allAssignements); 
-    allAssignements.clear();
-    std::vector<equivalentClassesAssignement>().swap(allAssignements);
-    if(acyclic == true){
+    //bool acyclic = AcyclicRelation(title, allAssignements); 
+    //allAssignements.clear();
+    //std::vector<equivalentClassesAssignement>().swap(allAssignements);
+    /*if(acyclic == true){
         if(debug){
             //logFile << std::endl;
             //logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
@@ -226,6 +278,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         //logFile << std::endl;
         //logFile.close();
     }
+    */
 }
 
 

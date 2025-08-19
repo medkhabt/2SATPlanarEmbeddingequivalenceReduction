@@ -2,14 +2,16 @@
 \babel@toc {english}{}\relax 
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {chapter}{\numberline {2}Preliminaries}{3}{chapter.2}%
-\contentsline {chapter}{\numberline {3}Reduction of the equivalent classes}{5}{chapter.3}%
-\contentsline {section}{\numberline {3.1}The induced Hannani-tutte from 2-SAT and planarity}{5}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Equivalent classes and Hannani-tutte}{5}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Reduction of the equivalent classes}{5}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Algorithm description}{6}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Correctness of the algorithm}{6}{subsection.3.3.2}%
-\contentsline {chapter}{\numberline {4}Conclusion}{11}{chapter.4}%
-\contentsline {chapter}{Bibliography}{13}{section*.2}%
-\contentsline {chapter}{\nonumberline Appendix}{15}{chapter*.4}%
-\contentsline {section}{\numberline {A}Appendix Section 1}{15}{section.4.1}%
+\contentsline {subsection}{\numberline {2.0.1}Equivalence relation and the 2-SAT formulation}{3}{subsection.2.0.1}%
+\contentsline {subsection}{\numberline {2.0.2}Hanani-Tutte drawing and Embedding}{4}{subsection.2.0.2}%
+\contentsline {subsection}{\numberline {2.0.3}Equivalence classes of the orbits and Hanani-Tutte drawing}{4}{subsection.2.0.3}%
+\contentsline {chapter}{\numberline {3}Transitivity constraint and Merging of the equivalent classes}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Algorithm description}{7}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Merging orbit classes of horizental gangs}{8}{subsection.3.1.1}%
+\contentsline {section}{\numberline {3.2}Correctness of the algorithm}{8}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Merging orbit classes of horizental gangs}{8}{subsection.3.2.1}%
+\contentsline {chapter}{\numberline {4}Conclusion}{13}{chapter.4}%
+\contentsline {chapter}{Bibliography}{15}{section*.2}%
+\contentsline {chapter}{\nonumberline Appendix}{17}{chapter*.4}%
+\contentsline {section}{\numberline {A}Appendix Section 1}{17}{section.4.1}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

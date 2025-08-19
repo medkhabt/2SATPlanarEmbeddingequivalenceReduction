@@ -6,6 +6,7 @@ project(2satPlanarDrawing VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/inputs")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/inputs/svg")
@@ -40,8 +41,17 @@ add_subdirectory(tracy)
 
 option( TRACY_ON_DEMAND "" ON)
 
-add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
+#add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
+add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/TracyClient.cpp)
 
+#[===[
+target_compile_options(2SATEquivalenceReduction PRIVATE
+    -Wall
+    -Wextra
+    -pedantic
+)
+]===]
+#
 target_link_libraries(2SATEquivalenceReduction
     OGDF 
     COIN

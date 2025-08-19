@@ -1,0 +1,52 @@
+# Strong to weak hanani tutte transformation algorithm proof 
+## Initial state : 
+{why we start from here ? , prove that or mention why we just need 
+to focus on the adjacent edges and why solving them don't result 
+in other cyclic relations in other parts of the embeding}
+adjacent edges to a vertex v. 
+
+## Goal define a single equivalence class of the sugraph containing
+just the distinct vertices of the adjacent edges.  
+
+
+invariant : no cyclic relations between the the distinct vertices 
+
+## Algorithm 
+find distinct vertices of adjacent edges with shared vertex v0 and 
+vertices belong to the same level. 
+
+we have an empty list of vertices order 
+loop over the distinct vertices x: 
+    if first eq class make it the parent eq class.
+    for each vertex w in the list:
+        if the eq (w,x) and eq(x,w) don't exist in parent eq
+            merge eq(w,x) with parent eq  
+        add vertex to the list of visited vertices.
+
+## proof 
+by induction on a vertex v 
+base no v no cyclic relation 
+
+induction: add vertex v_n+1  to vertices v_1, v_n 
+for each triple (x,y,v_n+1) we can have up to three equivalnce classes.
+Only one equivalence class can propagate to other triples from different 
+connected comps of G-v, which means that if we merge correclty the equivalence
+classes of the triple it won't affect other triples. (since we can't have a case 
+where the merging of the triple would lead to a cycle , since we need at least 
+2 equivalence classes to propagate to make that possible ).
+this means that by fixing each triple will lead to at most one less cyclic relation
+
+we need to prove now that fixing greedly one equivalence at a time won't lead 
+to adding a cyclic relation in further equivalence classes. 
+
+induction  
+base case: equivalence class of (v1, y)  
+induction step: resolving an eq (v_i,y) to (v1, v2,.. v_i-1). 
+by contradiction let's assume that  merging eq(v_i,y) nor eq(y,vi) with 
+parent eq will lead to a cycle. This means that eq(v_i,y) (lemma: triple connected 
+comps based on the adjacent edges can only share one equivalence class ) -> (lemma: two vertices from 
+the same connected comp share the same equivalence class direction)
+
+
+
+
