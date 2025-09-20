@@ -1,3 +1,4 @@
+#pragma once
 #include <stdio.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Graph_d.h>
@@ -8,7 +9,7 @@
 #include "type.hpp"
 #include "Tracy.hpp"
 
-void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
+inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     ZoneScoped;
     // sync 
     auto& emb = builder.emb;

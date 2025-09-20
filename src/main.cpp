@@ -16,11 +16,11 @@
 #include <malloc.h>
 #include "NodePartition.h"
 #include "GraphBuilder.h"
-//#include "algorithm.hpp"
 #include "type.hpp"
 #include "utils.hpp"
 #include "Tracy.hpp"
 #include "2SatCompute.hpp"
+#include "algorithm.hpp"
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
 void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling){
@@ -61,7 +61,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     equivalenceClasses eq ;
     compute2SATClasses(graphBuild, eq);
 
-    //Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
+    Contribution::enforceTransitivity(graphBuild, eq);
     //std::cout << "original eq class" << std::endl;
     //print_eq(eq);
 

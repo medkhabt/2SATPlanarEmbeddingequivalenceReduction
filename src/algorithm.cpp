@@ -1,12 +1,35 @@
 #include "algorithm.hpp"
+#include "GraphBuilder.h"
 #include "utils.hpp"
 #include "Tracy.hpp"
+#include "type.hpp"
 #include <unordered_set>
 
-/*
-void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElement*>& level, equivalentClasses& eq, const ogdf::node& v, const std::vector<int>& adjOut, const std::vector<int>& adjIn, std::map<int, int>& orderOut, std::map<int,int>& orderIn){
+int eqId(int u, int v, int nodesSize, equivalenceClasses& eq){
+   return eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + v]);  
+}
+void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq){
+    eq.disjointSets.quickUnion(eq.pairId[u1 * nodesSize + v1], eq.pairId[u2 * nodesSize + v2]); 
+    eq.disjointSets.quickUnion(eq.pairId[v1 * nodesSize + u1], eq.pairId[v2 * nodesSize + u2]); 
+}
+
+void mergeTwoEqs(int u1, int v1, int id2, int nodesSize, equivalenceClasses& eq){
+    int u2 = id2/nodesSize; 
+    int v2 = id2%nodesSize; 
+    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
+}
+
+void mergeTwoEqs(int id1, int id2, int nodesSize, equivalenceClasses& eq){
+    int u1 = id1/nodesSize; 
+    int v1 = id1%nodesSize; 
+    int u2 = id2/nodesSize; 
+    int v2 = id2%nodesSize; 
+    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
+}
+void Contribution::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std::vector<int>& adjOut, const std::vector<int>& adjIn, int nodesSize){
     ZoneScopedN("addAjdacentEdges function"); 
     int counter = 0;
+    /*
     for(const auto i : adjIn){
         orderIn[i] = counter++;
     }
@@ -14,6 +37,77 @@ void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElemen
     for(const auto i : adjOut){
         orderOut[i] = counter++;
     }
+    */
+
+    std::list<int> visited;  
+    int parentEquivalenceSet = -1;  
+    bool reverse = false; 
+
+    for(int w : adjIn){
+        if(visited.empty()) {
+            visited.push_back(w); 
+            // Didn't set the parent equivalence class yet.
+        } else if(parentEquivalenceSet == -1){
+            int u = visited.front();  
+            parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + w]); 
+        } else {
+            for(std::list<int>::iterator it = visited.begin(); it != visited.end() ; it++ ){
+                int u = *it;
+                if(eqId(w,u,nodesSize, eq) == parentEquivalenceSet){
+                    reverse = true; 
+                    // insert w before u in visited.
+                    visited.insert(it, w); 
+                }
+                if(eqId(w,u,nodesSize, eq) != parentEquivalenceSet && eqId(u,w,nodesSize,eq) != parentEquivalenceSet){
+                    if(reverse) {
+                        mergeTwoEqs(w,u,parentEquivalenceSet, nodesSize, eq);
+                    } else {
+                        mergeTwoEqs(u,w,parentEquivalenceSet, nodesSize, eq);
+                    }
+                }
+            } 
+            if(reverse){
+                visited.push_back(w); 
+            }
+        }
+    }
+
+
+    visited.clear(); 
+    reverse = false; 
+    parentEquivalenceSet = -1; 
+
+    for(int w : adjOut){
+        if(visited.empty()) {
+            visited.push_back(w); 
+            // Didn't set the parent equivalence class yet.
+        } else if(parentEquivalenceSet == -1){
+            int u = visited.front();  
+            parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + w]); 
+        } else {
+            for(std::list<int>::iterator it = visited.begin(); it != visited.end() ; it++ ){
+                int u = *it;
+                if(eqId(w,u,nodesSize, eq) == parentEquivalenceSet){
+                    reverse = true; 
+                    // insert w before u in visited.
+                    visited.insert(it, w); 
+                }
+                if(eqId(w,u,nodesSize, eq) != parentEquivalenceSet && eqId(u,w,nodesSize,eq) != parentEquivalenceSet){
+                    if(reverse) {
+                        mergeTwoEqs(w,u,parentEquivalenceSet, nodesSize, eq);
+                    } else {
+                        mergeTwoEqs(u,w,parentEquivalenceSet, nodesSize, eq);
+                    }
+                }
+            } 
+            if(reverse){
+                visited.push_back(w); 
+            }
+        }
+    }
+
+     /* ************ OLD ***************/
+    /*
     for(const auto u:adjOut){
         ZoneScopedN("outside ajdOut function"); 
         for(const auto w:adjOut){
@@ -158,8 +252,8 @@ void Contribution::addAdjacentEdgesRestrition(const std::vector<ogdf::NodeElemen
         }
     }
 
+    */
 }
-*/
 
 /*
 std::pair<std::map<int, std::set<int>>, std::map<int, int>> Contribution::connetectedCompsVerticesMap(const ogdf::NodeArray<int>& connectedcomps, const ogdf::Graph& G, const std::vector<ogdf::NodeElement*>& level){
@@ -667,33 +761,23 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     }
 }
 */
-void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeElement*>>& emb, int nodesSize, equivalenceClasses& eq, equivalenceClass* eqsOfPairs, size_t sizeOfEqOfPairs ){
-    ZoneScopedN("the reduce function");
-    
-    //std::vector<std::pair<int,int>> pairsPerEq(sizeOfEqOfPairs); 
-    std::vector<std::unordered_set<int>> pairsPerEq(sizeOfEqOfPairs); 
-    /*
-    for(size_t i = 0 ; i < sizeOfEqOfPairs; i++){
-        //pairsPerEq[eqsOfPairs[i]] = std::pair<int,int>(i/nodesSize, i%nodesSize) ; 
-        pairsPerEq[eqsOfPairs[i]].insert(i);  
-    }
-    */
-    //ogdf::Graph G; 
-    //ogdf::NodeArray<int> vertexlevel(G);
-    //TODO started caring less about the structure, this needs refactoring
-    //std::map<int, ogdf::node> gVertices; 
-    // the instantiation doesn't change much here, I just don't want it to be null.
-
-
-
-
-
+//void Contribution::enforceTransitivity(std::vector<std::vector<ogdf::NodeElement*>>& emb, int nodesSize, equivalenceClasses& eq, equivalenceClass* eqsOfPairs, size_t sizeOfEqOfPairs ){
+void Contribution::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+  ZoneScopedN("the reduce function");
+    auto& emb = builder.emb;    
+    int nodesSize = builder.G.numberOfNodes();
+    ogdf::Graph G; 
+    ogdf::NodeArray<int> vertexlevel(G);
     std::vector<int> adjIn, adjOut;
+    //TODO started caring less about the structure, this needs refactoring
+    std::map<int, ogdf::node> gVertices; 
+    // the instantiation doesn't change much here, I just don't want it to be null.
     std::vector<ogdf::node> previousLevel = emb[0];
     int levelIndex = 0;
     for(const auto& level : emb){
         for(const auto& v : level){
             std::vector<int> adjOut, adjIn;
+            std::map<int, int> orderIn, orderOut;
             for(const auto& adj : v->adjEntries){
                 ogdf::edge e = adj->theEdge(); 
                 if(v->index() == e->source()->index()){
@@ -703,39 +787,26 @@ void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeEle
                     adjIn.push_back(e->source()->index());
                 }
             }
-            // go over all the combinations of the neighbor of v in l - 1.
-            ogdf::Graph G;
-            std::unordered_set<int> visitedEquivalenceClasses; 
-            std::unordered_set<int> concernedEquivalenceClasses; 
-            std::unordered_map<int, ogdf::node> nodesInG;
-            for(const int v: adjIn){
-                for(const int w: adjIn){
-                    if(v != w) {
-                        // if we didn't define the direction of the equivalence class. 
-                        pairsPerEq[eqsOfPairs[v * nodesSize + w].value].insert(v * nodesSize + w);
-                        concernedEquivalenceClasses.insert(eqsOfPairs[v * nodesSize + w].value);
-                    }
-                }
-            } 
-            for(const int eqN : concernedEquivalenceClasses){
-                // get the pair first 
-                for(const int p: pairsPerEq[eqN]){
-                    int u = p / nodesSize; 
-                    int v = p % nodesSize; 
-                    if(nodesInG.find(u) == nodesInG.end()){
-                        nodesInG[u] = G.newNode(u);  
-                    }
-                    if(nodesInG.find(v) == nodesInG.end()){
-                        nodesInG[v] = G.newNode(v);  
-                    }
-                    
-                }
+            std::cout << ">> Vertex " << v << std::endl;
+            std::cout << ">>>> IN: " << std::endl;
+            for(int adj : adjIn){
+                std::cout << adj << " "; 
             }
-
-            
-            //adjacentEdgesRestriction 
-            
-            //addAdjacentEdgesRestrition(level, eq, v, adjOut, adjIn);
+            std::cout << std::endl;
+            std::cout << ">>>> OUT: " << std::endl;
+            for(int adj : adjOut){
+                std::cout << adj << " "; 
+            }
+            std::cout << std::endl;
+            /*
+            {
+                ZoneScopedN("sort");
+                //TODO why am i sorting ? 
+            sort(adjIn.begin(), adjIn.end());
+            sort(adjOut.begin(), adjOut.end());
+            }
+            */
+            addAdjacentEdgesRestrition(eq, adjOut, adjIn, nodesSize);
             //addWeakHananiTutteSpecialCase(level, previousLevel, eq, v, G, adjIn, gVertices, vertexlevel, levelIndex, orderIn);
         }
         /*
@@ -758,5 +829,5 @@ void Contribution::reduceEquivalentClasses(std::vector<std::vector<ogdf::NodeEle
         */
         previousLevel = level;
         levelIndex++;
-    }
+    }    
 }
