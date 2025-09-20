@@ -26,7 +26,10 @@ using sharedNodePairSet = std::shared_ptr<nodePairSet>;
 //using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
 //using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
 
-using equivalenceClasses = ogdf::DisjointSets<>;  
+struct equivalenceClasses{
+    ogdf::DisjointSets<> disjointSets;
+    boost::container::flat_map<int, int> pairId; 
+};   
 struct equivalenceClass{
     int value;
     int reverseValue; 

@@ -36,11 +36,23 @@ include_directories(/home/medkha/.local/share/ogdf/include)
 
 link_directories(/home/medkha/.local/share/ogdf)
 
+option(BUILD_TESTING "Build tests" ON)
 option( TRACY_ENABLE "" ON)
 add_subdirectory(tracy)
 
 option( TRACY_ON_DEMAND "" ON)
 
+if(BUILD_TESTING)
+    include(CTest) 
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip 
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+    add_subdirectory(tests/unit)
+endif()
 #add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
 add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/TracyClient.cpp)
 
