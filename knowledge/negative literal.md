@@ -1,1 +1,0 @@
-a [[Literal]] $l$ of a variable $v$ with $|l| = \bar{v}$ 

@@ -1,1 +1,0 @@
-a directed graph $G=\left(V,E\right)$ with a level assignment $l: V \rightarrow \left\{1,2,\ldots,k \right\}$   for some $k\in \mathbb{N}$ that satisfies $l(u) < l(v)$ for each edge $\left(u,v\right) \in E$ 

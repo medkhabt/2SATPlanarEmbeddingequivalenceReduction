@@ -1,7 +1,0 @@
-# /bin/bash
-cd pdf/ ; ls  *.pdf | awk -F- '{print $1 "-" $2 "-" $3}' > ../pdfNotes.log 
-cd .. ; ls  *.xopp  | awk -F- '{print $1 "-" $2 "-" $3}' > xourNotes.log 
-
-diff -u xourNotes.log pdfNotes.log | tail -n +2 | grep "^-" | awk -F- '{print $2 "-" $3 "-" $4}'
-
-rm pdfNotes.log xourNotes.log

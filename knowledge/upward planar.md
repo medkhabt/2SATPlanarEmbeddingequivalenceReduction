@@ -1,2 +1,0 @@
-A [[Planarity of a graph|planar drawing]] is [[upward planar]] (for a directed graph) if all edges are drawn as [[montone curve|monotone curves]] in the upward direction. 
-A special case are [[Level-planar drawing|level-planar drawings]] of a [[Level graph|level graphs]].    

@@ -1,1 +1,0 @@
-$I \models F$ if [[Formula]] $F$ evaluates to true under $I$ 
