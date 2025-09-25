@@ -4,41 +4,9 @@
 #include "Tracy.hpp"
 #include "type.hpp"
 #include <unordered_set>
-
-int eqId(int u, int v, int nodesSize, equivalenceClasses& eq){
-   return eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + v]);  
-}
-void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq){
-    eq.disjointSets.quickUnion(eq.pairId[u1 * nodesSize + v1], eq.pairId[u2 * nodesSize + v2]); 
-    eq.disjointSets.quickUnion(eq.pairId[v1 * nodesSize + u1], eq.pairId[v2 * nodesSize + u2]); 
-}
-
-void mergeTwoEqs(int u1, int v1, int id2, int nodesSize, equivalenceClasses& eq){
-    int u2 = id2/nodesSize; 
-    int v2 = id2%nodesSize; 
-    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
-}
-
-void mergeTwoEqs(int id1, int id2, int nodesSize, equivalenceClasses& eq){
-    int u1 = id1/nodesSize; 
-    int v1 = id1%nodesSize; 
-    int u2 = id2/nodesSize; 
-    int v2 = id2%nodesSize; 
-    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
-}
 void Contribution::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std::vector<int>& adjOut, const std::vector<int>& adjIn, int nodesSize){
     ZoneScopedN("addAjdacentEdges function"); 
     int counter = 0;
-    /*
-    for(const auto i : adjIn){
-        orderIn[i] = counter++;
-    }
-    counter = 0;
-    for(const auto i : adjOut){
-        orderOut[i] = counter++;
-    }
-    */
-
     std::list<int> visited;  
     int parentEquivalenceSet = -1;  
     bool reverse = false; 
@@ -106,153 +74,6 @@ void Contribution::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std:
         }
     }
 
-     /* ************ OLD ***************/
-    /*
-    for(const auto u:adjOut){
-        ZoneScopedN("outside ajdOut function"); 
-        for(const auto w:adjOut){
-            if(u < w && eq.find(std::make_pair(u ,w ))!= eq.end()){
-                // it means we already processed an equivalent class 
-                // that has the inverse of this order.
-                if(orderOut[u] > orderOut[w]){
-                    continue;
-                }
-                for(const auto pair : *eq[std::make_pair(u,w)]){
-                    auto u1 = pair.first;
-                    auto w1 = pair.second;
-                    if(u1 > w1 && orderOut.find(u1)!= orderOut.end() && orderOut.find(w1) != orderOut.end()){
-                        if(orderOut[u1] > orderOut[w1]){
-                            int temp = orderOut[u1];
-                            orderOut[u1] = orderOut[w1];
-                            orderOut[w1] = temp; 
-                        }
-                    }
-                }
-            } 
-        }
-    }
-    for(const auto u:adjIn){
-        ZoneScopedN("outside inadj function"); 
-        for(const auto w:adjIn){
-            if(u < w){
-                if(eq.find(std::make_pair(u, w)) == eq.end()){
-                    std::pair pair(u,w);
-                    std::pair pair_inverse(w,u);
-                    eq[pair] = std::make_shared<nodePairSet>(); 
-                    eq[pair]->insert(pair);
-                    eq[pair_inverse] = std::make_shared<nodePairSet>(); 
-                    eq[pair_inverse]->insert(pair_inverse);
-                }
-                // it means we already processed an equivalent class 
-                // that has the inverse of this order.
-                if(orderIn[u] > orderIn[w]){
-                    continue;
-                }
-                for(const auto pair : *eq[std::make_pair(u,w)]){
-                    auto u1 = pair.first;
-                    auto w1 = pair.second;
-                    if(u1 > w1 && orderIn.find(u1)!= orderIn.end() && orderIn.find(w1) != orderIn.end()){
-                        if(orderIn[u1] > orderIn[w1]){
-                            int temp = orderIn[u1];
-                            orderIn[u1] = orderIn[w1];
-                            orderIn[w1] = temp; 
-                        }
-                    }
-                }
-            } 
-        }
-    }
-
-    std::shared_ptr<nodePairSet> e = nullptr, e_inverse = nullptr; 
-    nodePair paar, paar_inverse; 
-    for(const auto u: adjOut ){
-        ZoneScopedN("outside outdj eq sync "); 
-        for(const auto  w : adjOut){
-            if(u < w){
-                paar = std::make_pair(u,w); 
-                paar_inverse = std::make_pair(w,u);
-                if(orderOut[u] > orderOut[w]){
-                    std::swap(paar, paar_inverse);
-                }
-                // if the equivalent class doesn't exist yet due to vertex not 
-                // having an edge that is important (non-adjacent critical edges) edge.
-                if(eq.find(paar) == eq.end()){
-                    eq[paar] = std::make_shared<nodePairSet>(); 
-                    eq[paar]->insert(std::make_pair(u,w));
-                    eq[paar_inverse] = std::make_shared<nodePairSet>(); 
-                    eq[paar_inverse]->insert(std::make_pair(w,u));
-                }
-
-                if(e == nullptr){
-                    e = eq[paar]; 
-                    e_inverse = eq[paar_inverse];
-                }
-                if(e->find(paar) == e->end() && e->find(paar_inverse) == e->end()){
-
-                    e->insert(eq[paar]->begin(), eq[paar]->end());
-                    e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
-
-                    eq[paar] = e;
-                    eq[paar_inverse] = e_inverse;
-                    for(auto& [u1, w1]: *eq[paar]){
-                        std::pair<int, int> eqPaar(u1,w1);
-                        std::pair<int, int> eqPaar_inverse(w1,u1);
-                        eq[eqPaar] = e;  
-                        eq[eqPaar_inverse] = e_inverse;
-                    }
-                }
-            }
-        }
-    }
-
-    e = nullptr;
-    e_inverse = nullptr;
-
-    for(const auto u: adjIn ){
-        ZoneScopedN("outside in eq sync "); 
-        for(const auto  w : adjIn){
-            if(u < w){
-                paar = std::make_pair(u,w); 
-                paar_inverse = std::make_pair(w,u);
-                if(orderIn[u] > orderIn[w]){
-                    ZoneScopedN("outside in eq sync "); 
-                    std::swap(paar, paar_inverse);
-                }
-                // if the equivalent class doesn't exist yet due to vertex not 
-                // having an edge that is important (non-adjacent critical edges) edge.
-                if(eq.find(paar) == eq.end()){
-                    ZoneScopedN("if we don't find the pair "); 
-                    eq[paar] = std::make_shared<nodePairSet>(); 
-                    eq[paar]->insert(std::make_pair(u,w));
-                    eq[paar_inverse] = std::make_shared<nodePairSet>(); 
-                    eq[paar_inverse]->insert(std::make_pair(w,u));
-                }
-
-                if(e == nullptr){
-                    ZoneScopedN("nullptr case "); 
-                    e = eq[paar]; 
-                    e_inverse = eq[paar_inverse];
-                }
-                if(e->find(paar)== e->end() && e->find(paar_inverse)== e->end() ){
-                    ZoneScopedN("the syncing  "); 
-                    e->insert(eq[paar]->begin(), eq[paar]->end());
-                    e_inverse->insert(eq[paar_inverse]->begin(), eq[paar_inverse]->end());
-
-                    eq[paar] = e;
-                    eq[paar_inverse] = e_inverse;
-                    for(auto& [u1, w1]: *eq[paar]){
-                        ZoneScopedN("sync the other eq"); 
-                        std::pair<int, int> eqPaar(u1,w1);
-                        std::pair<int, int> eqPaar_inverse(w1,u1);
-                        eq[eqPaar] = e;  
-                        eq[eqPaar_inverse] = e_inverse;
-                    }
-                }
-            }
-        }
-    }
-
-    */
 }
 
 /*
@@ -761,7 +582,6 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     }
 }
 */
-//void Contribution::enforceTransitivity(std::vector<std::vector<ogdf::NodeElement*>>& emb, int nodesSize, equivalenceClasses& eq, equivalenceClass* eqsOfPairs, size_t sizeOfEqOfPairs ){
 void Contribution::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
   ZoneScopedN("the reduce function");
     auto& emb = builder.emb;    

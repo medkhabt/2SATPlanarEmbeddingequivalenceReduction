@@ -21,6 +21,7 @@
 #include "Tracy.hpp"
 #include "2SatCompute.hpp"
 #include "algorithm.hpp"
+#include "algorithmSimplev1.hpp"
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
 void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling){
@@ -44,116 +45,46 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         }
 
         /*
-        if(!logFile){
-            std::cerr << "Unable to open log file" << std::endl;
-        }
-        */
+           if(!logFile){
+           std::cerr << "Unable to open log file" << std::endl;
+           }
+           */
     }
-/*
-    if(debug){
-        logFile << "*********************** Graph : " << title << std::endl;
-        logFile << std::endl; 
-        logFile << "> computing the equivalent classes"  << std::endl;
-        logFile << std::endl;
-    }
-    */
+    /*
+       if(debug){
+       logFile << "*********************** Graph : " << title << std::endl;
+       logFile << std::endl; 
+       logFile << "> computing the equivalent classes"  << std::endl;
+       logFile << std::endl;
+       }
+       */
 
     equivalenceClasses eq ;
-    compute2SATClasses(graphBuild, eq);
-
-    Contribution::enforceTransitivity(graphBuild, eq);
-    //std::cout << "original eq class" << std::endl;
-    //print_eq(eq);
-
-    //std::cout << "***************** after" << std::endl;
-
-    /*
-    if(debug){
-        logFile << std::endl; 
-        logFile << "> Reducing the equivalent classes"  << std::endl;
-        logFile << std::endl;
-    }
-    */
-
-    /*
-    equivalentClasses oldEq; 
     {
-        ZoneScopedN("deep copy for planarity test");
-        for(const auto& [pair,sharedset]: eq){
-            oldEq[pair] = std::make_shared<nodePairSet>(); 
-            for(const auto& eqPair : *sharedset){
-                oldEq[pair]->insert(std::pair(eqPair.first, eqPair.second));
-            }
-        }
+        ZoneScopedN("compute 2 sat");
+        compute2SATClasses(graphBuild, eq);
     }
-    */
-    /*
-    auto start = std::chrono::steady_clock::now();
-    Contribution::reduceEquivalentClasses(graphBuild.emb, eq);
-    auto end = std::chrono::steady_clock::now();
-    */
+    int nodesSize = graphBuild.G.numberOfNodes();
+    {
 
-    //std::cout << "merged eq class" << std::endl;
-    //print_eq(eq);
+        ZoneScopedN("contribution");
+        auto start = std::chrono::high_resolution_clock::now();
+        Contribution1::enforceTransitivity(graphBuild, eq);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 
-    //logTimeFile << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
-
-    //logFile << std::endl;
-    if(debug){
-        //logFile << "> Assigning the equivalent classes" << std::endl; 
-        //logFile << std::endl;
-    }
-    //std::vector<equivalentClassesAssignement> allAssignements = fillEquivalentClasses(eq);
-    //eq.clear();
-    //equivalentClasses().swap(eq);
-
-
-    //TODO make it planarity check for the entire set of possible truth assignements.
-    //if(planarityCheck(allAssignements, oldEq)){
-        /*
-        if(debug){
-            logFile << std::endl;
-            logFile << "> PLANARITY CHECK: PASSED" << std::endl;
-        }
-        */
-        //counter.first.first ++;
-    //} else {
-        /*
-        if(debug){
-            logFile << std::endl;
-            logFile << "> PLANARITY CHECK: FAILED" << std::endl;
-        }
-        */
-        //counter.first.second ++;
-    //}
-    /*
-    if(debug){
-        logFile << std::endl;
+        std::cout << "Elapsed Time for contribution: " << duration.count() << " ms\n";
     }
 
-    */
-    //bool acyclic = AcyclicRelation(title, allAssignements); 
-    //allAssignements.clear();
-    //std::vector<equivalentClassesAssignement>().swap(allAssignements);
-    /*if(acyclic == true){
-        if(debug){
-            //logFile << std::endl;
-            //logFile << "> TRANSITIVITY CHECK: PASSED (No cyclic relation)" << std::endl ;
-        }
-        counter.second.first ++;
-    } else {
+    {
+        ZoneScopedN("get emb and test");
+        auto start = std::chrono::high_resolution_clock::now();
+        bool test = testEmbedding(graphBuild, eq, title);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        std::cout << "Elapsed Time for test: " << duration.count() << " ms\n";
 
-        if(debug){
-            //logFile << std::endl;
-            //logFile << "> TRANSITIVITY CHECK: FAILED (Exists a cyclic relation)" << std::endl;;
-        }
-        counter.second.second ++;
     }
-    if(debug){
-        //logFile << std::endl;
-        //logFile.close();
-    }
-    */
 }
 
 
@@ -197,17 +128,13 @@ int main(int argc, char* argv[]){
     std::vector<std::vector<ogdf::node>> emb;
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
     if(randomInput){
-        //for(size_t levels = 10; levels < max_levels; levels ++){
-            //for(size_t nodes = 20 ; nodes < max_nodes; nodes++){
-                GraphBuilder graphBuild; 
-                std::cout << "Graph with nodes: " << max_nodes << " and levels: "  << max_levels << std::endl; 
-                graphBuild.buildRandomLevelGraph(max_nodes, max_levels);
-                logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
-                logResult << max_levels <<  " " << max_nodes << " " ; 
-                process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling);
-                malloc_trim(0);
-            //}
-        //}
+        GraphBuilder graphBuild; 
+        std::cout << "Graph with nodes: " << max_nodes << " and levels: "  << max_levels << std::endl; 
+        graphBuild.buildRandomLevelGraph(max_nodes, max_levels);
+        logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
+        logResult << max_levels <<  " " << max_nodes << " " ; 
+        process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling);
+        malloc_trim(0);
     } else {
         GraphBuilder graphBuild; 
         graphBuild.buildLevelGraphFromGML(graphFile);
@@ -215,9 +142,6 @@ int main(int argc, char* argv[]){
     }
 
     logTimeFile.close();
-    std::cout << " Planarity check : " << counter.first.first << " PASSED, " << counter.first.second << " FAILED." <<std::endl;
-    std::cout << " Acyclic relations check check : " << counter.second.first << " PASSED, " << counter.second.second << " FAILED." <<std::endl;
-    logResult << ((counter.second.first) ? "1" : "0") << std::endl; 
     return 0;
 }
 

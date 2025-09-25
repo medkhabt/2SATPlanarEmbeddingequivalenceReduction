@@ -1,30 +1,6 @@
 #pragma once
-#include <utility> 
 #include <ogdf/basic/DisjointSets.h>
-#include <map>
-#include <set>
-#include <unordered_set>
-#include <unordered_map>
-#include <memory>
 #include <boost/container/flat_map.hpp>
-
-namespace ogdf{
-    class PairNodeElement;
-}
-struct pair_hash {
-    template <typename T1, typename T2>
-    std::size_t operator()(const std::pair<T1, T2> &p) const noexcept {
-        std::size_t h1 = std::hash<T1>{}(p.first);
-        std::size_t h2 = std::hash<T2>{}(p.second);
-        return h1 ^ (h2 << 1); // or use boost::hash_combine
-    }
-};
-using pairNode = ogdf::PairNodeElement*;
-using nodePair = std::pair<int, int>;
-using nodePairSet = std::unordered_set<nodePair,pair_hash>; 
-using sharedNodePairSet = std::shared_ptr<nodePairSet>;
-//using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
-//using equivalentClasses = std::map<nodePair, sharedNodePairSet>;
 
 struct equivalenceClasses{
     ogdf::DisjointSets<> disjointSets;
@@ -34,6 +10,6 @@ struct equivalenceClass{
     int value;
     int reverseValue; 
 };
-//using equivalentClassesAssignement = std::map<nodePair, int>;
-using equivalentClassesAssignement = boost::container::flat_map<nodePair, int>;
+// each equivalence class (disjoing set) and its assignment.
+using equivalenceClassesAssignement = boost::container::flat_map<int, int>;
 

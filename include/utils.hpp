@@ -5,6 +5,7 @@
 #include "type.hpp"
 #include "GraphWithPairNode.hpp"
 #include <ogdf/basic/GraphList.h>
+#include "GraphBuilder.h"
 // TODO customize the naming of the creation of a layout.
 
 namespace ogdf {
@@ -25,7 +26,7 @@ void createLayout(std::string nameFile, ogdf::Graph& G);
 
 //bool planarityCheck(std::vector<equivalentClassesAssignement>& eqAs, equivalentClasses& eq);
 
-bool AcyclicRelation(std::string title, std::vector<equivalentClassesAssignement>& assignement);
+bool AcyclicRelation(std::string title, std::vector<equivalenceClassesAssignement>& assignement, GraphBuilder builder);
 
 //std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalentClasses& eq);
 
@@ -75,3 +76,27 @@ template <class Key>
       }
       return;
    }
+
+
+inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq){
+   return eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + v]);  
+}
+inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq){
+    eq.disjointSets.quickUnion(eq.pairId[u1 * nodesSize + v1], eq.pairId[u2 * nodesSize + v2]); 
+    eq.disjointSets.quickUnion(eq.pairId[v1 * nodesSize + u1], eq.pairId[v2 * nodesSize + u2]); 
+}
+
+inline void mergeTwoEqs(int u1, int v1, int id2, int nodesSize, equivalenceClasses& eq){
+    int u2 = id2/nodesSize; 
+    int v2 = id2%nodesSize; 
+    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
+}
+
+inline void mergeTwoEqs(int id1, int id2, int nodesSize, equivalenceClasses& eq){
+    int u1 = id1/nodesSize; 
+    int v1 = id1%nodesSize; 
+    int u2 = id2/nodesSize; 
+    int v2 = id2%nodesSize; 
+    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
+}
+bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title);

@@ -17,6 +17,7 @@ class GraphBuilder{
     public:
         ogdf::Graph G; 
         ogdf::GraphAttributes GA; 
+        ogdf::GraphAttributes GANew; 
         ogdf::NodePartition LVL; 
         std::vector<std::vector<ogdf::node>> emb;
         ogdf::ClusterGraph CG; 
@@ -43,6 +44,58 @@ class GraphBuilder{
                 y++;
             }
 
+        }
+        void drawLevelGraph(ogdf::NodeArray<int>& ordering, std::map<int,ogdf::node>& id_nodes,  int scaleX=50, int scaleY=50){
+            size_t maxlvl = 0; 
+            for(const auto& level: this->emb) {
+                if(level.size() > maxlvl){
+                    maxlvl = level.size(); 
+                } 
+            }
+            size_t y = 0, x = 0;
+            boost::container::flat_map<int, ogdf::node> level_ordering;
+            for(const auto& level: this->emb){
+                level_ordering.clear();
+                int min = this->G.numberOfNodes(); 
+                bool singleNode = false; 
+                for(const auto& node: level){
+                    if(id_nodes.find(node->index()) != id_nodes.end()){
+                        int order = ordering[id_nodes[node->index()]];
+                        level_ordering[order] = node; 
+                        if(order < min ) {
+                            min = order;
+                        }
+
+                    } else {
+                        singleNode = true; 
+                    }
+                } 
+                float offs = (maxlvl - level.size())* scaleX / 2;  
+                x = 0;
+                if(singleNode){
+                   for(const auto& node: level){
+                   this->GA.x(node) =  x * scaleX + offs;
+                   this->GA.y(node) =  y * scaleY;
+                   x++;
+                   }
+                } else {
+                    for(int i = min; i < min + level.size(); i++){
+                        std::cout << "vertex id: "  << level_ordering[i] << " x : "  << x * scaleX + offs << " y : " << y * scaleY <<std::endl ; 
+                        this->GA.x(level_ordering[i]) = x * scaleX + offs; 
+                        this->GA.y(level_ordering[i]) =  y * scaleY;
+                        x++;  
+                    }
+                }
+                /*
+                   for(const auto& node: level){
+                   this->GA.x(node) =  x * scaleX + offs;
+                   this->GA.y(node) =  y * scaleY;
+                   x++;
+                   }
+                   */
+                y++;
+            }
+            postTraitement();
         }
         void pruneEdges(ogdf::Graph& G, int max_edges, int min_deg) {
             std::vector<ogdf::edge> edges;

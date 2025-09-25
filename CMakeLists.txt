@@ -54,7 +54,7 @@ if(BUILD_TESTING)
     add_subdirectory(tests/unit)
 endif()
 #add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
-add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/algorithm.cpp src/TracyClient.cpp)
+add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/algorithm.cpp src/algorithmSimplev1 src/TracyClient.cpp)
 
 #[===[
 target_compile_options(2SATEquivalenceReduction PRIVATE
