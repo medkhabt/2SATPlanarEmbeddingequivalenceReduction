@@ -2,7 +2,7 @@
 #include "algorithmSimplev1.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
-#include "Tracy.hpp"
+#include <tracy/Tracy.hpp>
 #include "type.hpp"
 #include <unordered_set>
 //GraphBuilder& builder, equivalenceClasses& eq

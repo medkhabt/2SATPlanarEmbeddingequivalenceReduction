@@ -1,7 +1,6 @@
 #include "algorithm.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
-#include "Tracy.hpp"
 #include "type.hpp"
 #include <unordered_set>
 

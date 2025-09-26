@@ -31,13 +31,13 @@ add_custom_target(copy_resources ALL
            )
 
 include_directories(include)
-include_directories(tracy/public/tracy)
+#include_directories(tracy/public)
 include_directories(/home/medkha/.local/share/ogdf/include)
 
 link_directories(/home/medkha/.local/share/ogdf)
 
 option(BUILD_TESTING "Build tests" ON)
-option( TRACY_ENABLE "" ON)
+option(TRACY_ENABLE "" ON)
 add_subdirectory(tracy)
 
 option( TRACY_ON_DEMAND "" ON)
@@ -54,7 +54,7 @@ if(BUILD_TESTING)
     add_subdirectory(tests/unit)
 endif()
 #add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
-add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/algorithm.cpp src/algorithmSimplev1 src/TracyClient.cpp)
+add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp src/algorithm.cpp src/algorithmSimplev1)
 
 #[===[
 target_compile_options(2SATEquivalenceReduction PRIVATE

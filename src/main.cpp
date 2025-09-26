@@ -18,7 +18,7 @@
 #include "GraphBuilder.h"
 #include "type.hpp"
 #include "utils.hpp"
-#include "Tracy.hpp"
+#include <tracy/Tracy.hpp>
 #include "2SatCompute.hpp"
 #include "algorithm.hpp"
 #include "algorithmSimplev1.hpp"
@@ -33,7 +33,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
             //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
         }else {
             ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-            //ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+            ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
         }
     }
     //std::ofstream logFile; 
@@ -90,6 +90,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
 
 int main(int argc, char* argv[]){
 
+    ZoneScopedN("contribution");
     std::string graphFile;
     graphFile = "graphs/inputs/gml/counterexample.gml";
     bool randomInput = false;
@@ -130,14 +131,20 @@ int main(int argc, char* argv[]){
     if(randomInput){
         GraphBuilder graphBuild; 
         std::cout << "Graph with nodes: " << max_nodes << " and levels: "  << max_levels << std::endl; 
+        {
+        ZoneScopedN("graphBuilder");
         graphBuild.buildRandomLevelGraph(max_nodes, max_levels);
+        }
         logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
         logResult << max_levels <<  " " << max_nodes << " " ; 
         process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling);
         malloc_trim(0);
     } else {
         GraphBuilder graphBuild; 
+        {
+        ZoneScopedN("graphbuilderfromgml"); 
         graphBuild.buildLevelGraphFromGML(graphFile);
+        }
         process("customGraph", graphBuild, counter, false, logTimeFile, profiling);
     }
 

@@ -1,7 +1,7 @@
 #include "algorithm.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
-#include "Tracy.hpp"
+#include <tracy/Tracy.hpp>
 #include "type.hpp"
 #include <unordered_set>
 void Contribution::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std::vector<int>& adjOut, const std::vector<int>& adjIn, int nodesSize){

@@ -7,6 +7,7 @@
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <random>
+#include <tracy/Tracy.hpp>
 
 #include <utility>
 
@@ -45,7 +46,7 @@ class GraphBuilder{
             }
 
         }
-        void drawLevelGraph(ogdf::NodeArray<int>& ordering, std::map<int,ogdf::node>& id_nodes,  int scaleX=50, int scaleY=50){
+        void drawLevelGraph(ogdf::NodeArray<int>& ordering, boost::container::flat_map<int, ogdf::node>& id_nodes,  int scaleX=50, int scaleY=50){
             size_t maxlvl = 0; 
             for(const auto& level: this->emb) {
                 if(level.size() > maxlvl){
@@ -80,7 +81,6 @@ class GraphBuilder{
                    }
                 } else {
                     for(int i = min; i < min + level.size(); i++){
-                        std::cout << "vertex id: "  << level_ordering[i] << " x : "  << x * scaleX + offs << " y : " << y * scaleY <<std::endl ; 
                         this->GA.x(level_ordering[i]) = x * scaleX + offs; 
                         this->GA.y(level_ordering[i]) =  y * scaleY;
                         x++;  
@@ -99,17 +99,28 @@ class GraphBuilder{
         }
         void pruneEdges(ogdf::Graph& G, int max_edges, int min_deg) {
             std::vector<ogdf::edge> edges;
-            for (ogdf::edge e : G.edges) {
-                edges.push_back(e);
+            {
+                ZoneScopedN("save edges");
+                for (ogdf::edge e : G.edges) {
+                    edges.push_back(e);
+                }
             }
-            std::mt19937 mt(ogdf::randomSeed());
-            shuffle(edges.begin(), edges.end(), mt);
+            {
+                ZoneScopedN("shuffle");
+                std::mt19937 mt(ogdf::randomSeed());
+                shuffle(edges.begin(), edges.end(), mt);
+            }
             for (ogdf::edge e : edges) {
+                ZoneScopedN("loopdel");
                 if (e->source()->degree() > min_deg && e->target()->degree() > min_deg) {
+                    ZoneScopedN("del_edge");
                     G.delEdge(e);
                 }
-                if(!ogdf::isConnected(G)){
-                    G.newEdge(e->source(), e->target());
+                {
+                    ZoneScopedN("test_connected ");
+                    if(!ogdf::isConnected(G)){
+                        G.newEdge(e->source(), e->target());
+                    }
                 }
                 if (G.numberOfEdges() <= max_edges) {
                     break;
@@ -189,17 +200,15 @@ def to_cluster_attrs(GA, LVL):
             postTraitement();
         }
         void buildRandomLevelGraph(int maxNodes, int maxLevels){
+            {
+            ZoneScopedN("randomProperMaximal");
             ogdf::randomProperMaximalLevelPlaneGraph(this->G, this->emb, maxNodes, maxLevels, false); 
-            for(auto& level : this->emb){
-                //std::cout << "new level" << std::endl;
-                for(auto& node: level) {
-                    //std::cout << "node : " << node->index() << ", "; 
-                }
-                //std::cout << std::endl;
             }
+            {
+            ZoneScopedN("pruneEdge");
             float reduction = 1.00;
-            this->pruneEdges(this->G, this->G.numberOfEdges() * 0.75, 0); 
-
+            this->pruneEdges(this->G, this->G.numberOfEdges() * 0.00001, 0); 
+            }
             //ogdf::Graph copyG;
             /*
             do {
@@ -267,9 +276,18 @@ def to_cluster_attrs(GA, LVL):
             }
             */
            
+            {
+            ZoneScopedN("drawLevelGraph");
             drawLevelGraph(50, 100);
+            }
+            {
+            ZoneScopedN("tocluster");
             this->toCluster(); 
+            }
+            {
+            ZoneScopedN("clustergraphatt");
             ogdf::ClusterGraphAttributes CGA(this->CG, ogdf::ClusterGraphAttributes::all);
+            }
             //ogdf::randomClusterPlanarGraph(this->G, CG, 4, 10 , 4);
 
             //from_cluster(&CG);

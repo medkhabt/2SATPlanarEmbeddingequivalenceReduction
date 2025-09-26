@@ -5,7 +5,7 @@
 #include <string>
 #include "type.hpp"
 #include "utils.hpp"
-#include "Tracy.hpp"
+#include <tracy/Tracy.hpp>
 #include "GraphBuilder.h"
 #include <random> 
 #include <set>
@@ -90,9 +90,11 @@ bool AcyclicRelation(std::string title, std::vector<equivalenceClassesAssignemen
                 }
                 if(value){
                     //std::cout << "edge created between : "  << u << " and " << v << std::endl;
+                    // bottleneck for memory consumption
                     G.newEdge(nodes[u], nodes[v]);
                 }else{
                     //std::cout << "edge created between : "  << v << " and " << u << std::endl;
+                    // bottleneck for memory consumption
                     G.newEdge(nodes[v], nodes[u]);
                 }
             }
@@ -137,27 +139,27 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
     std::uniform_int_distribution<> dist(0, 1);
 
     int nodesSize = builder.G.numberOfNodes();
-    for(const auto& [key, value] : eq.pairId){
-        int root = eq.disjointSets.getRepresentative(value); 
-        if(roots_values.find(root) == roots_values.end()){
-            roots_values[root] = dist(gen);
-            int u = key / nodesSize ; 
-            int v = key % nodesSize ;  
-            int reversePairSetId = eq.pairId[v * nodesSize + u];
-            roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
+    for(size_t key = 0 ; key < eq.pairIdSize ; key++){
+        int value = eq.pairId[key];
+        if(value > -1 ){
+            int root = eq.disjointSets.getRepresentative(value); 
+            if(roots_values.find(root) == roots_values.end()){
+                roots_values[root] = dist(gen);
+                int u = key / nodesSize ; 
+                int v = key % nodesSize ;  
+                int reversePairSetId = eq.pairId[v * nodesSize + u];
+                roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
+            }
         }
     }
-
-        std::map<int, ogdf::node> nodes;
+        boost::container::flat_map<int, ogdf::node>nodes; 
         ogdf::Graph G; 
         ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::all);
     
-        for(const auto& [key, value]: eq.pairId){
-
+        for(size_t key = 0 ; key < eq.pairIdSize ; key++){            
             int u = key / nodesSize; 
             int v = key % nodesSize; 
-
-            if(u < v){
+            if(u < v && eq.pairId[key] != -1){
                 if(nodes.find(u) == nodes.end()){
                     nodes[u] = G.newNode(u); 
                     //GA.label(nodes[u]) = std::to_string(u);
@@ -178,13 +180,11 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
         ogdf::NodeArray<int> num(G);
         bool acyclic = ogdf::isAcyclic(G);
         ogdf::topologicalNumbering(G, num);
-        builder.drawLevelGraph(num, nodes, 50, 50);
+        
+        builder.drawLevelGraph(num, nodes, 50, 150);
         //ogdf::GraphIO::write(GA, "../graphs/inputs/svg/test.svg", ogdf::GraphIO::drawSVG);
         ogdf::GraphIO::write(builder.GA, "graphs/inputs/svg/" + title +"_fixed.svg", ogdf::GraphIO::drawSVG);
 
-        for(ogdf::node v : G.nodes){
-            std::cout << "v= " << v->index() << ", order="  << num[v] << std::endl;
-        }
         if(!acyclic){
             std::cout << "FAILED !" << std::endl;
             return false ;
