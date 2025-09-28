@@ -48,17 +48,7 @@ TEST(contribution1, randomGraphs){
     Contribution1::enforceTransitivity(builder, eq);
      bool test = testEmbedding(builder, eq, "random_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels) + "_test" );
     //TEST
-    for(const auto& eq_ele : expected_eq){
-        int eqIdSet = -1; 
-        for(const int ele: eq_ele) {
-             int eleIdSet = eq.disjointSets.getRepresentative(eq.pairId[ele]);  
-            if(eqIdSet == -1 ){
-               eqIdSet = eleIdSet;
-            } 
-         std::cout << "ele : " << ele / nodesSize << ", " << ele % nodesSize <<  " = " << eleIdSet << " with : " << eqIdSet << std::endl;
          EXPECT_EQ(test, true);
-        } 
-    }
     //CLEAN UP
 
 }

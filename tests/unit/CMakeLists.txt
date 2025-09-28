@@ -3,7 +3,6 @@ add_executable(unit_tests
   test_local_transitivity.cpp
   test_contribution1.cpp
   test_random_graphs.cpp
-  ${CMAKE_SOURCE_DIR}/src/algorithm.cpp
   ${CMAKE_SOURCE_DIR}/src/algorithmSimplev1.cpp
   ${CMAKE_SOURCE_DIR}/src/utils.cpp   
 )

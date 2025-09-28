@@ -29,7 +29,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     {
         ZoneScopedN("image and gml creation");
         if(profiling){
-            ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+            //ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
             //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
         }else {
             ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
@@ -85,12 +85,24 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
         std::cout << "Elapsed Time for test: " << duration.count() << " ms\n";
 
     }
+    int size = graphBuild.emb.size();
+    for(size_t key = 0; key < size; key++){
+        free(eq.pairId[key]);
+        free(eq.pairIdLocalIndex[key]);
+        free(eq.pairIdLocalIndexInverse[key]);
+    }
+
+    free(eq.pairIdArraySize); 
+    free(eq.pairIdLocalIndex);
+    free(eq.pairIdLocalIndexInverse); 
+    free(eq.pairIdOffset);
+    free(eq.pairId);
 }
 
 
 int main(int argc, char* argv[]){
 
-    ZoneScopedN("contribution");
+    ZoneScopedN("main");
     std::string graphFile;
     graphFile = "graphs/inputs/gml/counterexample.gml";
     bool randomInput = false;

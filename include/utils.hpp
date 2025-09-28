@@ -6,6 +6,7 @@
 #include "GraphWithPairNode.hpp"
 #include <ogdf/basic/GraphList.h>
 #include "GraphBuilder.h"
+#include "2SatCompute.hpp"
 // TODO customize the naming of the creation of a layout.
 
 namespace ogdf {
@@ -78,25 +79,12 @@ template <class Key>
    }
 
 
-inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq){
-   return eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + v]);  
+inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq, int level){
+   return eq.disjointSets.getRepresentative(eq.pairId[level][localIndex(eq, u, v, level)]);  
 }
-inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq){
-    eq.disjointSets.quickUnion(eq.pairId[u1 * nodesSize + v1], eq.pairId[u2 * nodesSize + v2]); 
-    eq.disjointSets.quickUnion(eq.pairId[v1 * nodesSize + u1], eq.pairId[v2 * nodesSize + u2]); 
-}
-
-inline void mergeTwoEqs(int u1, int v1, int id2, int nodesSize, equivalenceClasses& eq){
-    int u2 = id2/nodesSize; 
-    int v2 = id2%nodesSize; 
-    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
+inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq, int level1, int level2){
+    eq.disjointSets.quickUnion(eq.pairId[level1][localIndex(eq, u1, v1, level1)], eq.pairId[level2][localIndex(eq, u2, v2, level2)]); 
+    eq.disjointSets.quickUnion(eq.pairId[level1][localIndex(eq, v1, u1, level1)], eq.pairId[level2][localIndex(eq, v2, u2, level2)]); 
 }
 
-inline void mergeTwoEqs(int id1, int id2, int nodesSize, equivalenceClasses& eq){
-    int u1 = id1/nodesSize; 
-    int v1 = id1%nodesSize; 
-    int u2 = id2/nodesSize; 
-    int v2 = id2%nodesSize; 
-    mergeTwoEqs(u1, v1, u2, v2, nodesSize, eq); 
-}
 bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title);

@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include <tracy/Tracy.hpp>
 #include "GraphBuilder.h"
+#include "2SatCompute.hpp"
 #include <random> 
 #include <set>
 
@@ -140,15 +141,17 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
 
     int nodesSize = builder.G.numberOfNodes();
     for(size_t key = 0 ; key < eq.pairIdSize ; key++){
-        int value = eq.pairId[key];
-        if(value > -1 ){
-            int root = eq.disjointSets.getRepresentative(value); 
-            if(roots_values.find(root) == roots_values.end()){
-                roots_values[root] = dist(gen);
-                int u = key / nodesSize ; 
-                int v = key % nodesSize ;  
-                int reversePairSetId = eq.pairId[v * nodesSize + u];
-                roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
+        for(size_t i = 0 ; i < eq.pairIdArraySize[key]; i++){
+            int value = eq.pairId[key][i];
+            if(value > -1 ){
+                int root = eq.disjointSets.getRepresentative(value); 
+                if(roots_values.find(root) == roots_values.end()){
+                    roots_values[root] = dist(gen);
+                    auto [u,v] = localIndexInverse(eq, i, key);
+                    int reversePairSetId = eq.pairId[key][localIndex(eq,v, u, key)];
+                    roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
+                }
+
             }
         }
     }
@@ -156,25 +159,28 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
         ogdf::Graph G; 
         ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::all);
     
+        //TODO change here.
         for(size_t key = 0 ; key < eq.pairIdSize ; key++){            
-            int u = key / nodesSize; 
-            int v = key % nodesSize; 
-            if(u < v && eq.pairId[key] != -1){
-                if(nodes.find(u) == nodes.end()){
-                    nodes[u] = G.newNode(u); 
-                    //GA.label(nodes[u]) = std::to_string(u);
+            for(size_t i = 0 ; i < eq.pairIdArraySize[key]; i++){
+                auto [u,v] = localIndexInverse(eq, i, key);
+                if(u < v && eq.pairId[key][i] != -1){
+                    if(nodes.find(u) == nodes.end()){
+                        nodes[u] = G.newNode(u); 
+                        //GA.label(nodes[u]) = std::to_string(u);
+                    }
+                    if(nodes.find(v) == nodes.end()){
+                        nodes[v] = G.newNode(v); 
+                        //GA.label(nodes[v]) = std::to_string(v);
+                    }
+                    if(roots_values[eqId(u,v,nodesSize, eq, key)]){
+                        //std::cout << "edge created between : "  << u << " and " << v << std::endl;
+                        G.newEdge(nodes[u], nodes[v]);
+                    }else{
+                        //std::cout << "edge created between : "  << v << " and " << u << std::endl;
+                        G.newEdge(nodes[v], nodes[u]);
+                    }
                 }
-                if(nodes.find(v) == nodes.end()){
-                    nodes[v] = G.newNode(v); 
-                    //GA.label(nodes[v]) = std::to_string(v);
-                }
-                if(roots_values[eqId(u,v,nodesSize, eq)]){
-                    //std::cout << "edge created between : "  << u << " and " << v << std::endl;
-                    G.newEdge(nodes[u], nodes[v]);
-                }else{
-                    //std::cout << "edge created between : "  << v << " and " << u << std::endl;
-                    G.newEdge(nodes[v], nodes[u]);
-                }
+
             }
         }
         ogdf::NodeArray<int> num(G);
@@ -184,7 +190,6 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
         builder.drawLevelGraph(num, nodes, 50, 150);
         //ogdf::GraphIO::write(GA, "../graphs/inputs/svg/test.svg", ogdf::GraphIO::drawSVG);
         ogdf::GraphIO::write(builder.GA, "graphs/inputs/svg/" + title +"_fixed.svg", ogdf::GraphIO::drawSVG);
-
         if(!acyclic){
             std::cout << "FAILED !" << std::endl;
             return false ;

@@ -2,6 +2,7 @@
 
 #include <ogdf/basic/Graph_d.h>
 #include <vector>
+#include <tracy/Tracy.hpp>
 
 namespace ogdf {
 
@@ -29,15 +30,16 @@ namespace ogdf {
             void init(const Graph& R) { // virtual until observers are fixed
                 m_cell.init(R, -1); // std::numeric_limits<size_t>::max()
                 m_pos.init(R, -1);
-                m_cells.resize(1);
-                auto& cell = m_cells.back();
-                cell.clear();
-                cell.reserve(R.numberOfNodes());
+                m_cells.clear();
+                std::cout <<  "m_cells size: " << m_cells.size() << std::endl;
+                //cell.reserve(R.numberOfNodes());
+                /*
                 for (const auto& e : R.nodes) {
                     m_cell[e] = 0;
                     m_pos[e] = cell.size();
                     cell.push_back(e);
                 }
+                */
                 reregister(&R);
             }
 
@@ -99,9 +101,13 @@ namespace ogdf {
             }
 
             std::pair<int, int> moveToCell(element_type key, int to_cell) {
+                ZoneScopedN("moveToCell");
                 const auto& ret = elementRemoved(key);
                 elementAdded(key, to_cell);
                 return ret;
+            }
+            void addToCell(element_type key, int to_cell){
+                elementAdded(key, to_cell); 
             }
 
             int moveToPos(element_type key, int to_pos) {
@@ -135,6 +141,7 @@ namespace ogdf {
 
         protected:
             void elementAdded(element_type key, int to_cell = 0) {
+                ZoneScopedN("element added"); 
                 cell_elements_list& CC = m_cells.at(to_cell);
                 m_cell[key] = to_cell;
                 m_pos[key] = CC.size();
@@ -142,6 +149,7 @@ namespace ogdf {
             }
 
             std::pair<int, int> elementRemoved(element_type key) {
+                ZoneScopedN("element remove"); 
                 int old_cell = m_cell[key];
                 int old_pos = m_pos[key];
                 cell_elements_list& C = cell(old_cell);
