@@ -87,4 +87,4 @@ inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalen
     eq.disjointSets.quickUnion(eq.pairId[level1][localIndex(eq, v1, u1, level1)], eq.pairId[level2][localIndex(eq, v2, u2, level2)]); 
 }
 
-bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title);
+bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title, bool canGenerate = false);

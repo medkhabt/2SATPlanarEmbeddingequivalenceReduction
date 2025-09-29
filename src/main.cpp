@@ -24,16 +24,19 @@
 #include "algorithmSimplev1.hpp"
 
 // the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
-void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling){
+void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling, bool canGenerate){
     ZoneScopedN("process");
     {
         ZoneScopedN("image and gml creation");
-        if(profiling){
-            //ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-            //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
-        }else {
-            ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-            ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+        if(canGenerate){
+            if(profiling){
+                //ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+                //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+            }else {
+                ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+                ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+            }
+        
         }
     }
     //std::ofstream logFile; 
@@ -79,7 +82,7 @@ void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<in
     {
         ZoneScopedN("get emb and test");
         auto start = std::chrono::high_resolution_clock::now();
-        bool test = testEmbedding(graphBuild, eq, title);
+        bool test = testEmbedding(graphBuild, eq, title, canGenerate);
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         std::cout << "Elapsed Time for test: " << duration.count() << " ms\n";
@@ -109,6 +112,7 @@ int main(int argc, char* argv[]){
     bool profiling = false;
     int max_nodes = 40;
     int max_levels = 10; 
+    bool canGenerate = false;
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
 
@@ -122,6 +126,8 @@ int main(int argc, char* argv[]){
             max_levels = std::stoi(argv[++i]);  
         } else if((arg == "-p" || arg == "--profiling")){
             profiling = true; 
+        } else if((arg == "-g" || arg == "--generate-svg-fix")){
+            canGenerate = true; 
         }
     }
     auto logResult = std::ofstream("result.log" , std::ios_base::app);
@@ -149,7 +155,7 @@ int main(int argc, char* argv[]){
         }
         logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
         logResult << max_levels <<  " " << max_nodes << " " ; 
-        process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling);
+        process("randomProperLevelGraph_v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter, false, logTimeFile, profiling, canGenerate);
         malloc_trim(0);
     } else {
         GraphBuilder graphBuild; 
@@ -157,7 +163,7 @@ int main(int argc, char* argv[]){
         ZoneScopedN("graphbuilderfromgml"); 
         graphBuild.buildLevelGraphFromGML(graphFile);
         }
-        process("customGraph", graphBuild, counter, false, logTimeFile, profiling);
+        process("customGraph", graphBuild, counter, false, logTimeFile, profiling, canGenerate);
     }
 
     logTimeFile.close();
