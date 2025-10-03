@@ -4,7 +4,13 @@
 
 struct equivalenceClasses{
     ogdf::DisjointSets<> disjointSets;
-    boost::container::flat_map<int, int> pairId; 
+    int **pairId; 
+    size_t pairIdSize = -1 ; 
+    int *pairIdArraySize;
+    int *pairIdOffset;
+    int **pairIdLocalIndex; 
+    int **pairIdLocalIndexInverse;
+    //boost::container::flat_map<int, int> pairId; 
 };   
 struct equivalenceClass{
     int value;

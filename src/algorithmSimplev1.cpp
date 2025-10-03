@@ -2,8 +2,9 @@
 #include "algorithmSimplev1.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
-#include "Tracy.hpp"
+#include <tracy/Tracy.hpp>
 #include "type.hpp"
+#include "2SatCompute.hpp"
 #include <unordered_set>
 //GraphBuilder& builder, equivalenceClasses& eq
 void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
@@ -23,7 +24,10 @@ void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasse
     int parentEquivalenceSet = -1;  
     int parentEquivalenceKey = -1; 
     bool reverse = false; 
-
+    int uparent = -1; 
+    int vparent = -1;
+    int levelparent = -1; 
+    int l = 0;
     for(const auto& level: emb){
         visited.clear();
            for(const auto& v: level) {
@@ -35,24 +39,27 @@ void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasse
                    // this stays fixed for the entire graph
                } else if(parentEquivalenceSet == -1){
                    int u = visited.front();  
+                   uparent = u ;
+                   vparent = w ;
                    parentEquivalenceKey = u * nodesSize + w;
-                   parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[parentEquivalenceKey]); 
+                   levelparent = l;
+                   parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[l][localIndex(eq, uparent, vparent, l)]); 
                    visited.push_back(w);
                } else {
                    for(std::list<int>::iterator it = visited.begin(); it != visited.end() ; it++ ){
                        int u = *it;
-                       if(eqId(w,u,nodesSize, eq) == parentEquivalenceSet){
+                       if(eqId(w,u,nodesSize, eq, l) == parentEquivalenceSet){
                            reverse = true; 
                            // insert w before u in visited.
                            visited.insert(it, w); 
                        }
-                       if(eqId(w,u,nodesSize, eq) != parentEquivalenceSet && eqId(u,w,nodesSize,eq) != parentEquivalenceSet){
+                       if(eqId(w,u,nodesSize, eq, l)!= parentEquivalenceSet && eqId(u,w,nodesSize,eq,l) != parentEquivalenceSet){
                            if(reverse) {
-                               mergeTwoEqs(w,u, parentEquivalenceKey, nodesSize, eq);
-                               parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[parentEquivalenceKey]); 
+                               mergeTwoEqs(w,u, uparent, vparent, nodesSize, eq, l, levelparent);
+                               parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[levelparent][localIndex(eq,uparent, vparent, levelparent)]); 
                            } else {
-                               mergeTwoEqs(u,w, parentEquivalenceKey, nodesSize, eq);
-                               parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[parentEquivalenceKey]); 
+                               mergeTwoEqs(u,w, uparent, vparent, nodesSize, eq, l, levelparent);
+                               parentEquivalenceSet = eq.disjointSets.getRepresentative(eq.pairId[levelparent][localIndex(eq,uparent, vparent, levelparent)]); 
                                /*
                                for(auto [key,value] : eq.pairId ){
                                    std::cout << "******** AFTER merge: **********************" << std::endl; 
@@ -67,5 +74,6 @@ void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasse
                    }
                }
            }
+           l++;
     }
 }
