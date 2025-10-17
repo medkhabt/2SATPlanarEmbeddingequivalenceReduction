@@ -4,7 +4,8 @@
 #include "Tracy.hpp"
 #include "type.hpp"
 #include <unordered_set>
-void Contribution::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std::vector<int>& adjOut, const std::vector<int>& adjIn, int nodesSize){
+
+void ContributionBasedOnFulekHananiTutte::addAdjacentEdgesRestrition(equivalenceClasses& eq, const std::vector<int>& adjOut, const std::vector<int>& adjIn, int nodesSize){
     ZoneScopedN("addAjdacentEdges function"); 
     int counter = 0;
     std::list<int> visited;  
@@ -582,7 +583,7 @@ void Contribution::addWeakHananiTutteSpecialCase(const std::vector<ogdf::NodeEle
     }
 }
 */
-void Contribution::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+void ContributionBasedOnFulekHananiTutte::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
   ZoneScopedN("the reduce function");
     auto& emb = builder.emb;    
     int nodesSize = builder.G.numberOfNodes();

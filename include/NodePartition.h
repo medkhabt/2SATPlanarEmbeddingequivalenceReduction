@@ -3,6 +3,10 @@
 #include <ogdf/basic/Graph_d.h>
 #include <vector>
 
+#ifdef BUILD_PROFILING
+#include <tracy/Tracy.hpp>
+#endif
+
 namespace ogdf {
 
     class NodePartition : protected GraphObserver {
@@ -99,6 +103,9 @@ namespace ogdf {
             }
 
             std::pair<int, int> moveToCell(element_type key, int to_cell) {
+#ifdef BUILD_PROFILING
+                ZoneScopedN("moveToCell");
+#endif
                 const auto& ret = elementRemoved(key);
                 elementAdded(key, to_cell);
                 return ret;
@@ -135,6 +142,9 @@ namespace ogdf {
 
         protected:
             void elementAdded(element_type key, int to_cell = 0) {
+#ifdef BUILD_PROFILING
+                ZoneScopedN("element added"); 
+#endif
                 cell_elements_list& CC = m_cells.at(to_cell);
                 m_cell[key] = to_cell;
                 m_pos[key] = CC.size();
@@ -142,6 +152,9 @@ namespace ogdf {
             }
 
             std::pair<int, int> elementRemoved(element_type key) {
+#ifdef BUILD_PROFILING
+                ZoneScopedN("element remove"); 
+#endif
                 int old_cell = m_cell[key];
                 int old_pos = m_pos[key];
                 cell_elements_list& C = cell(old_cell);

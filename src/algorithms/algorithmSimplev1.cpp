@@ -1,12 +1,8 @@
-#include "algorithm.hpp"
-#include "algorithmSimplev1.hpp"
+#include "algorithms/algorithmSimplev1.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
-#include "Tracy.hpp"
 #include "type.hpp"
-#include <unordered_set>
-//GraphBuilder& builder, equivalenceClasses& eq
-void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+void ContributionSimpleGreedyApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
     auto& emb = builder.emb;    
     int nodesSize = builder.G.numberOfNodes();
     ogdf::Graph G; 

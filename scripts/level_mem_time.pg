@@ -1,0 +1,21 @@
+set terminal pngcairo size 1200,700
+set output 'levels_mem_time.png'
+
+set multiplot layout 2,2 title "Memory and Time vs n_{levels} for n_{vertices}=20000" font ",14"
+
+# --- First plot: memory ---
+set xlabel "n_levels"
+set ylabel "Memory (MB)"
+plot 'tests_20000_vertices_filter1.log' using 2:3 with linespoints title "Memory"
+
+# --- Second plot: contribution ---
+set xlabel "n_levels"
+set ylabel "Contribution (s)"
+plot 'tests_20000_vertices_filter1.log' using 2:($4/1000.0) with linespoints title "Contribution"
+
+# --- Third plot: test ---
+set xlabel "n_levels"
+set ylabel "Test (s)"
+plot 'tests_20000_vertices_filter1.log' using 2:($5/1000.0) with linespoints title "Test"
+
+unset multiplot

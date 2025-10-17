@@ -76,10 +76,28 @@ template <class Key>
       }
       return;
    }
+inline int localIndex(equivalenceClasses& eq, int u, int v, int level){
+    int offset = eq.pairIdOffset[level];
+    int size = eq.pairIdArraySize[level];
+    int ulocal= eq.pairIdLocalIndex[level][u - offset];
+    int vlocal= eq.pairIdLocalIndex[level][v - offset];
+    return ulocal * sqrt(size/2) + vlocal; 
 
+}
+inline std::pair<int,int> localIndexInverse(equivalenceClasses& eq, int key,  int level){
+    int offset = eq.pairIdOffset[level];
+    int size = eq.pairIdArraySize[level];
+    int ulocal = key / int(sqrt(size/2)); 
+    int vlocal = key % int(sqrt(size/2)); 
+    int u = eq.pairIdLocalIndexInverse[level][ulocal] + offset; 
+    int v = eq.pairIdLocalIndexInverse[level][vlocal] + offset; 
+    return std::pair<int,int>(u,v); 
 
-inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq){
-   return eq.disjointSets.getRepresentative(eq.pairId[u * nodesSize + v]);  
+}
+
+inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq, int level){
+   //std::cout << "u  :" << u << " v: " << v << std::endl;
+   return eq.disjointSets.getRepresentative(eq.pairId[level][localIndex(eq, u, v, level)]);  
 }
 inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalenceClasses& eq){
     eq.disjointSets.quickUnion(eq.pairId[u1 * nodesSize + v1], eq.pairId[u2 * nodesSize + v2]); 

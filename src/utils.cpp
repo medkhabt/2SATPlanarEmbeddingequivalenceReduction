@@ -5,7 +5,10 @@
 #include <string>
 #include "type.hpp"
 #include "utils.hpp"
+<<<<<<< Updated upstream
 #include "Tracy.hpp"
+=======
+>>>>>>> Stashed changes
 #include "GraphBuilder.h"
 #include <random> 
 #include <set>
@@ -136,6 +139,10 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, 1);
 
+    if(builder.G.empty()){
+        std::cout << "empty graph" << std::endl;
+        return false; 
+    }
     int nodesSize = builder.G.numberOfNodes();
     for(const auto& [key, value] : eq.pairId){
         int root = eq.disjointSets.getRepresentative(value); 
@@ -228,6 +235,7 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalenc
             }
         }
     }
+<<<<<<< Updated upstream
 
     int size = combinations.size();
     int instantiations = pow(2,size);
@@ -253,5 +261,60 @@ std::vector<equivalentClassesAssignement> fillEquivalentClasses(const equivalenc
     return allAssignement; 
 
 
+=======
+        boost::container::flat_map<int, ogdf::node>nodes; 
+        int** nums = (int**) calloc(eq.pairIdSize, sizeof(int*)); 
+        //TODO change here.
+        for(size_t key = 0 ; key < eq.pairIdSize ; key++){            
+            ogdf::Graph G; 
+            ogdf::NodeArray<int> num(G);
+            //std::cout << "***** New Level " << std::endl;
+            for(size_t i = 0 ; i < eq.pairIdArraySize[key]; i++){
+                auto [u,v] = localIndexInverse(eq, i, key);
+                if(u < v && eq.pairId[key][i] != -1){
+                    if(nodes.find(u) == nodes.end()){
+                        nodes[u] = G.newNode(u); 
+                        //GA.label(nodes[u]) = std::to_string(u);
+                    }
+                    if(nodes.find(v) == nodes.end()){
+                        nodes[v] = G.newNode(v); 
+                        //GA.label(nodes[v]) = std::to_string(v);
+                    }
+                    if(roots_values[eqId(u,v,nodesSize, eq, key)]){
+                        //std::cout << "edge created between : "  << u << " and " << v << std::endl;
+                        G.newEdge(nodes[u], nodes[v]);
+                    }else{
+                        //std::cout << "edge created between : "  << v << " and " << u << std::endl;
+                        G.newEdge(nodes[v], nodes[u]);
+                    }
+                }
+            }
+            bool acyclic = ogdf::isAcyclic(G);
+            if(!acyclic){
+                std::cout << "FAILED ! on level " << key << std::endl;
+                return false ;
+            }
+            ogdf::topologicalNumbering(G, num);
+            nums[key] = (int*) calloc(G.maxNodeIndex() + 1, sizeof(int));
+            for(int t = 0 ; t < G.maxNodeIndex() + 1; t++){
+                nums[key][t] = -1; 
+            }
+            for(const auto& vertex: G.nodes){
+                nums[key][vertex->index()] = num[vertex];
+            }
+        }
+        
+        builder.drawLevelGraph(nums, 50, 100);
+        for(size_t key = 0; key < eq.pairIdSize ; key++){
+            free(nums[key]) ;
+        }
+        free(nums);
+        //ogdf::GraphIO::write(GA, "../graphs/inputs/svg/test.svg", ogdf::GraphIO::drawSVG);
+        if(canGenerate){
+            ogdf::GraphIO::write(builder.GA, "graphs/inputs/svg/" + title +"_fixed.svg", ogdf::GraphIO::drawSVG);
+        }
+        std::cout << "PASSED ! " << std::endl; 
+        return true;
+>>>>>>> Stashed changes
 }
 */
