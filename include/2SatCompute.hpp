@@ -4,31 +4,17 @@
 #include <ogdf/basic/Graph_d.h>
 #include <cassert>
 #include <string>
+#include "utils.hpp"
 #include <malloc.h>
 #include "GraphBuilder.h"
 #include "type.hpp"
 #include <fstream>
 #include <iostream>
+
+#ifdef BUILD_PROFILING 
 #include <tracy/Tracy.hpp>
+#endif
 
-inline int localIndex(equivalenceClasses& eq, int u, int v, int level){
-    int offset = eq.pairIdOffset[level];
-    int size = eq.pairIdArraySize[level];
-    int ulocal= eq.pairIdLocalIndex[level][u - offset];
-    int vlocal= eq.pairIdLocalIndex[level][v - offset];
-    return ulocal * sqrt(size/2) + vlocal; 
-
-}
-inline std::pair<int,int> localIndexInverse(equivalenceClasses& eq, int key,  int level){
-    int offset = eq.pairIdOffset[level];
-    int size = eq.pairIdArraySize[level];
-    int ulocal = key / int(sqrt(size/2)); 
-    int vlocal = key % int(sqrt(size/2)); 
-    int u = eq.pairIdLocalIndexInverse[level][ulocal] + offset; 
-    int v = eq.pairIdLocalIndexInverse[level][vlocal] + offset; 
-    return std::pair<int,int>(u,v); 
-
-}
 inline size_t currentRSS() {
     std::ifstream f("/proc/self/statm");
     size_t size, resident;
@@ -45,8 +31,10 @@ struct MemCheckpoint {
         std::cout << msg << " delta: " << size  << " MB\n";
     }
 };
-inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
-    ZoneScoped;
+inline bool compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
+    #ifdef BUILD_PROFILING 
+ ZoneScoped; 
+ #endif
     // sync 
     auto& emb = builder.emb;
     int nodesSize = builder.G.numberOfNodes();
@@ -129,25 +117,35 @@ inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     int makesets_created = 0;
     MemCheckpoint c2; 
     for(const auto& nodes : emb){
-        ZoneScopedN("makeset-loop");
+        #ifdef BUILD_PROFILING 
+ ZoneScopedN("makeset-loop"); 
+ #endif
         //MemCheckpoint ci; 
         // O(|V|/l)
         for(const auto& u : nodes){
             //O(|V|/l) -> O(n^2)
             for(const auto& v : nodes){
-                ZoneScopedN("last-loop");
+                #ifdef BUILD_PROFILING 
+ ZoneScopedN("last-loop"); 
+ #endif
                 if((u->index()) < (v->index())){
-                ZoneScopedN("IF");
+                #ifdef BUILD_PROFILING 
+ ZoneScopedN("IF"); 
+ #endif
                     int id1, id2;
                     {
-                        ZoneScopedN("makeset"); 
+                        #ifdef BUILD_PROFILING 
+ ZoneScopedN("makeset");  
+ #endif
                         id1 = eqDs.disjointSets.makeSet(); 
                         makesets_created++;
                         id2 = eqDs.disjointSets.makeSet();
                         makesets_created++;
                     }
                     {
-                        ZoneScopedN("save makeset");
+                        #ifdef BUILD_PROFILING 
+ ZoneScopedN("save makeset"); 
+ #endif
                         eqDs.pairId[l][localIndex(eqDs, u->index(), v->index(), l)] = id1;
                         eqDs.pairId[l][localIndex(eqDs, v->index(), u->index(), l)] = id2;
                     }
@@ -164,7 +162,9 @@ inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     // o(l) with children O(|E|^2/l) -> O(n^2)
     l = 0;
     for(const auto& nodes : emb){
-        ZoneScopedN("merge sets");
+        #ifdef BUILD_PROFILING 
+ ZoneScopedN("merge sets"); 
+ #endif
         E.clear();
         // o(|V|/l)
         for(const auto& n : nodes){
@@ -186,7 +186,10 @@ inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
                 a = f->source(); b = s->source();
                 c = f->target(); d = s->target(); 
                 if(!(a->index() == b->index() || c->index() == d->index()) ) {
-                    // O(1)
+                    if(eqId(a->index(), b->index(), 1, eqDs, l) == eqId(d->index(), c->index(), 1, eqDs, l+1)){
+                        std::cout << "NOT PLANAR!!" << std::endl;
+                        return false; 
+                    }
                     eqDs.disjointSets.quickUnion(eqDs.pairId[l][localIndex(eqDs, a->index(), b->index(), l)], eqDs.pairId[l + 1][localIndex(eqDs, c->index(), d->index(), l + 1)]); 
                     eqDs.disjointSets.quickUnion(eqDs.pairId[l][localIndex(eqDs, b->index(), a->index(), l)], eqDs.pairId[l + 1][localIndex(eqDs, d->index(), c->index(), l + 1)]); 
                 }
@@ -195,5 +198,5 @@ inline void compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
         l++;
     }
     //std::cout << "end merging and the 2sat calc" << std::endl;
-    return;
+    return true;
 }
