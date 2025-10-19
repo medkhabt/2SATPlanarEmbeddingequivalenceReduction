@@ -7,6 +7,7 @@
 
 #include "2SatCompute.hpp"
 #include "utils.hpp"
+
 enum class PROFILING {
     ENABLE,
     DISABLE
@@ -26,6 +27,7 @@ class Contribution {
         GENERATING_OUTPUT canGenerate; 
         DEBUGING debug;
         Contribution(PROFILING profiling = PROFILING::DISABLE, GENERATING_OUTPUT canGenerate = GENERATING_OUTPUT::DISABLE, DEBUGING debug = DEBUGING::DISABLE): profiling(profiling), canGenerate(canGenerate), debug(debug){}
+        virtual ~Contribution() = default;
         virtual void enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq) = 0;
         void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter){
             if(canGenerate == GENERATING_OUTPUT::ENABLE){

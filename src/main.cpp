@@ -136,9 +136,11 @@ int main(int argc, char* argv[]){
         OGDF_RANDOM_HIERACHY_PLANAR
     };
     randomMethod randMethod;
+
+    std::unique_ptr<Contribution> contrib; 
+
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-
         if ((arg == "-f" || arg == "--file") && i + 1 < argc) {
             graphFile = argv[++i];
         } else if ((arg == "-r" || arg == "--random") && i + 1 < argc) {
@@ -160,8 +162,25 @@ int main(int argc, char* argv[]){
             max_levels = std::stoi(argv[++i]);  
         } else if((arg == "-p" || arg == "--profiling")){
             profiling = true; 
-        } else if((arg == "-g" || arg == "--generate-svg-fix")){
+        } else if((arg == "-g" || arg == "--generate-svg")){
             canGenerate = true; 
+        } else if((arg == "-a" || arg == "--algorithm" && i + 1 < argc)){
+            std::string alg = argv[i+1]; 
+            if(alg == "greedy-arbitrary" || alg == "ga"){
+                contrib = std::make_unique<ContributionSimpleGreedyApproach>(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
+            } else if(alg == "greedy-with-sort" || alg == "gws") {
+                contrib = std::make_unique<ContributionSimpleGreedyWithSortApproach>(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
+            } else {
+                std::cerr << "you chose an unkown algorithm. Check the help (-h|--help) for available algorithms" << std::endl;; 
+                return 1;
+            }
+        } else if((arg == "-h" || arg == "--help")){
+            std::cout << " ./2SATEquivalenceReduction [-f|--file (GML_FILE) | [-r|--random (hiearchy|custom|maximal)] [-n|--nodes NUMBER_NODES] [-l|--levels NUMBER_LEVELS]] [-a | --algorithm (ALGORITHM)] [-p | --profiling] [-g | --generate-svg] " << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << " - ALGORITHM: the algorithms to choose from are:  "<< std::endl;
+            std::cout << "    - greedy-arbitrary (ga)" << std::endl;
+            std::cout << "    - greedy-with-sort (gws)" << std::endl;
+            return 0;
         }
     }
     auto logResult = std::ofstream("result.log" , std::ios_base::app);
@@ -180,6 +199,7 @@ int main(int argc, char* argv[]){
     std::cout << " ******** START of the program ********** " << std::endl;
     std::vector<std::vector<ogdf::node>> emb;
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
+    
     ContributionSimpleGreedyApproach algv1(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE); 
     ContributionSimpleGreedyWithSortApproach algv2(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
     if(randomInput){
@@ -211,7 +231,7 @@ int main(int argc, char* argv[]){
         }
         logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
         logResult << max_levels <<  " " << max_nodes << " " ; 
-        algv2.process(mode + "/" + "v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter);
+        contrib->process(mode + "/" + "v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter);
         malloc_trim(0);
     } else {
         GraphBuilder graphBuild; 
@@ -223,7 +243,7 @@ int main(int argc, char* argv[]){
         }
         std::filesystem::path p = graphFile;
         std::cout << " stem is : " << p.stem() << std::endl;
-        algv2.process(p.stem(), graphBuild, counter);
+        contrib->process(p.stem(), graphBuild, counter);
     }
 
     logTimeFile.close();
