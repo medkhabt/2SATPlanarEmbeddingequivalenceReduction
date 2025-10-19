@@ -17,6 +17,7 @@ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/gml")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs/outputs/log")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/profiling")
 file(COPY "${CMAKE_SOURCE_DIR}/run" DESTINATION "${CMAKE_BINARY_DIR}")
+file(GLOB ALG_SRC_FILES "${CMAKE_SOURCE_DIR}/src/algorithms/*.cpp")
 
 add_custom_target(copy_resources ALL
                COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -31,16 +32,13 @@ add_custom_target(copy_resources ALL
            )
 
 include_directories(include)
-#include_directories(tracy/public)
+include_directories(include/algorithms)
 include_directories(/home/medkha/.local/share/ogdf/include)
 
 link_directories(/home/medkha/.local/share/ogdf)
 
 option(BUILD_TESTING "Build tests" OFF)
-option(TRACY_ENABLE "" ON)
-add_subdirectory(tracy)
-
-option( TRACY_ON_DEMAND "" ON)
+option(BUILD_PROFILING "Build Profiling" OFF)
 
 if(BUILD_TESTING)
     include(CTest) 
@@ -54,7 +52,7 @@ if(BUILD_TESTING)
     add_subdirectory(tests/unit)
 endif()
 #add_executable(2SATEquivalenceReduction src/main.cpp src/algorithm.cpp src/utils.cpp src/TracyClient.cpp)
-add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp  src/algorithmSimplev1)
+add_executable(2SATEquivalenceReduction src/main.cpp src/utils.cpp  src/GraphBuilder.cpp ${ALG_SRC_FILES})
 
 #[===[
 target_compile_options(2SATEquivalenceReduction PRIVATE
@@ -67,7 +65,14 @@ target_compile_options(2SATEquivalenceReduction PRIVATE
 target_link_libraries(2SATEquivalenceReduction
     OGDF 
     COIN
-    Tracy::TracyClient
 )
 
 
+if(BUILD_PROFILING)
+    option(TRACY_ENABLE "" ON)
+    add_subdirectory(tracy)
+
+    option( TRACY_ON_DEMAND "" ON)
+
+target_link_libraries(2SATEquivalenceReduction Tracy::TracyClient)
+endif()

@@ -6,7 +6,6 @@
 #include "GraphWithPairNode.hpp"
 #include <ogdf/basic/GraphList.h>
 #include "GraphBuilder.h"
-#include "2SatCompute.hpp"
 // TODO customize the naming of the creation of a layout.
 
 namespace ogdf {
@@ -78,6 +77,24 @@ template <class Key>
       return;
    }
 
+inline int localIndex(equivalenceClasses& eq, int u, int v, int level){
+    int offset = eq.pairIdOffset[level];
+    int size = eq.pairIdArraySize[level];
+    int ulocal= eq.pairIdLocalIndex[level][u - offset];
+    int vlocal= eq.pairIdLocalIndex[level][v - offset];
+    return ulocal * sqrt(size/2) + vlocal; 
+
+}
+inline std::pair<int,int> localIndexInverse(equivalenceClasses& eq, int key,  int level){
+    int offset = eq.pairIdOffset[level];
+    int size = eq.pairIdArraySize[level];
+    int ulocal = key / int(sqrt(size/2)); 
+    int vlocal = key % int(sqrt(size/2)); 
+    int u = eq.pairIdLocalIndexInverse[level][ulocal] + offset; 
+    int v = eq.pairIdLocalIndexInverse[level][vlocal] + offset; 
+    return std::pair<int,int>(u,v); 
+
+}
 
 inline int eqId(int u, int v, int nodesSize, equivalenceClasses& eq, int level){
    return eq.disjointSets.getRepresentative(eq.pairId[level][localIndex(eq, u, v, level)]);  

@@ -1,13 +1,30 @@
-#include "algorithm.hpp"
-#include "algorithmSimplev1.hpp"
+#include "algorithms/algorithmSimplev2.hpp"
 #include "GraphBuilder.h"
 #include "utils.hpp"
+
+#ifdef BUILD_PROFILING
 #include <tracy/Tracy.hpp>
+#endif
+
 #include "type.hpp"
 #include "2SatCompute.hpp"
 #include <unordered_set>
 //GraphBuilder& builder, equivalenceClasses& eq
-void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+//
+//
+void ContributionSimpleGreedyWithSortApproach::verticesWithNeighborsFromUpperLevelFirst(const GraphBuilder& builder, std::vector<ogdf::node>& vertices){
+    size_t size = vertices.size();
+    size_t splitter = 0; 
+    for(size_t i = 0 ; i < size ; i++){
+        if(vertices[i]->indeg()) {
+            if(i != splitter){
+                std::swap(vertices[splitter], vertices[i]);
+            }
+            splitter++;
+        } 
+    } 
+}
+void ContributionSimpleGreedyWithSortApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
     auto& emb = builder.emb;    
     int nodesSize = builder.G.numberOfNodes();
     ogdf::Graph G; 
@@ -28,8 +45,9 @@ void Contribution1::enforceTransitivity(GraphBuilder& builder, equivalenceClasse
     int vparent = -1;
     int levelparent = -1; 
     int l = 0;
-    for(const auto& level: emb){
+    for(auto& level: emb){
         visited.clear();
+        verticesWithNeighborsFromUpperLevelFirst(builder,level);
            for(const auto& v: level) {
                reverse = false;
                int w = v->index();

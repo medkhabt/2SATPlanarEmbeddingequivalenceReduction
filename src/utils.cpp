@@ -5,7 +5,11 @@
 #include <string>
 #include "type.hpp"
 #include "utils.hpp"
+
+#ifdef BUILD_PROFILING 
 #include <tracy/Tracy.hpp>
+#endif
+
 #include "GraphBuilder.h"
 #include "2SatCompute.hpp"
 #include <random> 
