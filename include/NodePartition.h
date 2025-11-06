@@ -16,10 +16,11 @@ namespace ogdf {
             using partition_cells_list = std::vector<cell_elements_list>;
 
             //! Creates an empty partition associated with registry \p R.
-            explicit NodePartition(const Graph& R) { init(R); }
+            explicit NodePartition(const Graph& R) { std::cout << "*************** WE ARE HERE !!!!" << std::endl; init(R); }
 
             //! Creates an empty partition associated with no registry.
-            explicit NodePartition() { }
+            explicit NodePartition() { std::cout << "******** what are we doing here ?" << std::endl;}
+            NodePartition(NodePartition&&) noexcept = default;
 
             //! Reinitializes the partition. Associates the partition with no registry.
             void init() { // virtual until observers are fixed

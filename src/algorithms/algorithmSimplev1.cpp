@@ -10,9 +10,9 @@
 #include "2SatCompute.hpp"
 #include <unordered_set>
 //GraphBuilder& builder, equivalenceClasses& eq
-void ContributionSimpleGreedyApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+int ContributionSimpleGreedyApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
     auto& emb = builder.emb;    
-    int nodesSize = builder.G.numberOfNodes();
+    int nodesSize = builder.G->numberOfNodes();
     ogdf::Graph G; 
     ogdf::NodeArray<int> vertexlevel(G);
     std::vector<int> adjIn, adjOut;
@@ -79,4 +79,5 @@ void ContributionSimpleGreedyApproach::enforceTransitivity(GraphBuilder& builder
            }
            l++;
     }
+    return 0;
 }

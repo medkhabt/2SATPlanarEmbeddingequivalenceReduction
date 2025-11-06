@@ -56,29 +56,29 @@ std::string to_string(equivalenceClassesAssignement& assignement, int n){
     return stringRepr;
 }
 // make the arg const if the function getNumberOfSets is marked as const in the future.
-bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title, bool canGenerate){
+bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title, bool canGenerate, int** ordering,  bool isTotalOrder){
     equivalenceClassesAssignement eqas; 
     boost::container::flat_map<int, int> roots_values;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, 1);
+    if(!isTotalOrder){
+        int nodesSize = builder.G->numberOfNodes();
+        for(size_t key = 0 ; key < eq.pairIdSize ; key++){
+            for(size_t i = 0 ; i < eq.pairIdArraySize[key]; i++){
+                int value = eq.pairId[key][i];
+                if(value > -1 ){
+                    int root = eq.disjointSets.getRepresentative(value); 
+                    if(roots_values.find(root) == roots_values.end()){
+                        roots_values[root] = dist(gen);
+                        auto [u,v] = localIndexInverse(eq, i, key);
+                        int reversePairSetId = eq.pairId[key][localIndex(eq,v, u, key)];
+                        roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
+                    }
 
-    int nodesSize = builder.G.numberOfNodes();
-    for(size_t key = 0 ; key < eq.pairIdSize ; key++){
-        for(size_t i = 0 ; i < eq.pairIdArraySize[key]; i++){
-            int value = eq.pairId[key][i];
-            if(value > -1 ){
-                int root = eq.disjointSets.getRepresentative(value); 
-                if(roots_values.find(root) == roots_values.end()){
-                    roots_values[root] = dist(gen);
-                    auto [u,v] = localIndexInverse(eq, i, key);
-                    int reversePairSetId = eq.pairId[key][localIndex(eq,v, u, key)];
-                    roots_values[eq.disjointSets.getRepresentative(reversePairSetId)] = 1 - roots_values[root];
                 }
-
             }
         }
-    }
         boost::container::flat_map<int, ogdf::node>nodes; 
         int** nums = (int**) calloc(eq.pairIdSize, sizeof(int*)); 
         //TODO change here.
@@ -105,9 +105,16 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
                     }
                 }
             }
-            bool acyclic = ogdf::isAcyclic(G);
+            ogdf::List<ogdf::edge> backedges; 
+            bool acyclic = ogdf::isAcyclic(G, backedges);
             if(!acyclic){
                 std::cout << "FAILED !" << std::endl;
+                std::cout << "Backedges: with size : " << backedges.size() << std::endl;
+                while(backedges.size()){
+                    ogdf::edge e = backedges.popBackRet(); 
+                    std::cout << "source : " << e->source()->index() << ", target : " << e->target()->index() << std::endl; 
+                }
+                delete nums;
                 return false ;
             }
             ogdf::topologicalNumbering(G, num);
@@ -119,16 +126,25 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
                 nums[key][vertex->index()] = num[vertex];
             }
         }
-        
+
         builder.drawLevelGraph(nums, 50, 150);
         for(size_t key = 0; key < eq.pairIdSize ; key++){
             free(nums[key]) ;
         }
         free(nums);
         //ogdf::GraphIO::write(GA, "../graphs/inputs/svg/test.svg", ogdf::GraphIO::drawSVG);
-        if(canGenerate){
-            ogdf::GraphIO::write(builder.GA, "graphs/inputs/svg/" + title +"_fixed.svg", ogdf::GraphIO::drawSVG);
+
+    } else {
+        builder.drawLevelGraph(ordering, 50, 150);
+        for(size_t key = 0; key < eq.pairIdSize ; key++){
+            free(ordering[key]) ;
         }
-        std::cout << "PASSED ! " << std::endl; 
-        return true;
+        free(ordering);
+    }
+    if(canGenerate){
+        ogdf::GraphIO::write(*builder.GA, "graphs/inputs/svg/" + title +"_fixed.svg", ogdf::GraphIO::drawSVG);
+    }
+    std::cout << "PASSED ! " << std::endl; 
+    return true;
+
 }

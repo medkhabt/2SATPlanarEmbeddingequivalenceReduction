@@ -18,7 +18,6 @@
 #include <functional>
 
 #include "NodePartition.h"
-#include "GraphWithPairNode.hpp"
 #include "GraphBuilder.h"
 #include "2SatCompute.hpp"
 
@@ -207,13 +206,13 @@ void GraphBuilder::randomHierarchy(ogdf::Graph& G, int numberOfNodes, int number
     }
     vertexArray = nnr;     
     levelsArray = fst;
-    std::cout << "The size of nodes of the graph are : " << this->G.nodes.size() << std::endl;
+    std::cout << "The size of nodes of the graph are : " << this->G->nodes.size() << std::endl;
 }
 void GraphBuilder::randomPlanarLevelProperGraphFromOGDFRandomHiearchy(int N){
     ogdf::Array<int> levelArray;  
     ogdf::Array<ogdf::node> verticesArray; 
     int numberOfLevels;
-    randomHierarchy(this->G, N, ogdf::randomNumber(N,3*N-6) , true, false, false, verticesArray, levelArray, numberOfLevels); 
+    randomHierarchy(*this->G, N, ogdf::randomNumber(N,3*N-6) , true, false, false, verticesArray, levelArray, numberOfLevels); 
     // TODO I need to build the embedding 
     int firstThisLevel = 0, firstNextLevel;
     for(int i=1; i < levelArray.size(); i++){
@@ -245,7 +244,7 @@ void GraphBuilder::randomPlanarLevelProperGraphFromOGDFRandomHiearchy(int N){
 #ifdef BUILD_PROFILING
         ZoneScopedN("clustergraphatt");
 #endif
-        ogdf::ClusterGraphAttributes CGA(this->CG, ogdf::ClusterGraphAttributes::all);
+        ogdf::ClusterGraphAttributes CGA(*this->CG, ogdf::ClusterGraphAttributes::all);
     }
     postTraitement();
 }
@@ -287,15 +286,15 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
     OGDF_ASSERT(K > 0);
 
     // init arrays
-    G.clear();
+    this->G->clear();
     emb.clear();
     emb.resize(K);
 
     std::unordered_set<uint64_t> seen; 
-    ogdf::NodeArray<int> levelNode(G); 
+    ogdf::NodeArray<int> levelNode(*this->G); 
     //std::cout << "::: CREATION VERTEX PER LEVEL: " << std::endl;
     for (int i = 0; i < K; ++i) {
-        emb[i].push_back(G.newNode());
+        emb[i].push_back(this->G->newNode());
         levelNode[emb[i].back()] = i;
         //std::cout << "::: ::: level " << i << " vertex created : " << emb[i][0]->index() << std::endl; 
     }
@@ -304,7 +303,7 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
     for (int i = K; i < N; ++i) {
         //int l = ogdf::randomNumber(0, K - 1);
         int l = randomizer(0,K-2);
-        emb[l].push_back(G.newNode());
+        emb[l].push_back(this->G->newNode());
         levelNode[emb[l].back()] = l;
         if(emb[l].size() > max ) {
             max = emb[l].size(); 
@@ -411,12 +410,12 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
                 //std::cout << "is it seen ? " << std::endl;
                 if(inv){
                     if(!seen.count(key(emb[l-1][u]->index(), emb[l][v]->index()))){
-                        addedChuckOfEdges.push_back(G.newEdge(emb[l-1][u], emb[l][v])); 
+                        addedChuckOfEdges.push_back(this->G->newEdge(emb[l-1][u], emb[l][v])); 
                         seen.insert(key(emb[l-1][u]->index(), emb[l][v]->index()));
                     }
                 } else {
                     if(!seen.count(key(emb[l][u]->index(), emb[l+1][v]->index()))){
-                        addedChuckOfEdges.push_back(G.newEdge(emb[l][u], emb[l+1][v])); 
+                        addedChuckOfEdges.push_back(this->G->newEdge(emb[l][u], emb[l+1][v])); 
                         seen.insert(key(emb[l][u]->index(), emb[l+1][v]->index()));
                     }
 
@@ -435,11 +434,11 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
     } else {
         std::cout << "Found a level proper planar Graph" << std::endl;
         for(ogdf::edge e : addedChuckOfEdges) {
-            G.delEdge(e); 
+            this->G->delEdge(e); 
         }
     }
     std::vector<ogdf::node> delNodes;
-    for(ogdf::node v: G.nodes){
+    for(ogdf::node v: this->G->nodes){
         if(!v->degree()){
             delNodes.push_back(v);
         }
@@ -453,9 +452,9 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
                 levelSize--;
             } 
         }
-        G.delNode(v);
+        this->G->delNode(v);
     }
-    if(this->validGraph && !ogdf::isConnected(G)){
+    if(this->validGraph && !ogdf::isConnected(*this->G)){
         /*
            ogdf::NodeArray<int> components(G);
            std::map<int, int> compSizes; 
@@ -560,7 +559,7 @@ void GraphBuilder::randomLevelGraph(int N, int K, std::function<int(int,int)> ra
 #ifdef BUILD_PROFILING
         ZoneScopedN("clustergraphatt");
 #endif
-        ogdf::ClusterGraphAttributes CGA(this->CG, ogdf::ClusterGraphAttributes::all);
+        ogdf::ClusterGraphAttributes CGA(*this->CG, ogdf::ClusterGraphAttributes::all);
     }
     postTraitement();
 

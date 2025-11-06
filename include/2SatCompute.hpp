@@ -36,8 +36,15 @@ inline bool compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
  ZoneScoped; 
  #endif
     // sync 
+    //std::cout << "stack trace : " << boost::stacktrace::stacktrace();
     auto& emb = builder.emb;
-    int nodesSize = builder.G.numberOfNodes();
+    std::cout << "compute2SATClasses: size of the emb is " << emb.size() << std::endl;
+    if(builder.enableNodePartition){
+        std::cout << "Node partition enabled"  << std::endl;
+    } else {
+        std::cout << "Node partition disabeled"  << std::endl;
+    }
+    int nodesSize = builder.G->numberOfNodes();
     // each vertex can have up to |V(G)| - 1 relations, reversing the relation result in an other |V(G)| - 1 relation per vertex.  
     // TODO be careful of the number of vertices. the constructor only accepts int.
     std::cout << "start 2sat" << std::endl;
@@ -54,8 +61,10 @@ inline bool compute2SATClasses(GraphBuilder& builder, equivalenceClasses& eqDs){
     //c.report("mallocs");
     int i = 0 ;
     //MemCheckpoint c1; 
+    int counter = 0; 
     for(const auto& nodes: emb){
         int n = nodes.size();
+        std::cout << "size of the  level " << counter++ << " is : " << n << std::endl;
         int size = 2 * n * n;
         eqDs.pairIdArraySize[i] = size;
         int max = 0;

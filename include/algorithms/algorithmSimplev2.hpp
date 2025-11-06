@@ -3,9 +3,11 @@
 #include "type.hpp"
 
 class ContributionSimpleGreedyWithSortApproach : public Contribution{
-        void enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq) override;
+        int enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq) override;
         void verticesWithNeighborsFromUpperLevelFirst(const GraphBuilder& builder, std::vector<ogdf::node>& vertices);
     public :
         ContributionSimpleGreedyWithSortApproach(PROFILING profiling = PROFILING::DISABLE, GENERATING_OUTPUT canGenerate = GENERATING_OUTPUT::DISABLE, DEBUGING debug = DEBUGING::DISABLE) :
-        Contribution(profiling, canGenerate , debug){}
+        Contribution(profiling, canGenerate , debug){
+            this->algName = "greedy-with-sort";
+        }
 };
