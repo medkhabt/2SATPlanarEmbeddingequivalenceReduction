@@ -27,95 +27,7 @@
 #include "2SatCompute.hpp"
 #include "algorithms/algorithmSimplev1.hpp"
 #include "algorithms/algorithmSimplev2.hpp"
-
-// the pair is a counter of passed and failed instances for each of planarity and acyclic relation check.
-void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter, bool debug, std::ofstream& logTimeFile, bool profiling, bool canGenerate){
-#ifdef BUILD_PROFILING 
-    ZoneScopedN("process"); 
-#endif
-    {
-#ifdef BUILD_PROFILING 
-        ZoneScopedN("image and gml creation"); 
-#endif
-        if(canGenerate){
-            if(profiling){
-                //ogdf::GraphIO::write(graphBuild.GA, "../graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-                //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
-            }else {
-                ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-                ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
-            }
-
-        }
-    }
-    //std::ofstream logFile; 
-    if(debug){
-        if(profiling){
-            //logFile = std::ofstream("../graphs/outputs/log/" + title + ".log"); 
-        }else {
-            //logFile = std::ofstream("graphs/outputs/log/" + title + ".log"); 
-        }
-
-        /*
-           if(!logFile){
-           std::cerr << "Unable to open log file" << std::endl;
-           }
-           */
-    }
-    /*
-       if(debug){
-       logFile << "*********************** Graph : " << title << std::endl;
-       logFile << std::endl; 
-       logFile << "> computing the equivalent classes"  << std::endl;
-       logFile << std::endl;
-       }
-       */
-
-    equivalenceClasses eq ;
-    {
-#ifdef BUILD_PROFILING 
-        ZoneScopedN("compute 2 sat"); 
-#endif
-        compute2SATClasses(graphBuild, eq);
-    }
-    int nodesSize = graphBuild.G.numberOfNodes();
-    {
-
-#ifdef BUILD_PROFILING 
-        ZoneScopedN("contribution"); 
-#endif
-        auto start = std::chrono::high_resolution_clock::now();
-        //Contribution1::enforceTransitivity(graphBuild, eq);
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-
-        std::cout << "Elapsed Time for contribution: " << duration.count() << " ms\n";
-    }
-
-    {
-#ifdef BUILD_PROFILING 
-        ZoneScopedN("get emb and test"); 
-#endif
-        auto start = std::chrono::high_resolution_clock::now();
-        bool test = testEmbedding(graphBuild, eq, title, canGenerate);
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-        std::cout << "Elapsed Time for test: " << duration.count() << " ms\n";
-
-    }
-    int size = graphBuild.emb.size();
-    for(size_t key = 0; key < size; key++){
-        free(eq.pairId[key]);
-        free(eq.pairIdLocalIndex[key]);
-        free(eq.pairIdLocalIndexInverse[key]);
-    }
-
-    free(eq.pairIdArraySize); 
-    free(eq.pairIdLocalIndex);
-    free(eq.pairIdLocalIndexInverse); 
-    free(eq.pairIdOffset);
-    free(eq.pairId);
-}
+#include "algorithms/algorithmDepthEqClasses.hpp"
 
 
 int main(int argc, char* argv[]){
@@ -170,6 +82,8 @@ int main(int argc, char* argv[]){
                 contrib = std::make_unique<ContributionSimpleGreedyApproach>(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
             } else if(alg == "greedy-with-sort" || alg == "gws") {
                 contrib = std::make_unique<ContributionSimpleGreedyWithSortApproach>(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
+            } else if(alg == "greedy-depth-prio" || alg == "gdp") {
+                contrib = std::make_unique<ContributionSimpleGreedyWithEquivalenceClassDepth>(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
             } else {
                 std::cerr << "you chose an unkown algorithm. Check the help (-h|--help) for available algorithms" << std::endl;; 
                 return 1;
@@ -180,6 +94,7 @@ int main(int argc, char* argv[]){
             std::cout << " - ALGORITHM: the algorithms to choose from are:  "<< std::endl;
             std::cout << "    - greedy-arbitrary (ga)" << std::endl;
             std::cout << "    - greedy-with-sort (gws)" << std::endl;
+            std::cout << "    - greedy-depth-prio (gdp)" << std::endl;
             return 0;
         }
     }
@@ -200,8 +115,7 @@ int main(int argc, char* argv[]){
     std::vector<std::vector<ogdf::node>> emb;
     std::pair<std::pair<int, int>, std::pair<int,int>> counter; 
     
-    ContributionSimpleGreedyApproach algv1(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE); 
-    ContributionSimpleGreedyWithSortApproach algv2(PROFILING::DISABLE, GENERATING_OUTPUT::ENABLE, DEBUGING::DISABLE);
+    int s = -1;
     if(randomInput){
         GraphBuilder graphBuild; 
         std::string mode; 
@@ -223,15 +137,9 @@ int main(int argc, char* argv[]){
                 break;
         }
         std::cout << "Graph with nodes: " << max_nodes << " and levels: "  << max_levels << std::endl; 
-        {
-#ifdef BUILD_PROFILING 
-            ZoneScopedN("graphBuilder"); 
-#endif
-            graphBuild.buildRandomLevelGraph(max_nodes, max_levels);
-        }
         logTimeFile << ""<< max_levels << " " << max_nodes << " " ;
         logResult << max_levels <<  " " << max_nodes << " " ; 
-        contrib->process(mode + "/" + "v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter);
+        s = contrib->process(mode + "/" + "v_" + std::to_string(max_nodes) + "_l_" + std::to_string(max_levels), graphBuild, counter);
         malloc_trim(0);
     } else {
         GraphBuilder graphBuild; 
@@ -243,10 +151,10 @@ int main(int argc, char* argv[]){
         }
         std::filesystem::path p = graphFile;
         std::cout << " stem is : " << p.stem() << std::endl;
-        contrib->process(p.stem(), graphBuild, counter);
+        s = contrib->process(p.stem(), graphBuild, counter);
     }
 
     logTimeFile.close();
-    return 0;
+    return s;
 }
 

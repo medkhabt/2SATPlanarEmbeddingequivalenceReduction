@@ -1,26 +1,11 @@
 #pragma once
 #include <utility>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/RegisteredArray.h>
 #include "type.hpp"
-#include "GraphWithPairNode.hpp"
 #include <ogdf/basic/GraphList.h>
 #include "GraphBuilder.h"
 // TODO customize the naming of the creation of a layout.
 
-namespace ogdf {
-
-    class PairNodeElement;
-    using pairNode = PairNodeElement*; 
-    namespace internal{
-        using GraphPairNodeRegistry = GraphRegistry<PairNodeElement>; 
-    }
-
-    template<typename Value, bool WithDefault= true> 
-        using PairNodeArray = RegisteredArray<PairNodeElement, Value, WithDefault, GraphWithPairNode>;
-
-    
-}
 
 void createLayout(std::string nameFile, ogdf::Graph& G);
 
@@ -104,4 +89,4 @@ inline void mergeTwoEqs(int u1, int v1, int u2, int v2, int nodesSize, equivalen
     eq.disjointSets.quickUnion(eq.pairId[level1][localIndex(eq, v1, u1, level1)], eq.pairId[level2][localIndex(eq, v2, u2, level2)]); 
 }
 
-bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title, bool canGenerate = false);
+bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string title, bool canGenerate = false, int** ordering = nullptr, bool isTotalOrder = false);

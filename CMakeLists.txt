@@ -5,6 +5,7 @@ project(2satPlanarDrawing VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(OGDF_BUILD_DIR "/home/medkha/.local/share/ogdf" CACHE STRING "the path to the build of OGDF project")
 
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/graphs")
@@ -33,9 +34,9 @@ add_custom_target(copy_resources ALL
 
 include_directories(include)
 include_directories(include/algorithms)
-include_directories(/home/medkha/.local/share/ogdf/include)
+include_directories(${OGDF_BUILD_DIR}/include)
 
-link_directories(/home/medkha/.local/share/ogdf)
+link_directories(${OGDF_BUILD_DIR})
 
 option(BUILD_TESTING "Build tests" OFF)
 option(BUILD_PROFILING "Build Profiling" OFF)

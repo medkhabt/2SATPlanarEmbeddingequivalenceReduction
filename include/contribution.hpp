@@ -1,6 +1,7 @@
 #pragma once
 #include "GraphBuilder.h"
 #include "type.hpp"
+#include "string"
 #ifdef BUILD_PROFILING 
 #include <tracy/Tracy.hpp>
 #endif
@@ -21,15 +22,21 @@ enum class DEBUGING {
     DISABLE
 };
 class Contribution {
+    protected:
+        std::string algName;
+        int** finalOrdering = nullptr; 
+        bool isTotalOrder = false;
     public : 
         std::ofstream logTimeFile; 
         PROFILING profiling; 
         GENERATING_OUTPUT canGenerate; 
         DEBUGING debug;
         Contribution(PROFILING profiling = PROFILING::DISABLE, GENERATING_OUTPUT canGenerate = GENERATING_OUTPUT::DISABLE, DEBUGING debug = DEBUGING::DISABLE): profiling(profiling), canGenerate(canGenerate), debug(debug){}
+        //TODO free in the deconstructor
         virtual ~Contribution() = default;
-        virtual void enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq) = 0;
-        void process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter){
+        virtual int enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq) = 0;
+        int process(std::string title, GraphBuilder& graphBuild, std::pair<std::pair<int, int>, std::pair<int, int>>& counter){
+            int s = -1; 
             if(canGenerate == GENERATING_OUTPUT::ENABLE){
                 std::cout << "enabled !! " << std::endl;
             } else if (canGenerate == GENERATING_OUTPUT::DISABLE){
@@ -46,7 +53,7 @@ class Contribution {
 #endif 
                 if(!graphBuild.validGraph){
                     std::cout << "The Graph is not valid." << std::endl;
-                    return; 
+                    return 1; 
                 }
                 if(canGenerate == GENERATING_OUTPUT::ENABLE){
                     if(profiling == PROFILING::ENABLE){
@@ -54,8 +61,8 @@ class Contribution {
                         //ogdf::GraphIO::write(graphBuild.CG, "../graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
                     }else {
                         std::cout << "Are we here ? with title: " << title << std::endl;
-                        ogdf::GraphIO::write(graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
-                        ogdf::GraphIO::write(graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
+                        ogdf::GraphIO::write(*graphBuild.GA, "graphs/inputs/svg/"+ title + ".svg", ogdf::GraphIO::drawSVG);
+                        ogdf::GraphIO::write(*graphBuild.CG, "graphs/inputs/gml/"+ title + ".gml", ogdf::GraphIO::writeGML);
                     }
 
                 }
@@ -92,17 +99,17 @@ class Contribution {
                 bool isPlanar = compute2SATClasses(graphBuild, eq);
                 if(!isPlanar){
                     std::cout << "NOT Planar graph, can't processed with the algorithm" << std::endl;  
-                    return;
+                    return 1;
                 }
             }
-            int nodesSize = graphBuild.G.numberOfNodes();
+            int nodesSize = graphBuild.G->numberOfNodes();
             {
 
 #ifdef BUILD_PROFILING 
                 ZoneScopedN("contribution"); 
 #endif 
                 auto start = std::chrono::high_resolution_clock::now();
-                this->enforceTransitivity(graphBuild, eq);
+                s = this->enforceTransitivity(graphBuild, eq);
                 auto stop = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 
@@ -114,7 +121,7 @@ class Contribution {
                 ZoneScopedN("get emb and test"); 
 #endif 
                 auto start = std::chrono::high_resolution_clock::now();
-                bool test = testEmbedding(graphBuild, eq, title, (canGenerate == GENERATING_OUTPUT::ENABLE));
+                bool test = testEmbedding(graphBuild, eq, title + "_" + this->algName, (canGenerate == GENERATING_OUTPUT::ENABLE), this->finalOrdering, this->isTotalOrder);
                 auto stop = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
                 std::cout << "Elapsed Time for test: " << duration.count() << " ms\n";
@@ -132,6 +139,6 @@ class Contribution {
             free(eq.pairIdLocalIndexInverse); 
             free(eq.pairIdOffset);
             free(eq.pairId);
-
+            return s;
         }
 };

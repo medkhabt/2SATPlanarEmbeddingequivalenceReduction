@@ -24,9 +24,9 @@ void ContributionSimpleGreedyWithSortApproach::verticesWithNeighborsFromUpperLev
         } 
     } 
 }
-void ContributionSimpleGreedyWithSortApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
+int ContributionSimpleGreedyWithSortApproach::enforceTransitivity(GraphBuilder& builder, equivalenceClasses& eq){
     auto& emb = builder.emb;    
-    int nodesSize = builder.G.numberOfNodes();
+    int nodesSize = builder.G->numberOfNodes();
     ogdf::Graph G; 
     ogdf::NodeArray<int> vertexlevel(G);
     std::vector<int> adjIn, adjOut;
@@ -94,4 +94,5 @@ void ContributionSimpleGreedyWithSortApproach::enforceTransitivity(GraphBuilder&
            }
            l++;
     }
+    return 0;
 }
