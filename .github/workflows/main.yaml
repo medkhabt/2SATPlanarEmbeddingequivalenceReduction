@@ -20,6 +20,6 @@ jobs:
           with:
             context: .
             push: false
-            tags: medkhabt/2SATPlanarEmbeddingequivalenceReduction:latest
+            tags: medkhabt/planar-emb-from-two-sat:latest
           env:
             DOCKER_BUILD_RECORD_RETENTION_DAYS: 1
