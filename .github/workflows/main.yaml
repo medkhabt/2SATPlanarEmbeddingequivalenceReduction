@@ -2,7 +2,7 @@ name: Main Workflow
 on: push
 
 jobs:
-  - build:
+  build:
       runs-on: ubuntu-latest
       steps:
         - name: Login to GHCR.IO
