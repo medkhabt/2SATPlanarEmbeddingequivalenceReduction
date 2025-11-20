@@ -1,12 +1,7 @@
 FROM debian:stable-slim AS base
 RUN apt-get update && apt-get install -y curl cmake unzip clang build-essential python3 libbz2-dev libz-dev libicu-dev libboost-all-dev git
 
-FROM base AS ogdf-build 
-WORKDIR /src
-COPY ogdf ./ogdf
-RUN rm ogdf/CMakeCache.txt
-WORKDIR /src/ogdf
-RUN cmake .  && make -j8
+FROM ghcr.io/medkhabt/ogdf-build:latest AS ogdf-build 
 
 FROM base AS project-build
 WORKDIR /app
