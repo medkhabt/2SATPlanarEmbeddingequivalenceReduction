@@ -64,10 +64,10 @@ jobs:
           name: main_image
           path: ${{ runner.temp }}
 
-      - name: Load image
+      - name: Push to GHCR
         run: |
           docker load --input ${{ runner.temp }}/main_image.tar
-          docker image ls -a
-
-      - name: Push to GHCR.IO
-        run: echo "test $VERSION"
+          docker buildx imagetools create \
+            --tag  ghcr.io/medkhabt/planar-emb-from-two-sat/app:$VERSION \
+            --tag ghcr.io/medkhabt/planar-emb-from-two-sat/app:latest \
+            medkhabt/planar-emb-from-two-sat/app:$VERSION
