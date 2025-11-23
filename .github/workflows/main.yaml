@@ -32,7 +32,7 @@ jobs:
           with:
             context: .
             push: false
-            tags: medkhabt/planar-emb-from-two-sat/app:${{ steps.release_version.outputs.version }}
+            tags: medkhabt/planar-emb-from-two-sat:${{ steps.release_version.outputs.version }}
             outputs: type=docker,dest=${{ runner.temp }}/main_image.tar
           env:
             DOCKER_BUILD_RECORD_UPLOAD: false
@@ -58,6 +58,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download docker artifact PLANAR-EMB-FROM-TWO-SAT from the build step
         uses: actions/download-artifact@v5
         with:
@@ -67,7 +68,8 @@ jobs:
       - name: Push to GHCR
         run: |
           docker load --input ${{ runner.temp }}/main_image.tar
+          docker push 
           docker buildx imagetools create \
-            --tag  ghcr.io/medkhabt/planar-emb-from-two-sat/app:$VERSION \
-            --tag ghcr.io/medkhabt/planar-emb-from-two-sat/app:latest \
-            medkhabt/planar-emb-from-two-sat/app:$VERSION
+            --tag  ghcr.io/medkhabt/planar-emb-from-two-sat:$VERSION \
+            --tag ghcr.io/medkhabt/planar-emb-from-two-sat:latest \
+            medkhabt/planar-emb-from-two-sat:$VERSION
