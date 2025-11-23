@@ -59,7 +59,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Download docker artifact PLANAR-EMB-FROM-TWO-SAT from the build step
-        uses: actions/download-artificat@v5
+        uses: actions/download-artifact@v5
         with:
           name: main_image
           path: ${{ runner.temp }}
