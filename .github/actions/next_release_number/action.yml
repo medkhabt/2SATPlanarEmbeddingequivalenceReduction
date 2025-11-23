@@ -36,15 +36,15 @@ runs:
   - id: calc-version
     run: |
       . "${GITHUB_ACTION_PATH}/scripts/next_release.sh"
-      echo "::set-output name=version::$(echo $TBV_VERSION)"
-      echo "::set-output name=is-prerelease::$(echo $TBV_IS_PRERELEASE)"
-      echo "::set-output name=major-version::$(echo $TBV_MAJOR_VERSION)"
-      echo "::set-output name=minor-version::$(echo $TBV_MINOR_VERSION)"
-      echo "::set-output name=patch-version::$(echo $TBV_PATCH_VERSION)"
-      echo "::set-output name=commit-count::$(echo $TBV_COMMIT_COUNT)"
-      echo "::set-output name=commit-logs-path::$(echo $TBV_COMMIT_LOGS_PATH)"
-      echo "::set-output name=release-ref::$(echo $TBV_RELEASE_REF)"
-      echo "::set-output name=last-release-ref::$(echo $TBV_LAST_RELEASE_REF)"
+      echo "version=$TBV_VERSION" >> $GITHUB_OUTPUT
+      echo "is-prerelease=$TBV_IS_PRERELEASE" >> $GITHUB_OUTPUT
+      echo "major-version=$TBV_MAJOR_VERSION" >> $GITHUB_OUTPUT
+      echo "minor-version=$TBV_MINOR_VERSION" >> $GITHUB_OUTPUT
+      echo "patch-version=$TBV_PATCH_VERSION" >> $GITHUB_OUTPUT
+      echo "commit-count=$TBV_COMMIT_COUNT" >> $GITHUB_OUTPUT
+      echo "commit-logs-path=$TBV_COMMIT_LOGS_PATH" >> $GITHUB_OUTPUT
+      echo "release-ref=$TBV_RELEASE_REF" >> $GITHUB_OUTPUT
+      echo "last-release-ref=$TBV_LAST_RELEASE_REF" >> $GITHUB_OUTPUT
     shell: bash
 branding:
   icon: 'tag'
