@@ -33,8 +33,17 @@ jobs:
             context: .
             push: false
             tags: medkhabt/planar-emb-from-two-sat/app:${{ steps.release_version.outputs.version }}
+            outputs: type=docker,dest=${{ runner.temp }}/main_image.tar
           env:
-            DOCKER_BUILD_RECORD_RETENTION_DAYS: 1
+            DOCKER_BUILD_RECORD_UPLOAD: false
+
+        - name: Upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: main_image
+            path: ${{ runner.temp }}/main_image.tar
+            retention-days: 1
+
 
   push:
     runs-on: ubuntu-latest
@@ -49,5 +58,16 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download docker artifact PLANAR-EMB-FROM-TWO-SAT from the build step
+        uses: actions/download-artificat@v5
+        with:
+          name: main_image
+          path: ${{ runner.temp }}
+
+      - name: Load image
+        run: |
+          docker load --input ${{ runner.temp }}/main_image.tar
+          docker image ls -a
+
       - name: Push to GHCR.IO
         run: echo "test $VERSION"
