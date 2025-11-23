@@ -68,7 +68,6 @@ jobs:
       - name: Push to GHCR
         run: |
           docker load --input ${{ runner.temp }}/main_image.tar
-          docker push 
           docker buildx imagetools create \
             --tag  ghcr.io/medkhabt/planar-emb-from-two-sat:$VERSION \
             --tag ghcr.io/medkhabt/planar-emb-from-two-sat:latest \
