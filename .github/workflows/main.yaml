@@ -93,4 +93,4 @@ jobs:
       - name: Create a Release
         uses: ncipollo/release-action@v1
         with:
-          tag: $VERSION
+          tag: ${{ needs.build.outputs.version }}
