@@ -35,7 +35,7 @@ runs:
   steps:
   - id: calc-version
     run: |
-      . "${GITHUB_ACTION_PATH}/src/calc_version.sh"
+      . "${GITHUB_ACTION_PATH}/scripts/calc_version.sh"
       echo "::set-output name=version::$(echo $TBV_VERSION)"
       echo "::set-output name=is-prerelease::$(echo $TBV_IS_PRERELEASE)"
       echo "::set-output name=major-version::$(echo $TBV_MAJOR_VERSION)"
