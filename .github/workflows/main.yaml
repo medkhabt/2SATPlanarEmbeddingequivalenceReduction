@@ -11,7 +11,7 @@ jobs:
 
         - name: Fixing the release version
           id: release_version
-          uses: .github/actions/next_release_number
+          uses: .github/actions/next_release_number@main
 
         - run: "echo ${{ steps.release_version.outputs.version }}"
 
