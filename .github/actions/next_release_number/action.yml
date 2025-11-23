@@ -1,0 +1,51 @@
+name: 'Trunk Based Release Versioning'
+description: 'Release versioning based on the trunk based development branching model, Cloned from Fredrik Arvidsson action repository [https://github.com/actions-marketplace-validations/Fresa_trunk-based-release-versioning/blob/main/action.yml]'
+outputs:
+  version:
+    description: 'Release version in SemVer format'
+    value: ${{ steps.calc-version.outputs.version }}
+  major-version:
+    description: 'The major version'
+    value: ${{ steps.calc-version.outputs.major-version }}
+  minor-version:
+    description: 'The minor version'
+    value: ${{ steps.calc-version.outputs.minor-version }}
+  patch-version:
+    description: 'The patch version'
+    value: ${{ steps.calc-version.outputs.patch-version }}
+  is-prerelease:
+    description: 'Is this a prerelease?'
+    value: ${{ steps.calc-version.outputs.is-prerelease }}
+  commit-count:
+    description: 'Number of commits the release consists off'
+    value: ${{ steps.calc-version.outputs.commit-count }}
+  commit-logs-path:
+    description: >-
+      The path to the file containing the commit logs for the release.
+      The logs are formatted as yaml in the format of 'hash: %H%nmessage: | %n %s%n%n %b%n---'.
+    value: ${{ steps.calc-version.outputs.commit-logs-path }}
+  release-ref:
+    description: 'The commit SHA to the release'
+    value: ${{ steps.calc-version.outputs.release-ref }}
+  last-release-ref:
+    description: 'The commit SHA to the last release'
+    value: ${{ steps.calc-version.outputs.last-release-ref }}
+runs:
+  using: 'composite'
+  steps:
+  - id: calc-version
+    run: |
+      . "${GITHUB_ACTION_PATH}/src/calc_version.sh"
+      echo "::set-output name=version::$(echo $TBV_VERSION)"
+      echo "::set-output name=is-prerelease::$(echo $TBV_IS_PRERELEASE)"
+      echo "::set-output name=major-version::$(echo $TBV_MAJOR_VERSION)"
+      echo "::set-output name=minor-version::$(echo $TBV_MINOR_VERSION)"
+      echo "::set-output name=patch-version::$(echo $TBV_PATCH_VERSION)"
+      echo "::set-output name=commit-count::$(echo $TBV_COMMIT_COUNT)"
+      echo "::set-output name=commit-logs-path::$(echo $TBV_COMMIT_LOGS_PATH)"
+      echo "::set-output name=release-ref::$(echo $TBV_RELEASE_REF)"
+      echo "::set-output name=last-release-ref::$(echo $TBV_LAST_RELEASE_REF)"
+    shell: bash
+branding:
+  icon: 'tag'
+  color: 'orange'
