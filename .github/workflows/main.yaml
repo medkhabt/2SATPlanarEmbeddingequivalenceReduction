@@ -30,7 +30,7 @@ jobs:
         - name: Build Docker Image
           uses: docker/build-push-action@v6
           with:
-            context: .
+            context: Core
             push: false
             tags: medkhabt/planar-emb-from-two-sat:${{ steps.release_version.outputs.version }}
             outputs: type=docker,dest=${{ runner.temp }}/main_image.tar
