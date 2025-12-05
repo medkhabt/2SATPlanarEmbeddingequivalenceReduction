@@ -39,6 +39,12 @@ EXPOSE 8087
 
 WORKDIR /app/API
 
+RUN groupadd --system nonroot \
+    && useradd --system --create-home --gid nonroot nonroot
+RUN chown -R nonroot:nonroot /app
+
+USER nonroot
+
 CMD ["/api"]
 
 
