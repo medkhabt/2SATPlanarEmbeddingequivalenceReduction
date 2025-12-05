@@ -113,7 +113,6 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          passphrase: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
             docker image pull ghcr.io/$IMAGE_NAME:latest
             docker stop thesis-api 2>/dev/null || true
