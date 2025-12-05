@@ -108,11 +108,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: deploy
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
             docker image pull ghcr.io/$IMAGE_NAME:latest
             docker stop thesis-api 2>/dev/null || true
