@@ -116,6 +116,6 @@ jobs:
           script: |
             IMAGE_NAME="medkhabt/planar-emb-from-two-sat"
             docker image pull ghcr.io/$IMAGE_NAME:latest
-            docker stop thesis-api 2>/dev/null || true
-            docker rm thesis-api 2>/dev/null || true
+            docker stop api_thesis 2>/dev/null || true
+            docker rm api_thesis 2>/dev/null || true
             docker run --rm -d -p 8087:8087 --name api_thesis ghcr.io/$IMAGE_NAME:latest 
