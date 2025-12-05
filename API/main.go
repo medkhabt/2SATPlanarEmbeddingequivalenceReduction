@@ -16,7 +16,6 @@ func getEmbedding(w http.ResponseWriter, r *http.Request){
 		file, header, err := r.FormFile("file")
 		if err != nil {
 			http.Error(w, "missing file", http.StatusBadRequest)
-			log.Fatal(err)
 			return
 		}
 		defer file.Close()
