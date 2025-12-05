@@ -118,4 +118,4 @@ jobs:
             docker image pull ghcr.io/$IMAGE_NAME:latest
             docker stop thesis-api 2>/dev/null || true
             docker rm thesis-api 2>/dev/null || true
-            docker run --rm -p 8087:8087 --name api_thesis ghcr.io/$IMAGE_NAME:latest 
+            docker run --rm -d -p 8087:8087 --name api_thesis ghcr.io/$IMAGE_NAME:latest 
