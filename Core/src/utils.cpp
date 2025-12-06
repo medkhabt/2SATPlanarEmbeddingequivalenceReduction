@@ -127,7 +127,7 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
             }
         }
 
-        builder.drawLevelGraph(nums, 50, 150);
+        builder.drawLevelGraph(nums, 50, 100);
         for(size_t key = 0; key < eq.pairIdSize ; key++){
             free(nums[key]) ;
         }
@@ -135,7 +135,7 @@ bool testEmbedding(GraphBuilder& builder, equivalenceClasses& eq, std::string ti
         //ogdf::GraphIO::write(GA, "../graphs/inputs/svg/test.svg", ogdf::GraphIO::drawSVG);
 
     } else {
-        builder.drawLevelGraph(ordering, 50, 150);
+        builder.drawLevelGraph(ordering, 50, 100);
         for(size_t key = 0; key < eq.pairIdSize ; key++){
             free(ordering[key]) ;
         }
