@@ -42,8 +42,9 @@ WORKDIR /app/API
 RUN groupadd --system nonroot \
     && useradd --system --create-home --gid nonroot nonroot
 RUN chown -R nonroot:nonroot /app
+RUN mkdir -p /app/API/outputs
 
-USER nonroot
+
 
 CMD ["/api"]
 
