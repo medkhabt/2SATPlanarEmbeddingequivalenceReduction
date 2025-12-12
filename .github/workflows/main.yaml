@@ -120,4 +120,5 @@ jobs:
             docker image pull ghcr.io/$IMAGE_NAME:latest
             docker stop api_thesis 2>/dev/null || true
             docker rm api_thesis 2>/dev/null || true
-            docker run --rm -d -p 8087:8087 -m "$MEMORY_LIMIT" -v /var/www/medkha/pages/img/thesis:/app/API/outputs --name api_thesis ghcr.io/$IMAGE_NAME:latest
+            echo $MEMORY_LIMIT
+            docker run --rm -d -p 8087:8087 -m $MEMORY_LIMIT -v /var/www/medkha/pages/img/thesis:/app/API/outputs --name api_thesis ghcr.io/$IMAGE_NAME:latest
