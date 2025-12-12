@@ -51,7 +51,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    if: github.ref == 'refs/heads/main || github.ref == 'refs/heads/fix/22'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/22'
     env:
       VERSION: ${{ needs.build.outputs.version }}
     steps:
