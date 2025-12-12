@@ -116,9 +116,9 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            IMAGE_NAME="medkhabt/planar-emb-from-two-sat"
+            export IMAGE_NAME="medkhabt/planar-emb-from-two-sat"
+            export MEMORY_LIMIT=$MEMORY_LIMIT
             docker image pull ghcr.io/$IMAGE_NAME:latest
             docker stop api_thesis 2>/dev/null || true
             docker rm api_thesis 2>/dev/null || true
-            echo $MEMORY_LIMIT
             docker run --rm -d -p 8087:8087 -m $MEMORY_LIMIT -v /var/www/medkha/pages/img/thesis:/app/API/outputs --name api_thesis ghcr.io/$IMAGE_NAME:latest
